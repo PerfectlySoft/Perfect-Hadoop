@@ -515,15 +515,41 @@ class PerfectHadoopTests: XCTestCase {
       }
     }//end testAuthKerb
 
-  func testYarn() {
-    let op = "yarn"
+  func testYarnClusterInfo() {
+    let op = "cluster"
     let yarn = WebYarn()
     do {
-      let app = try yarn.appStatus(appId: "application_1479494861448_0003")
-      for (k,v) in app {
-        print(" \(k) -> \(v)")
-      }
-      XCTAssertNotNil(app["id"])
+      let info = try yarn.clusterInfo()
+      print(info.id)
+      print(info.startedOn)
+      print(info.state)
+      print(info.haState)
+      print(info.rmStateStoreName)
+      print(info.resourceManagerVersion)
+      print(info.resourceManagerBuildVersion)
+      print(info.resourceManagerVersionBuiltOn)
+      print(info.hadoopVersion)
+      print(info.hadoopBuildVersion)
+      print(info.hadoopVersionBuiltOn)
+      print(info.haZooKeeperConnectionState)
+      XCTAssertGreaterThan(info.id, 0)
+      XCTAssertGreaterThan(info.startedOn, 0)
+    }
+    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+      XCTFail("\(op): \(url)\n\(header)\n\(body)")
+    }
+    catch (let err){
+      XCTFail("\(op):\(err)")
+    }
+  }
+
+  func testYarnMetrics() {
+    let op = "metrics"
+    let yarn = WebYarn()
+    do {
+      let m = try yarn.metrics()
+      XCTAssertGreaterThan(m.activeNodes, 0)
+      XCTAssertGreaterThan(m.availableMB, 0)
     }
     catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
@@ -551,6 +577,8 @@ class PerfectHadoopTests: XCTestCase {
         ("testSnapshot", testSnapshot),
         //("testToken", testToken),
         ("testAuthKerb", testAuthKerb),
+        ("testYarnClusterInfo", testYarnClusterInfo),
+        ("testYarnMetrics", testYarnMetrics),
       ]
     }
 }

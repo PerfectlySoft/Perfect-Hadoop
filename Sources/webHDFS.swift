@@ -26,13 +26,13 @@ import Foundation
 public class WebHDFS {
 
   /// Web Protocol, may be http / https / hdfs or webhdfs
-  private var service: String = "http"
+  internal var service: String = "http"
 
   /// URL hostname or IP address
-  private var host: String = "localhost"
+  internal var host: String = "localhost"
 
   /// URL port to connect
-  private var port: Int = 9870
+  internal var port: Int = 9870
 
 
   /// Authentication Model of HDFS
@@ -55,23 +55,23 @@ public class WebHDFS {
   }// end Authentication
 
   /// Authentication of request
-  private var auth: Authentication = .off
+  internal var auth: Authentication = .off
 
   /// Proxy User, if applicable
-  private var proxyUser: String = ""
+  internal var proxyUser: String = ""
 
   /// Extra headers, such as X-XSRF-HEADER: "",
   /// for Cross-Site Request Forgery Prevention, if applicable
-  private var extraHeaders: [String] = []
+  internal var extraHeaders: [String] = []
 
   /// cURL agent, must be set for some of the system.
-  private let agent: String = "PerfectCURL"
+  internal let agent: String = "PerfectCURL"
 
   /// api base, depends on system
-  private var base: String = "/webhdfs/v1"
+  internal var base: String = "/webhdfs/v1"
 
   /// timeout in milliseconds. default zero means it will never timeout.
-  private var timeout: Int = 0
+  internal var timeout: Int = 0
 
   /// general exceptions
   public enum Exception: Error {
@@ -127,7 +127,7 @@ public class WebHDFS {
         self.setValue(value, forKey: key)
       }//next
     }//end constructor
-  }
+  }//end class
 
   /// common file status parsed from json
   public class HdfsFileStatus : JSONStruct {
