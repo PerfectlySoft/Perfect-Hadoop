@@ -559,6 +559,113 @@ class PerfectHadoopTests: XCTestCase {
     }
   }
 
+  func testYarnScheduler() {
+    let op = "scheduler"
+    let yarn = WebYarn()
+    do {
+      let inf = try yarn.scheduler()
+      let type = inf["type"] as? String
+      print(type!)
+      let len = type?.lengthOfBytes(using: String.Encoding.ascii)
+      XCTAssertGreaterThan(len!, 0)
+    }
+    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+      XCTFail("\(op): \(url)\n\(header)\n\(body)")
+    }
+    catch (let err){
+      XCTFail("\(op):\(err)")
+    }
+  }
+
+  func testYarnApps() {
+    let op = "app"
+    let yarn = WebYarn()
+    do {
+      let a = try yarn.apps()
+      print(a.count)
+      XCTAssertGreaterThan(a.count, -1)
+      for app in a {
+        print(app.name)
+        print(app.id)
+        print(app.priority)
+        print(app.progress)
+
+        let bpp = try yarn.getApp(id: app.id)
+        XCTAssertEqual(app.id, bpp.id)
+        XCTAssertEqual(app.name, bpp.name)
+        XCTAssertEqual(app.priority, bpp.priority)
+        XCTAssertEqual(app.progress, bpp.progress)
+
+        let attempts = try yarn.getAttempts(id: app.id)
+        for att in attempts {
+          XCTAssertGreaterThan(att.id, -1)
+          print(att.nodeId)
+          print(att.nodeHttpAddress)
+          print(att.startTime)
+          print(att.id)
+          print(att.logsLink)
+          print(att.containerId)
+        }
+      }
+    }
+    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+      XCTFail("\(op): \(url)\n\(header)\n\(body)")
+    }
+    catch (let err){
+      XCTFail("\(op):\(err)")
+    }
+  }
+
+  func testYarnAppSta() {
+    let op = "app statistics"
+    let yarn = WebYarn()
+    do {
+      let a = try yarn.appStatInfo()
+      print(a.count)
+      XCTAssertGreaterThan(a.count, -1)
+      for sta in a {
+        print(sta.state)
+        print(sta.type)
+        print(sta.count)
+      }
+    }
+    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+      XCTFail("\(op): \(url)\n\(header)\n\(body)")
+    }
+    catch (let err){
+      XCTFail("\(op):\(err)")
+    }
+  }
+
+  func testYarnNodes() {
+    let op = "Nodes"
+    let yarn = WebYarn()
+    do {
+      let nodes = try yarn.getNodes()
+      print(nodes.count)
+      XCTAssertGreaterThan(nodes.count, -1)
+      for n in nodes {
+        print(n.id)
+        print(n.healthStatus)
+        print(n.nodeHostName)
+        print(n.nodeHTTPAddress)
+
+        let m = try yarn.getNode(id: n.id)
+        XCTAssertEqual(m.id, n.id)
+        XCTAssertEqual(m.healthStatus, n.healthStatus)
+        XCTAssertEqual(m.nodeHostName, n.nodeHostName)
+        XCTAssertEqual(m.nodeHostName, n.nodeHostName)
+      }
+    }
+    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+      XCTFail("\(op): \(url)\n\(header)\n\(body)")
+    }
+    catch (let err){
+      XCTFail("\(op):\(err)")
+    }
+  }
+
+
     static var allTests : [(String, (PerfectHadoopTests) -> () throws -> Void)] {
       return [
         ("testGetFileStatus", testGetFileStatus),
@@ -579,6 +686,10 @@ class PerfectHadoopTests: XCTestCase {
         ("testAuthKerb", testAuthKerb),
         ("testYarnClusterInfo", testYarnClusterInfo),
         ("testYarnMetrics", testYarnMetrics),
+        ("testYarnScheduler", testYarnScheduler),
+        ("testYarnApps", testYarnApps),
+        ("testYarnAppSta", testYarnAppSta),
+        ("testYarnNodes", testYarnNodes),
       ]
     }
 }
