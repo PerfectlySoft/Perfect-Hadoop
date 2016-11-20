@@ -238,7 +238,7 @@ public class WebYarn: WebHDFS {
       throw Exception.unexpectedResponse(url: url, header: header, body: body)
     }//end guard
     guard let info = raw["app"] as? [[String:Any]] else {
-      throw Exception.unexpectedResponse(url: url, header: header, body: body)
+      return []
     }//end guard
     return info.map{ try! App(dictionary: $0) }
   }//end apps
