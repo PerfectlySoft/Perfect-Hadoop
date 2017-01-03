@@ -1,4 +1,4 @@
-# Perfect - WebHDFS Connector [English](README.md)
+# PerfectHadoop WebHDFS [English](README.md)
 
 <p align="center">
     <a href="http://perfect.org/get-involved.html" target="_blank">
@@ -58,13 +58,13 @@
 在您开始之前，请参阅[目前待解决的问题清单](http://jira.perfect.org:8080/projects/ISS/issues).
 
 ## 版本兼容性
-PerfectWebHDFS 目前支持 Hadoop 3.0.0，以及 2.7.3 的部分功能。
+PerfectHadoop 目前支持 Hadoop 3.0.0，以及 2.7.3 的部分功能。
 
 ## 编译
 请在您的 Package.swift 文件中增加以下内容
 
 ``` swift
-.Package(url:"https://github.com/PerfectlySoft/Perfect-WebHDFS.git", majorVersion: 2, minor: 0)
+.Package(url:"https://github.com/PerfectlySoft/Perfect-Hadoop.git", majorVersion: 1, minor: 0)
 ```
 
 ## 快速上手
@@ -73,47 +73,41 @@ PerfectWebHDFS 目前支持 Hadoop 3.0.0，以及 2.7.3 的部分功能。
 在使用 WebHDFS 类功能之前，请在您的源代码开头增加以下内容
 
 ``` swift
-import PerfectWebHDFS
+import PerfectHadoop
 ```
-
-### 认证模式
-Hadoop 服务器有若干种不同的认证模式用于验证用户身份。目前 WebHDFS 函数库支持以下三种模式的访问方法：
-
-``` swift
-
-  /// HDFS 用户身份验证模式
-  public enum Authentication {
-    
-    /// 默认为无身份验证模式 —— 甚至没有用户名
-    case off
-
-    /// 伪身份验证模式 - 只需要用户名
-    case byUser(name: String)
-    
-    /// Kerberos 验证模式 - 用户名用于执行权限操作，但请注意本函数库不负责身份验证，用户登录获取或注销凭证的过程需要客户通过 kinit / kdestroy 命令自行完成！
-    case byKerberos(name: String)
-  }// end Authentication
-```
-
-因此，在使用 WebHDFS 对象时，请务根据实际情况选择合适的模式。比如，如果要进行文件系统写操作，则必须使用 .byUser or .byKerberos 并传递一个用户名给函数库。默认情况下函数库不会给服务器发用户名，也不会进行身份验证协商。
  
 ### 连接到 Hadoop 集群
 
 如果希望通过 webhdfs 连接到 HDFS 集群，请初始化一个 WebHDFS 类对象并包含必要参数：
 
+``` swift
+// 以下连接方式只能提供基本操作功能，比如浏览
+let hdfs = WebHDFS(host: "hdfs.somedomain.com", port: 9870)
 ```
-let hdfs = WebHDFS(host: "hdfs.somedomain.com", port: 50070, auth: .byUser(name:"hdfsOperator"))
+或者增加有效的用户名：
+
+``` swift
+// add user name to do more operations such as modifiction of file or directory
+let hdfs = WebHDFS(host: "hdfs.somedomain.com", port: 9870, user: "username")
 ```
 
-#### WebHDFS() 参数说明
-- *service*: 协议字符串，比如 - http / https / webhdfs / hdfs
-- *host*: 主机名或 IP 地址
-- *port*: webhdfs 主机端口，默认为 9870
-- *auth*: 认证模式，默认是 `.off`
-- *proxyUser*: 代理用户，如果需要的话
-- *extraHeaders*: HTTP 额外的头数据。如果需要避免跨域名间接访问，可能需要设置这个内容（CSRF）。
-- *apibase*: 如果目标服务器用的不是标准 /webhdfs/v1/ 路径协议，则在此设置。
-- *timeout*: 超时设置。默认情况下所有WebHDFS操作都会阻塞当前进程，因此设置该参数允许秒级等待，一旦超时则解除阻塞立即返回。
+#### 身份认证
+如果目标 Hadoop 集群采用 Kerberos 认证机制，请增加以下参数：
+
+``` swift
+// set auth to kerberos
+let hdfs = WebHDFS(host: "hdfs.somedomain.com", port: 9870, user: "username", auth: .krb5)
+```
+
+#### WebHDFS 对象参数说明
+- `service`: 协议字符串，比如 - http / https / webhdfs / hdfs
+- `host`: 主机名或 IP 地址
+- `port`: webhdfs 主机端口，默认为 9870
+- `auth`: 认证模式，默认是 `.off`
+- `proxyUser`: 代理用户，如果需要的话
+- `extraHeaders`: HTTP 额外的头数据。如果需要避免跨域名间接访问，可能需要设置这个内容（CSRF）。
+- `apibase`: 如果目标服务器用的不是标准 /webhdfs/v1/ 路径协议，则在此设置。
+- `timeout`: 超时设置。默认情况下所有WebHDFS操作都会阻塞当前进程，因此设置该参数允许秒级等待，一旦超时则解除阻塞立即返回。
 
 ### 异常处理
 大部分WebHDFS操作中，如果出现异常，请参考下列代码进行错误分析。出现异常时，用户可以获得出错的url地址、返回的消息头和详细数据体：
@@ -141,54 +135,19 @@ print("用户根目录是： \(home)")
 ```
 
 ### 获取文件状态
-调用`getFileStatus()`方法可以返回一个如下结构的文件状态表：
+调用`getFileStatus()`方法可以返回一个`FileStatus`结构，该结构包含以下属性：
 
-``` swift
-/// 文件状态表
-  public class HdfsFileStatus : JSONStruct {
-    
-    /// 文件的后缀
-    var pathSuffix: String = ""
-    
-    /// 存储块尺寸，标准为 128MB，最小为 1MB
-    var blockSize: ULONG = 0
-    
-    /// 冗余存储节点数量
-    var replication: Int = 0
-    
-    /// 节点类型：目录还是文件
-    var type: String = ""
-    
-    /// 最近访问时间（unix时间戳)
-    var accessTime: ULONG = 0
-    
-    /// 子目录数量 - 只适用于目录
-    var childrenNum: Int = 0
-    
-    /// hdfs 存储安全规范
-    var storagePolicy: Int = 0
-    
-    /// 每个节点都有一个唯一的文件编码
-    var fileId: Int = 0
-    
-    /// 节点宿主
-    var owner: String = ""
-    
-    /// 最近修改时间（unix时间戳）
-    var modificationTime: ULONG = 0
-    
-    /// 节点用户群组信息
-    var group: String = ""
-    
-    /// 节点权限，标准的unix权限格式： (u)rwx (g)rwx (o)rwx
-    var permission: Int = 0
-    
-    /// 文件长度
-    var length: ULONG = 0
-    
-  }//end struct
-  
-```
+#### `FileStatus` 数据结构
+- `accessTime`: Int, 最近访问时间（unix时间戳)
+- `pathSuffix`: String, 文件名的后缀（类型）
+- `replication`: Int, 冗余存储节点数量
+- `type`: String, 节点类型：目录还是文件
+- `blockSize`: Int, 存储块尺寸，标准为 128MB，最小为 1MB
+- `owner`: String, 节点宿主用户名
+- `modificationTime`: Int, 最近修改时间（unix时间戳）
+- `group`: String, 节点用户群组信息
+- `permission`: Int, 节点权限，标准的unix权限格式： (u)rwx (g)rwx (o)rwx
+- `length`:Int, 文件长度
 
 以下代码演示了如何获取文件状态`getFileStatus()`：
 
@@ -200,7 +159,7 @@ if fs.length > 0 {
 ```
 
 ### 文件列表
-函数 `listStatus()` 用于列出目录下所有文件及其属性：
+函数 `listStatus()` 会返回一个`[FileStatus]`数组，用于列出目录下所有文件及其属性：
 
 ``` Swift
 let list = try hdfs.listStatus(path: "/")
@@ -217,49 +176,46 @@ for file in list {
 
 ``` swift
 let res = try hdfs.mkdir(path: "/demo", permission: 754)
-// 如果成功则结果为真
-print(res)
 ```
 
 ### 目录统计
-PerfectHDFS 提供目录统计功能 `getDirectoryContentSummary()`，展开后的统计项明细如下：
+WebHDFS 提供目录统计功能 `getDirectoryContentSummary()`，展开后的统计项明细如下：
 
-``` swift 
-public class DirectoryContentSummary : JSONStruct {
-    
-    // 子目录数量
-    var directoryCount: Int = 0
-    
-    // 文件总数
-    var fileCount: Int = 0
-    
-    // 长度
-    var length: ULONG = 0
-    
-    // 节点限额
-    var quota: Int  = -1
-    
-    // 已占用文件块数量
-    var spaceConsumed: ULONG = 0
-    
-    // 文件块限额
-    var spaceQuota: Int = -1
-    
-    // 其他限额
-    var typeQuota: [String:[String:Any]] = [:]
-  }//end class
- ```
+#### `ContentSummary` 结构属性
+- `directoryCount`: Int, 子目录数量
+- `fileCount`: Int, 文件数量
+- `length`: Int, 节点长度
+- `quota`: Int, 节点限额
+- `spaceConsumed`: Int, 节点当前占用的空间
+- `spaceQuota`: Int, 节点空间限额
+- `typeQuota`: 三个`Quota`（用量与限额）结构，每个结构都包含两个整型字段： `consumed`（已用） and `quota`（限额）:
+  - `ARCHIVE`: Quota, 归档文件用量与限额信息
+  - `DISK`: Quota, 存储在磁盘上的用量和限额信息
+  - `SSD`: Quota, 存储在固态硬盘上的用量和限额信息
 
-调用 `getDirectoryContentSummary()` 时请输入路径信息，举例如下：
+请调用 `getDirectoryContentSummary()` 方法获取有关文件（目录）的上述详细信息，参考以下代码：
 
 ``` swift
 let sum = try hdfs.getDirectoryContentSummary(path: "/")
 print(sum.length)
 print(sum.spaceConsumed)
+print(sum.typeQuota.SSD.consumed)
+print(sum.typeQuota.SSD.quota)
+print(sum.typeQuota.DISK.consumed)
+print(sum.typeQuota.DISK.quota)
+print(sum.typeQuota.ARCHIVE.consumed)
+print(sum.typeQuota.ARCHIVE.quota)
 ...
 ```
-
 ### 文件校验
+
+文件校验`getFileCheckSum()`方法提供目标文件的校验信息`FileCheckSum`结构，该结构包含以下三个属性：
+
+#### `FileChecksum` 结构属性
+- `algorithm`: String, 当前校验的累加和算法
+- `bytes`: String, 累加和字符串
+- `length`: Int, 累加和长度
+
 参考下面的程序检查文件的完整性：
 
 ``` swift
@@ -273,48 +229,40 @@ print(checksum.length)
 ```
 
 ### 删除文件或目录
-下面的程序展示了如何使用`delete()`函数删除目录或文件:
+下面的程序展示了如何使用`delete()`函数删除目录或文件。如果要删除目录，还可以设置其中的`recursive`属性用于递归删除（即删除所有子目录）
 
 ``` swift
 // 删除文件
-let _ = try hdfs.delete(path "/demo/boo.txt")
+try hdfs.delete(path "/demo/boo.txt")
 
-// 删除目录
-let res = try hdfs.delete(path:"/demo")
-guard res == true else {
-	// 如果res不等于逻辑真值，则出错
-	...
-}
+// 删除目录及所有子目录
+try hdfs.delete(path:"/demo", recursive: true)
 ```
 
 ### 上传文件
 上传文件请调用 `create()` 方法，需要至少包括本地文件名和远程的目标目录名称，比如：
 
 ``` swift
-let res = hdfs.create(path: "/目标目录", localFile: "/tmp/本地文件.txt")
-/// 如果成功则返回为真
-print(res)
+try hdfs.create(path: "/目标目录", localFile: "/tmp/本地文件.txt")
 ```
 考虑到上传文件是一个耗时的操作，请自行结合超时设置和线程进行上传操作。
 
 #### 参数
 方法`create()`的参数包括：
 
-- path: 远程文件的完整路径
-- localFile: 本地文件的完整路径
-- overwrite: 如果远程文件已存在，是否覆盖
-- permission: unix风格文件属性 (u)rwx (g)rwx (o)rwx。默认为755 —— rwxr-xr-x
-- blocksize: 每个文件块的尺寸。缺省为 128M，最小值为 1M
-- replication: 冗余备份的节点数量。忽略该参数系统将按照 hdfs 默认值进行设置
-- buffersize: 传输文件时的缓冲区大小。忽略该参数系统将按照 hdfs 默认值进行设置
+- `path`:String, 远程文件的完整路径
+- `localFile`:String, 本地文件的完整路径
+- `overwrite`:Bool, 如果远程文件已存在，是否覆盖
+- `permission`: unix风格文件属性 (u)rwx (g)rwx (o)rwx。默认为755 —— rwxr-xr-x
+- `blocksize`:Int, 每个文件块的尺寸。缺省为 128M，最小值为 1M
+- `replication`:Int, 冗余备份的节点数量。忽略该参数系统将按照 hdfs 默认值进行设置
+- `buffersize`: 传输文件时的缓冲区大小。忽略该参数系统将按照 hdfs 默认值进行设置
 
 ### 符号链接
 同Unix系统一样，HDFS 提供一个方法叫做`createSymLink`，用于为目录或者文件创建一个符号链接：
 
 ``` swift
 let res = try hdfs.createSymLink(path: "/book/真文件.txt", destination:"/我的/最近的项目/链接.lnk", createParent: true)
-// 如果成功则返回真
-print(res)
 ```
 请⚠️注意⚠️其中有一个参数叫做`createParent`，意思是在创建过程中如果没有响应的路径，则系统会自动把对应路径一并创建。
 
@@ -330,28 +278,26 @@ print(bytes.count)
 因为下载文件通常是一个耗时的操作，请考虑采用多线程异步的方式进行调用。在处理大文件下载时，您还可以针对同一个文件多次调用 `openFile()`方法，实现大文件分段下载。这种方式可以保证在某个文件片段除错后可以进行二次下载，确保文件整体下载内容无误。
 
 #### Parameters
-- path: 远程文件完整路径
-- offset: 读取文件的起始位置偏移量
-- length: 希望读取的字节数
-- buffersize: 传输用的缓冲区大小
+- `path`:String, 远程文件完整路径
+- `offset`:Int, 读取文件的起始位置偏移量
+- `length`:Int, 希望读取的字节数
+- `buffersize`:Int, 传输用的缓冲区大小
 
 ### 文件追加
 文件追加的操作与创建差不多，但不是覆盖，而是将本地文件上传后追加到原文件结尾：
 
 ``` swift
-let res = try hdfs.append(path: "/远程文件", localFile: "/tmp/本地文件.txt")
-// 如果成功则返回真
+try hdfs.append(path: "/远程文件", localFile: "/tmp/本地文件.txt")
 ```
 #### Parameters
-- path: 远程文件完整路径
-- localFile: 本地文件：待上传的本地文件
-- buffersize: 文件传输用缓冲区大小
+- - `path`:String, 远程文件完整路径
+- `localFile`:String, 本地文件：待上传的本地文件
+- `buffersize`:Int, 文件传输用缓冲区大小
 ### 文件合并
 HDFS 允许用户将多个文件合并到一起：
 
 ``` swift
-let res = try hdfs.concat(path:"/tmp/1.txt", sources:["/tmp/2.txt", "/tmp/3.txt"])
-// 如果成功则返回真
+try hdfs.concat(path:"/tmp/1.txt", sources:["/tmp/2.txt", "/tmp/3.txt"])
 ```
 
 上面的例子里，文件 2.txt 和 3.txt 会按顺序追加到 1.txt 之后。
@@ -360,8 +306,7 @@ let res = try hdfs.concat(path:"/tmp/1.txt", sources:["/tmp/2.txt", "/tmp/3.txt"
 HDFS 文件可以通过下列函数进行截短：
 
 ``` swift
-let res = try hdfs.truncate(path: "/书刊/西游记.txt", newlength: 1024)
-// 如果成功则返回真
+try hdfs.truncate(path: "/书刊/西游记.txt", newlength: 1024)
 ```
 如果操作成功，则文件的新长度只剩下 1K。
 
@@ -370,27 +315,21 @@ let res = try hdfs.truncate(path: "/书刊/西游记.txt", newlength: 1024)
 HDFS 文件权限的设置方法是`setPermission()`. 以下例子将目录“/demo”的权限设置为了 754， 也就是754（ rwxr-xr-- ，也就是用户可以读写执行、组用户可读可执行、其他用户只读）：
 
 ``` swift
-let res = try hdfs.setPermission(path: "/demo", permission: 754)
-// 如果成功则返回真
-print(res)
+try hdfs.setPermission(path: "/demo", permission: 754)
 ```
 
 ### 设置宿主用户
 `setOwner()` 用于将文件宿主设置为其他用户：
 
 ``` swift
-let res = try hdfs.setOwner(path: "/书刊/小鸡快跑.html", name:"新读者", group: "新群组")
-// 如果成功返回真
-print(res)
+try hdfs.setOwner(path: "/书刊/小鸡快跑.html", name:"新读者", group: "新群组")
 ```
 
 ### 设置冗余备份数量
 HDFS 文件系统允许为每个文件设置一个以上的冗余备份。请使用函数`setReplication()`实现该工作：
 
 ``` swift
-let res = try hdfs.setReplication(path: "/书刊/侠客行.txt", factor: 2)
-// 如果设置成功，res会变成逻辑真值，而《侠客行》会有两个冗余备份
-print(res)
+try hdfs.setReplication(path: "/书刊/侠客行.txt", factor: 2)
 ```
 
 ### 设置访问时间和修改时间
@@ -399,9 +338,7 @@ HDFS 允许改变文件的最后访问时间或最近修改时间，格式为uni
 ``` swift
 // 取得当前 unix 时间戳
 let now = time(nil)
-let res = try hdfs.setTime(path: "/tmp/某个文件.txt", modification: now, access: now)
-// 如果返回为真则文件的最近访问时间和最近修改时间都会被设置为当前时间
-print(res)
+try hdfs.setTime(path: "/tmp/某个文件.txt", modification: now, access: now)
 ```
 
 ### 访问控制列表
@@ -414,21 +351,11 @@ HDFS 文件系统访问控制列表可以通过以下函数进行修改：
 
 `getACL()` 方法会返回一个 `AclStatus`结构，内容如下：
 
-``` swift 
-  /// ACL status class
-  public class AclStatus: JSONStruct {
-    // ACL 清单
-    var entries: [String] = []
-    // 所在组信息
-    var group: String = ""
-    // 所在用户信息
-    var owner: String = ""
-    // 权限
-    var permission: Int = 775
-    // 标记
-    var stickyBit: Bool = false
-  }//end class
-```
+- `entries`: [String], ACL 清单
+- `owner`: String, 宿主用户信息
+- `group`: String, 所在用户群信息
+- `permission`: Int, unix 样式权限
+- `stickyBit`: Bool, 标记位。如果sticky位设置，则为真
 
 以下程序展示了如何进行访问控制列表操作：
 
@@ -444,26 +371,26 @@ do {
 	print("访问权限：\(acl.permission)")
 	print("标记：\(acl.stickyBit)")
 
-	var res = try hdfs.setACL(path: remoteFile, specification: "user::rw-,user:hadoop:rw-,group::r--,other::r--")
+	try hdfs.setACL(path: remoteFile, specification: "user::rw-,user:hadoop:rw-,group::r--,other::r--")
       
-	print("设置结果：\(res)")
-      
-	res = try hdfs.modifyACL(path: remoteFile, entries: "user::rwx,user:hadoop:rwx,group::rwx,other::---")
+	try hdfs.modifyACL(path: remoteFile, entries: "user::rwx,user:hadoop:rwx,group::rwx,other::---")
    
-	print("修改结果：\(res)")
-      
-	let _ = try hdfs.removeACL(path: remoteFile, defaultACL: false)
-	let _ = try hdfs.removeACL(path: remoteFile)
-	let _ = try hdfs.removeACL(path: remoteFile, entries: "", defaultACL: false)
+   try hdfs.removeACL(path: remoteFile, defaultACL: false)
+	try hdfs.removeACL(path: remoteFile)
+	try hdfs.removeACL(path: remoteFile, entries: "", defaultACL: false)
 ```
 
 ### 检查命令权限
 函数`checkAccess()`用于检验当前用户是否具备某个命令的执行权限：
 
 ``` swift
-let res = try hdfs.checkAccess(path: "/", fsaction: "mkdir")
-// 如果返回为真，则表明当前用户有权在根目录下建立新目录
-print(res)
+let b = try hdfs.checkAccess(path: "/", fsaction: "mkdir")
+// true value means user can perform mkdir() on the root folder
+if b {
+	print("mkdir: 授权操作")
+} else {
+	print("mkdir: 未授权操作")
+}
 ```
 
 ### 扩展属性
@@ -488,21 +415,18 @@ public enum XAttrFlag:String {
 ``` swift
 let remoteFile = "/book/a.txt"
 
-var res = try hdfs.setXAttr(path: remoteFile, name: "user.color", value: "red")
-// 如果返回真，则文件将增加新属性'user.color'，值为红色
-print(res)
+try hdfs.setXAttr(path: remoteFile, name: "user.color", value: "red")
+// 如果成功，则文件将增加新属性'user.color'，值为红色
 
-res = try hdfs.setXAttr(path: remoteFile, name: "user.size", value: "small")
-// 如果返回为真，则文件将增加新属性'user.size'，值为小
+try hdfs.setXAttr(path: remoteFile, name: "user.size", value: "small")
+// 如果成功，则文件将增加新属性'user.size'，值为小
 print(res)
       
-res = try hdfs.setXAttr(path: remoteFile, name: "user.build", value: "2016")
-// 如果返回为真，则文件将增加新属性'user.build'，值为2016
-print(res)
+try hdfs.setXAttr(path: remoteFile, name: "user.build", value: "2016")
+// 如果成功，则文件将增加新属性'user.build'，值为2016
 
-res = try hdfs.setXAttr(path: remoteFile, name: "user.build", value: "2017", flag:.REPLACE)
+try hdfs.setXAttr(path: remoteFile, name: "user.build", value: "2017", flag:.REPLACE)
 // 注意参数标识flag，这里用了REPLACE，意味着扩展属性user.build的值将被替换为2017
-print(res)
       
 // 打印所有的扩展属性
 let list = try hdfs.listXAttr(path: remoteFile)
@@ -519,18 +443,13 @@ a.forEach{
 	print("\(x.name) => \(x.value)")
 }//next
 
-res = try hdfs.removeXAttr(path: remoteFile, name: "user.size")
-// 如果为真，则属性中的user.size 将被删除
-print(res)
+try hdfs.removeXAttr(path: remoteFile, name: "user.size")
+// 如果成功，则属性中的user.size 将被删除
 
 ```
 
 ### 快照
-HDFS 提供目录快照功能，如`createSnapshot()`、`renameSnapshot()` 和 `deleteSnapshot`。快照操作不同于上述操作，需要管理员授权才能执行。比如，如果希望设置 "/mydata"目录下实现快照功能，必须由管理员在主机上进行操作:
-
-``` bash
-hdfs dfsadmin -allowSnapshot /mydata
-```
+HDFS 提供目录快照功能，如`createSnapshot()`、`renameSnapshot()` 和 `deleteSnapshot`。
 
 - `CreateSnapshot()`
 
@@ -548,9 +467,8 @@ print(shortname)
 快照重命名：
 
 ``` swift
-let res = try hdfs.renameSnapshot(path: "/mydata", from: shortname, to: "snapshotNewName")
-// 如果为真则快照名称被改变为snapshotNewName
-print(res)
+try hdfs.renameSnapshot(path: "/mydata", from: shortname, to: "snapshotNewName")
+// 如果成功则快照名称被改变为snapshotNewName
 ```
 
 - `deleteSnapshot()`

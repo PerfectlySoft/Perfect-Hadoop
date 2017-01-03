@@ -2,8 +2,8 @@
 //  Package.swift
 //  PerfectHadoop
 //
-//  Created by Rockford Wei on 2016-11-18.
-//	Copyright (C) 2015 PerfectlySoft, Inc.
+//  Created by Rockford Wei on 2016-12-20.
+//	Copyright (C) 2016 PerfectlySoft, Inc.
 //
 //===----------------------------------------------------------------------===//
 //
@@ -21,7 +21,6 @@ import PackageDescription
 
 let package = Package(
     name: "PerfectHadoop",
-    targets: [],
     dependencies: [
     .Package(url: "https://github.com/PerfectlySoft/Perfect.git", majorVersion: 2, minor: 0),
     .Package(url: "https://github.com/PerfectlySoft/Perfect-CURL.git", majorVersion: 2, minor: 0)
