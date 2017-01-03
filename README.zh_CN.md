@@ -175,7 +175,7 @@ for file in list {
 基本 HDFS 目录操作包括`mkdir()` 和 `delete()`。为了创建一个名为"/demo"的目录，并设置其初始权限为 754（ rwxr-xr-- ，也就是用户可以读写执行、组用户可读可执行、其他用户只读），请参考以下代码:
 
 ``` swift
-let res = try hdfs.mkdir(path: "/demo", permission: 754)
+try hdfs.mkdir(path: "/demo", permission: 754)
 ```
 
 ### 目录统计
@@ -262,7 +262,7 @@ try hdfs.create(path: "/目标目录", localFile: "/tmp/本地文件.txt")
 同Unix系统一样，HDFS 提供一个方法叫做`createSymLink`，用于为目录或者文件创建一个符号链接：
 
 ``` swift
-let res = try hdfs.createSymLink(path: "/book/真文件.txt", destination:"/我的/最近的项目/链接.lnk", createParent: true)
+try hdfs.createSymLink(path: "/book/真文件.txt", destination:"/我的/最近的项目/链接.lnk", createParent: true)
 ```
 请⚠️注意⚠️其中有一个参数叫做`createParent`，意思是在创建过程中如果没有响应的路径，则系统会自动把对应路径一并创建。
 
@@ -420,7 +420,6 @@ try hdfs.setXAttr(path: remoteFile, name: "user.color", value: "red")
 
 try hdfs.setXAttr(path: remoteFile, name: "user.size", value: "small")
 // 如果成功，则文件将增加新属性'user.size'，值为小
-print(res)
       
 try hdfs.setXAttr(path: remoteFile, name: "user.build", value: "2016")
 // 如果成功，则文件将增加新属性'user.build'，值为2016
@@ -476,9 +475,8 @@ try hdfs.renameSnapshot(path: "/mydata", from: shortname, to: "snapshotNewName")
 用 `deleteSnapshot()` 删除快照：
 
 ``` swift
-let res = try hdfs.deleteSnapshot(path: dir, name: shortname)
-// 如果返回为真，则表示快照被删除
-print(res)
+try hdfs.deleteSnapshot(path: dir, name: shortname)
+// 如果成功，则表示快照被删除
 ```
 
 

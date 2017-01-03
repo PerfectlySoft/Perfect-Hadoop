@@ -214,7 +214,7 @@ Checksum method `getFileCheckSum()` helps user check integrity of file by three 
 
 #### Property of `FileChecksum` Structure
 - `algorithm`: String, algorithm information of this checksum
-- `bytes`: String, chechsum string result
+- `bytes`: String, checksum string result
 - `length`: Int, length of the string
 
 Here is an example of checksum:
@@ -231,7 +231,7 @@ print(checksum.length)
 ```
 
 ### Delete
-To delete a directory or a file, simply call `delete()`. If the object to remove is a directory, users can also apply another parameter of `recursive`. If set to ture, the directory will be removed with all sub folders.
+To delete a directory or a file, simply call `delete()`. If the object to remove is a directory, users can also apply another parameter of `recursive`. If set to true, the directory will be removed with all sub folders.
 
 ``` swift
 // remove a file
@@ -277,7 +277,7 @@ print(bytes.count)
 ```
 In this example, the content of "bedtimestory.txt" will be save to an binary byte array called `bytes` 
 
-Considering it is a time consuming operation, please consider to call this function in a threading way practically. In this case, please also consider to call `openFile()` for serveral times to get the downlowing process, as indicated by the parameters below, which means you can download the file by pieces, and if something wrong, you can also re-download the failure parts:
+Considering it is a time consuming operation, please consider to call this function in a threading way practically. In this case, please also consider to call `openFile()` for serveral times to get the downloading process, as indicated by the parameters below, which means you can download the file by pieces, and if something wrong, you can also re-download the failure parts:
 
 #### Parameters
 - `path`:String, full path of the remote file / directory.
@@ -446,9 +446,8 @@ a.forEach{
 	print("\(x.name) => \(x.value)")
 }//next
 
-res = try hdfs.removeXAttr(path: remoteFile, name: "user.size")
-// if true, the attribute of user.size will be removed
-print(res)
+try hdfs.removeXAttr(path: remoteFile, name: "user.size")
+// if success, the attribute of user.size will be removed
 
 ```
 
@@ -457,7 +456,7 @@ HDFS provides snapshots functions for directories.
 
 - `CreateSnapshot()`
 
-If success, function `createSnapshot()` will return a turple `(longname, shortname)`. The long name is the full path of the snapshot, and the short name is the snapshot's own name. Check the codes below:
+If success, function `createSnapshot()` will return a tuple `(longname, shortname)`. The long name is the full path of the snapshot, and the short name is the snapshot's own name. Check the codes below:
 
 ```swift
 let (fullpath, shortname) = try hdfs.createSnapshot(path: "/mydata")
