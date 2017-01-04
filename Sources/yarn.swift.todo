@@ -20,7 +20,6 @@
 import cURL
 import PerfectCURL
 import PerfectLib
-import Foundation
 
 public class WebYarn: WebHDFS {
 
