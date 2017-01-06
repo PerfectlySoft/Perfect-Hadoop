@@ -19,21 +19,41 @@
 
 import PerfectLib
 
+/// The node information resource provides overall information about that particular node.
 public struct NodeInfo{
+
+  /// Hadoop common build string with build version, user, and checksum
   var hadoopBuildVersion = ""
+  /// Version of hadoop common
   var hadoopVersion = ""
+  /// Timestamp when hadoop common was built(in ms since epoch)
   var hadoopVersionBuiltOn = ""
+  /// The diagnostic health report of the node
   var healthReport = ""
+  /// The NodeManager id
   var id = ""
+  /// The last timestamp at which the health report was received (in ms since epoch)
   var lastNodeUpdateTime = 0
+  /// true/false indicator of if the node is healthy
   var nodeHealthy = false
+  /// The host name of the NodeManager
   var nodeHostName = ""
+  /// NodeManager build string with build version, user, and checksum
   var nodeManagerBuildVersion = ""
+  /// Version of the NodeManager
   var nodeManagerVersion = ""
+  /// Timestamp when NodeManager was built(in ms since epoch)
   var nodeManagerVersionBuiltOn = ""
+  /// The amount of physical memory allocated for use by containers in MB
   var totalPmemAllocatedContainersMB = 0
+  /// The number of virtual cores allocated for use by containers
   var totalVCoresAllocatedContainers = 0
+  /// The amount of virtual memory allocated for use by containers in MB
   var totalVmemAllocatedContainersMB = 0
+
+  /// constructor
+  /// - parameters:
+  ///   - dictionary: [String:Any], a dictionary decoded from a json string
   public init(_ dictionary: [String:Any] = [:]) {
     self.hadoopBuildVersion = dictionary["hadoopBuildVersion"] as? String ?? ""
     self.hadoopVersion = dictionary["hadoopVersion"] as? String ?? ""
@@ -53,6 +73,7 @@ public struct NodeInfo{
 }//Nodeinfo
 
 extension String {
+  /// nicely convert a json string directly into a NodeInfo structure
   public var asNodeInfo: NodeInfo? {
     get{
       do{
@@ -65,15 +86,42 @@ extension String {
   }//end member
 }//end extension
 
+/// A container resource contains information about a particular container that is running on this NodeManager.
 public struct Container{
+
+  /// valid states
+  enum State :String {
+    case NEW = "NEW"
+    case LOCALIZING = "LOCALIZING"
+    case LOCALIZATION_FAILED = "LOCALIZATION_FAILED"
+    case LOCALIZED = "LOCALIZED"
+    case RUNNING = "RUNNING"
+    case EXITED_WITH_SUCCESS = "EXITED_WITH_SUCCESS"
+    case EXITED_WITH_FAILURE = "EXITED_WITH_FAILURE"
+    case KILLING = "KILLING"
+    case CONTAINER_CLEANEDUP_AFTER_KILL = "CONTAINER_CLEANEDUP_AFTER_KILL"
+    case CONTAINER_RESOURCES_CLEANINGUP = "CONTAINER_RESOURCES_CLEANINGUP"
+    case DONE = "DONE"
+    case UNKNOWN = ""
+  }//end enum
+
+  /// The http link to the container logs
   var containerLogsLink = ""
+  /// A diagnostic message for failed containers
   var diagnostics = ""
+  /// Exit code of the container
   var exitCode = 0
+  /// The container id
   var id = ""
+  /// The id of the node the container is on
   var nodeId = ""
-  var state = ""
+  /// State of the container
+  var state: State = .UNKNOWN
+  /// Total amout of memory needed by the container (in MB)
   var totalMemoryNeededMB = 0
+  /// Total number of virtual cores needed by the container
   var totalVCoresNeeded = 0
+  /// The user name of the user which started the container
   var user = ""
   public init(_ dictionary: [String:Any] = [:]) {
     self.containerLogsLink = dictionary["containerLogsLink"] as? String ?? ""
@@ -81,7 +129,7 @@ public struct Container{
     self.exitCode = dictionary["exitCode"] as? Int ?? 0
     self.id = dictionary["id"] as? String ?? ""
     self.nodeId = dictionary["nodeId"] as? String ?? ""
-    self.state = dictionary["state"] as? String ?? ""
+    self.state = State(rawValue: dictionary["state"] as? String ?? "") ?? .UNKNOWN
     self.totalMemoryNeededMB = dictionary["totalMemoryNeededMB"] as? Int ?? 0
     self.totalVCoresNeeded = dictionary["totalVCoresNeeded"] as? Int ?? 0
     self.user = dictionary["user"] as? String ?? ""
@@ -89,6 +137,7 @@ public struct Container{
 }//Container
 
 extension String {
+  /// nicely convert a json string directly into a Container structure
   public var asContainer: Container? {
     get{
       do{
@@ -100,6 +149,7 @@ extension String {
     }//end get
   }//end member
   
+  /// nicely convert a json string directly into an array of Containers
   public var asContainers: [Container] {
     get{
       do{
@@ -113,7 +163,8 @@ extension String {
   }//end member
 }//end extension
 
-public class YARNNode: WebHDFS {
+/// The NodeManager allow the user to get status on the node and information about applications and containers running on that node.
+public class YARNNodeManager: WebHDFS {
 
   /// constructor of YARNNode
   /// - parameters:

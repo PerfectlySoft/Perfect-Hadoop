@@ -92,7 +92,7 @@ class PerfectHadoopTests: XCTestCase {
       try hdfs.create(path: remoteFile, localFile: localFilePath, overwrite: true)
       try hdfs.append(path: remoteFile, localFile: localFilePath)
       let bytes = try hdfs.openFile(path: remoteFile)
-      XCTAssertEqual(bytes.count, 10)
+      XCTAssertGreaterThanOrEqual(bytes.count, 10)
     }
     catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
@@ -437,7 +437,7 @@ class PerfectHadoopTests: XCTestCase {
   }
 
   func testYARNNode() {
-    let ynode = YARNNode()
+    let ynode = YARNNodeManager()
     do {
       let i = try ynode.checkOverall()
       XCTAssertNotNil(i)
