@@ -198,28 +198,53 @@ public class YARNNodeManager: WebHDFS {
     return "\(service)://\(host):\(port)\(base)\(path)"
   }//end assembleURL
 
+  /// Check the node information resource provides overall information about that particular node.
+  /// - returns:
+  /// NodeInfo structure, See NodeInfo.
+  /// - throws:
+  /// WebHDFS.Exceptions
   public func checkOverall() throws -> NodeInfo? {
     let (_, dat, _) = try self.perform()
     return dat.asNodeInfo
   }//end func
 
+  /// With the Applications API, you can obtain a collection of resources, each of which represents an application. When you run a GET operation on this resource, you obtain a collection of Application Objects.
+  /// - returns:
+  /// An array of APP structure. See APP.
+  /// - throws:
+  /// WebHDFS.Exceptions
   public func checkApps() throws -> [APP] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps"))
     return dat.asApps
   }//end func
 
+  /// An application resource contains information about a particular application that was run or is running on this NodeManager.
+  /// - returns:
+  /// An APP struct. See APP.
+  /// - throws:
+  /// WebHDFS.Exceptions
   public func checkApp(id: String) throws -> APP? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)"))
     return dat.asApp
   }//end func
 
+  /// When you make a request for the list of containers, the information will be returned as collection of container objects.
+  /// - returns:
+  /// An array of Container. See Container.
+  /// - throws:
+  /// WebHDFS.Exceptions
   public func checkContainers() throws -> [Container] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/containers"))
     return dat.asContainers
   }//end func
 
+  /// A container resource contains information about a particular container that is running on this NodeManager.
+  /// - returns:
+  /// Container data structure. See Container.
+  /// - throws:
+  /// WebHDFS.Exceptions
   public func checkContainer(id: String) throws -> Container? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/containers/\(id)"))
     return dat.asContainer
-  }
+  }//end func
 }//end class
