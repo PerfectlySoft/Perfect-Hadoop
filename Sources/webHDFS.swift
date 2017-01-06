@@ -25,16 +25,16 @@ import PerfectLib
 public class WebHDFS {
 
   /// Web Protocol, may be http / https / hdfs or webhdfs
-  private var service: String = "http"
+  internal var service: String = "http"
 
   /// URL hostname or IP address
-  private var host: String = "localhost"
+  internal var host: String = "localhost"
 
   /// URL port to connect
-  private var port: Int = 9870
+  internal var port: Int = 9870
 
   /// User Name - not required by default.
-  private var user: String = ""
+  internal var user: String = ""
 
   /// Authentication Model of HDFS
   public enum Authentication {
@@ -47,23 +47,23 @@ public class WebHDFS {
   }// end Authentication
 
   /// Authentication of request
-  private var auth: Authentication = .off
+  internal var auth: Authentication = .off
 
   /// Proxy User, if applicable
-  private var proxyUser: String = ""
+  internal var proxyUser: String = ""
 
   /// Extra headers, such as X-XSRF-HEADER: "",
   /// for Cross-Site Request Forgery Prevention, if applicable
-  private var extraHeaders: [String] = []
+  internal var extraHeaders: [String] = []
 
   /// cURL agent, must be set for some of the system.
-  private let agent: String = "PerfectCURL"
+  internal let agent: String = "PerfectCURL"
 
   /// api base, depends on system
-  private var base: String = "/webhdfs/v1"
+  internal var base: String = "/webhdfs/v1"
 
   /// timeout in milliseconds. default zero means it will never timeout.
-  private var timeout: Int = 0
+  internal var timeout: Int = 0
 
   /// general exceptions
   public enum Exception: Error {
@@ -100,6 +100,16 @@ public class WebHDFS {
     case DELETE
   }//end enum
 
+  public struct Token {
+    var urlString = ""
+    public init(_ json: String = "") {
+      do {
+        let dic = try json.jsonDecode() as? [String:Any] ?? [:]
+        self.urlString = dic["urlString"] as? String ?? ""
+      }catch { }
+    }//end init
+  }//end Token
+
   /// constructor of webhdfs
   /// - parameters:
   ///   - service: the protocol of web request - http / https / webhdfs / hdfs
@@ -133,7 +143,7 @@ public class WebHDFS {
   ///   - header string as a whole
   ///   - an array of code number sequence
   @discardableResult
-  private func responseCodeSequence(_ header: [UInt8]) -> (String, [Int]) {
+  internal func responseCodeSequence(_ header: [UInt8]) -> (String, [Int]) {
     // validate input
     if header.isEmpty {
       return ("", [])
@@ -172,7 +182,7 @@ public class WebHDFS {
   ///		- path: full path of the objective file / directory.
   ///		- variables: further options to complete this operation
   @discardableResult
-  private func assembleURL(_ operation: String, _ path: String, _ variables:[String:Any] = [:]) -> String {
+  internal func assembleURL(_ operation: String, _ path: String, _ variables:[String:Any] = [:]) -> String {
     // assamble the url path
     var url = "\(service)://\(host):\(port)\(base)\(path)?op=\(operation)"
 
@@ -210,7 +220,7 @@ public class WebHDFS {
   ///   - decode: If false, the perform will not assemble the data into an ASCII string.
   ///   - moreOptions: a closure that allows set the curl object with more options
   @discardableResult
-  private func perform(operation:String = "", path:String = "", variables:[String: Any] = [:], method: HTTPMethod = .GET, overwriteURL:String = "", decode: Bool = true, moreOptions: ((CURL)->Void)? = { _ in }) throws -> (String, String, [UInt8]) {
+  internal func perform(operation:String = "", path:String = "", variables:[String: Any] = [:], method: HTTPMethod = .GET, overwriteURL:String = "", decode: Bool = true, moreOptions: ((CURL)->Void)? = { _ in }) throws -> (String, String, [UInt8]) {
 
     // get the full url string
     let url = overwriteURL.isEmpty ? assembleURL(operation, path, variables) : overwriteURL
@@ -337,7 +347,7 @@ public class WebHDFS {
   ///   - header: header of the http response
   ///   - body: body of the http response
   @discardableResult
-  private func relocation(header: String, body: String) -> String {
+  internal func relocation(header: String, body: String) -> String {
     // hadoop 2.7.3
     let prefix = "Location:"
     let locations = header.characters.split(separator: "\n")

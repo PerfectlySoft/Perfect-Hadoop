@@ -1,71 +1,76 @@
 import Darwin
 import PerfectLib
 
-public struct Filestatus{
-  public struct ownersItem{
-    var id = ""
-    var name = ""
-    public init(_ dictionary: [String:Any] = [:]) {
-      self.id = dictionary["id"] as? String ?? ""
-      self.name = dictionary["name"] as? String ?? ""
-    }//init
-  }//ownersItem
-  var accessTime = 0
-  var blockSize = 0
-  var group = ""
-  var length = 0
-  var modificationTime = 0
-  var owner = ""
-  var owners : [ownersItem] = []
-  var pathSuffix = ""
-  var permission = ""
-  var replication = 0
-  var tags : [String] = []
-  var type = ""
+extension Double {
+  public init(any: Any?) {
+    switch any {
+    case is Int:
+      self = Double(any as? Int ?? 0)
+    default:
+      self = any as? Double ?? 0.0
+    }//end case
+  }//end init
+}//end Double
+
+public struct Container{
+  var containerLogsLink = ""
+  var diagnostics = ""
+  var exitCode = 0
+  var id = ""
+  var nodeId = ""
+  var state = ""
+  var totalMemoryNeededMB = 0
+  var totalVCoresNeeded = 0
+  var user = ""
   public init(_ dictionary: [String:Any] = [:]) {
-    self.accessTime = dictionary["accessTime"] as? Int ?? 0
-    self.blockSize = dictionary["blockSize"] as? Int ?? 0
-    self.group = dictionary["group"] as? String ?? ""
-    self.length = dictionary["length"] as? Int ?? 0
-    self.modificationTime = dictionary["modificationTime"] as? Int ?? 0
-    self.owner = dictionary["owner"] as? String ?? ""
-    self.owners = (dictionary["owners"] as? [Any] ?? []).map{ownersItem($0 as? [String : Any] ?? [:])}
-    self.pathSuffix = dictionary["pathSuffix"] as? String ?? ""
-    self.permission = dictionary["permission"] as? String ?? ""
-    self.replication = dictionary["replication"] as? Int ?? 0
-    self.tags = dictionary["tags"] as? [String] ?? []
-    self.type = dictionary["type"] as? String ?? ""
+    self.containerLogsLink = dictionary["containerLogsLink"] as? String ?? ""
+    self.diagnostics = dictionary["diagnostics"] as? String ?? ""
+    self.exitCode = dictionary["exitCode"] as? Int ?? 0
+    self.id = dictionary["id"] as? String ?? ""
+    self.nodeId = dictionary["nodeId"] as? String ?? ""
+    self.state = dictionary["state"] as? String ?? ""
+    self.totalMemoryNeededMB = dictionary["totalMemoryNeededMB"] as? Int ?? 0
+    self.totalVCoresNeeded = dictionary["totalVCoresNeeded"] as? Int ?? 0
+    self.user = dictionary["user"] as? String ?? ""
   }//init
-}//Filestatus
+}//Container
 
 extension String {
-  public var asFilestatus: Filestatus? {
+  public var asContainers: [Container] {
     get{
       do{
         let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return Filestatus(dic["FileStatus"] as? [String:Any] ?? [:])
+        let c = dic["containers"] as? [String:Any] ?? [:]
+        return (c["container"] as? [Any] ?? []).map { Container ($0 as? [String:Any] ?? [:])}
       }catch{
-        return nil
+        return []
       }//end do
     }//end get
   }//end member
 }//end extension
-/*
+
+
 do {
-  let f = File("/tmp/json/ClusterInfo.json")
+  let f = File("/tmp/json/containers.json")
   try f.open(.read)
   let json = try f.readString()
   f.close()
-  let j = json.asApp!
-  print(j.clusterId)
-  print(j.id)
-  print(j.progress)
-  print(j.startedTime)
-  print(j.elapsedTime)
-  print(j.amContainerLogs)
-  print(j.trackingUrl)
-}catch {
-
+  let cn = json.asContainers
+  cn.forEach { c in
+    print("=================")
+    print(c.nodeId)
+    print(c.totalMemoryNeededMB)
+    print(c.totalVCoresNeeded)
+    print(c.state)
+    print(c.diagnostics)
+    print(c.containerLogsLink)
+    print(c.user)
+    print(c.id)
+    print(c.exitCode)
+  }
+}catch (let err){
+  print(err)
 
 }
-*/
+
+

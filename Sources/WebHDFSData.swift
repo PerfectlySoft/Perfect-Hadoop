@@ -298,23 +298,3 @@ extension String {
     }//end get
   }//end member
 }//end class
-
-public struct Token {
-  var urlString = ""
-  public init(_ dictionary: [String: Any] = [:]) {
-    self.urlString = dictionary["urlString"] as? String ?? ""
-  }//end init
-}//end Token
-
-extension String {
-  public var asToken: Token? {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return Token(dic["Token"] as? [String:Any] ?? [:])
-      }catch {
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end class

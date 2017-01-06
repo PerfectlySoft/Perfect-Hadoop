@@ -431,57 +431,6 @@ extension String {
     }//end get
   }//end member
 }//end extension
-
-public struct APP {
-		var state = ""
-		var name = ""
-		var amContainerLogs = ""
-		var user = ""
-		var trackingUI = ""
-		var elapsedTime = 0
-		var trackingUrl = ""
-		var queue = ""
-		var id = ""
-		var progress: Double = 0.0
-		var finishedTime = 0
-		var finalStatus = ""
-		var diagnostics = ""
-		var amHostHttpAddress = ""
-		var clusterId = 0
-		var startedTime = 0
-		public init(_ dictionary: [String:Any] = [:]) {
-      self.state = dictionary["state"] as? String ?? ""
-      self.name = dictionary["name"] as? String ?? ""
-      self.amContainerLogs = dictionary["amContainerLogs"] as? String ?? ""
-      self.user = dictionary["user"] as? String ?? ""
-      self.trackingUI = dictionary["trackingUI"] as? String ?? ""
-      self.elapsedTime = dictionary["elapsedTime"] as? Int ?? 0
-      self.trackingUrl = dictionary["trackingUrl"] as? String ?? ""
-      self.queue = dictionary["queue"] as? String ?? ""
-      self.id = dictionary["id"] as? String ?? ""
-      self.progress = dictionary["progress"] as? Double ?? 0.0
-      self.finishedTime = dictionary["finishedTime"] as? Int ?? 0
-      self.finalStatus = dictionary["finalStatus"] as? String ?? ""
-      self.diagnostics = dictionary["diagnostics"] as? String ?? ""
-      self.amHostHttpAddress = dictionary["amHostHttpAddress"] as? String ?? ""
-      self.clusterId = dictionary["clusterId"] as? Int ?? 0
-      self.startedTime = dictionary["startedTime"] as? Int ?? 0
-		}//init
-}//APP
-
-extension String {
-  public var asApp: APP? {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return APP(dic["app"] as? [String: Any] ?? [:])
-      }catch {
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 /*
  //
  //  yarn.swift
