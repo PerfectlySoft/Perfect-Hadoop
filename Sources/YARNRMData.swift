@@ -19,90 +19,7 @@
 
 import PerfectLib
 
-extension Double {
-  public init(any: Any?) {
-    switch any {
-    case is Int:
-      self = Double(any as? Int ?? 0)
-    default:
-      self = any as? Double ?? 0.0
-    }//end case
-  }//end init
-}//end Double
 
-public struct ResourcesUsed{
-  var memory = 0
-  var vCores = 0
-  public init(_ dictionary: [String:Any] = [:]) {
-    self.memory = dictionary["memory"] as? Int ?? 0
-    self.vCores = dictionary["vCores"] as? Int ?? 0
-  }//init
-}//resourcesUsedType
-
-public struct User {
-  var username = ""
-  var resourcesUsed = ResourcesUsed([:])
-  var numActiveApplications = 0
-  var numPendingApplications = 0
-  public init(_ dictionary: [String:Any] = [:]) {
-    self.username = dictionary["username"] as? String ?? ""
-    self.resourcesUsed = ResourcesUsed(dictionary["resourcesUsed"] as? [String:Any] ?? [:])
-    self.numActiveApplications = dictionary["numActiveApplications"] as? Int ?? 0
-    self.numPendingApplications = dictionary["numPendingApplications"] as? Int ?? 0
-  }//end init
-}//end User
-
-public struct Queue {
-  var absoluteCapacity:Double = 0.0
-  var absoluteMaxCapacity:Double = 0.0
-  var absoluteUsedCapacity:Double = 0.0
-  var capacity:Double = 0.0
-  var maxActiveApplications = 0
-  var maxActiveApplicationsPerUser = 0
-  var maxApplications = 0
-  var maxApplicationsPerUser = 0
-  var maxCapacity:Double = 0.0
-  var numActiveApplications = 0
-  var numApplications = 0
-  var numContainers = 0
-  var numPendingApplications = 0
-  var queueName = ""
-  var queues = [Queue]()
-  var resourcesUsed = ResourcesUsed([:])
-  var state = ""
-  var type = ""
-  var usedCapacity:Double = 0.0
-  var usedResources = ""
-  var userLimit = 0
-  var userLimitFactor:Double = 0.0
-  var users = [User]()
-  public init(_ dictionary: [String:Any] = [:]) {
-    self.absoluteCapacity = Double(any: dictionary["absoluteCapacity"])
-    self.absoluteMaxCapacity = Double(any: dictionary["absoluteMaxCapacity"])
-    self.absoluteUsedCapacity = Double(any: dictionary["absoluteUsedCapacity"])
-    self.capacity = Double(any: dictionary["capacity"])
-    self.maxActiveApplications = dictionary["maxActiveApplications"] as? Int ?? 0
-    self.maxActiveApplicationsPerUser = dictionary["maxActiveApplicationsPerUser"] as? Int ?? 0
-    self.maxApplications = dictionary["maxApplications"] as? Int ?? 0
-    self.maxApplicationsPerUser = dictionary["maxApplicationsPerUser"] as? Int ?? 0
-    self.maxCapacity = Double(any: dictionary["maxCapacity"])
-    self.numActiveApplications = dictionary["numActiveApplications"] as? Int ?? 0
-    self.numApplications = dictionary["numApplications"] as? Int ?? 0
-    self.numContainers = dictionary["numContainers"] as? Int ?? 0
-    self.numPendingApplications = dictionary["numPendingApplications"] as? Int ?? 0
-    self.queueName = dictionary["queueName"] as? String ?? ""
-    let q = dictionary["queues"] as? [String:Any] ?? [:]
-    self.queues = (q["queue"] as? [Any] ?? []).map {Queue($0 as? [String:Any] ?? [:])}
-    self.resourcesUsed = ResourcesUsed(dictionary["resourcesUsed"] as? [String:Any] ?? [:])
-    self.state = dictionary["state"] as? String ?? ""
-    self.type = dictionary["type"] as? String ?? ""
-    self.usedCapacity = Double(any: dictionary["usedCapacity"])
-    self.usedResources = dictionary["usedResources"] as? String ?? ""
-    self.userLimit = dictionary["userLimit"] as? Int ?? 0
-    self.userLimitFactor = Double(any: dictionary["userLimitFactor"])
-    self.users = (dictionary["users"] as? [Any] ?? []).map {User($0 as? [String:Any] ?? [:])}
-  }//init
-}//queue
 
 public struct FairQueue {
   var maxApps = 0
@@ -133,56 +50,6 @@ public struct FairQueue {
   }//init
 }// FairQueue
 
-public struct SchedulerInfo {
-  var availNodeCapacity = 0
-  var capacity: Double = 0
-  var maxCapacity: Double = 0
-  var maxQueueMemoryCapacity = 0
-  var minQueueMemoryCapacity = 0
-  var numContainers = 0
-  var numNodes = 0
-  var qstate = ""
-  var queueName = ""
-  var queues = [Queue]()
-  var rootQueue = FairQueue([:])
-  var totalNodeCapacity = 0
-  var type = ""
-  var usedCapacity: Double = 0
-  var usedNodeCapacity = 0
-
-  public init(_ dictionary: [String:Any] = [:]) {
-    self.availNodeCapacity = dictionary["availNodeCapacity"] as? Int ?? 0
-    self.capacity = Double(any: dictionary["capacity"])
-    self.maxCapacity = Double(any: dictionary["maxCapacity"])
-    self.maxQueueMemoryCapacity = dictionary["maxQueueMemoryCapacity"] as? Int ?? 0
-    self.minQueueMemoryCapacity = dictionary["minQueueMemoryCapacity"] as? Int ?? 0
-    self.numContainers = dictionary["numContainers"] as? Int ?? 0
-    self.numNodes = dictionary["numNodes"] as? Int ?? 0
-    self.qstate = dictionary["qstate"] as? String ?? ""
-    self.queueName = dictionary["queueName"] as? String ?? ""
-    let q = dictionary["queues"] as? [String:Any] ?? [:]
-    self.queues = (q["queue"] as? [Any] ?? []).map {Queue($0 as? [String:Any] ?? [:])}
-    self.rootQueue = FairQueue(dictionary["rootQueue"] as? [String:Any] ?? [:])
-    self.type = dictionary["type"] as? String ?? ""
-    self.usedCapacity = Double(any: dictionary["usedCapacity"])
-    self.usedNodeCapacity = dictionary["usedNodeCapacity"] as? Int ?? 0
-  }//init
-}//schedulerInfo
-
-extension String {
-  public var asSchedulerInfo: SchedulerInfo? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let sch = dic["scheduler"] as? [String:Any] ?? [:]
-        return SchedulerInfo(sch["schedulerInfo"] as? [String:Any] ?? [:])
-      }catch (let err){
-        print(err)
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
 
 public struct APP {
   var allocatedMB = 0

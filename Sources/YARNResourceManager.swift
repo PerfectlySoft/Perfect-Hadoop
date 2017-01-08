@@ -174,6 +174,184 @@ extension String {
   }//end member
 }//end extension
 
+/// the resource object for resourcesUsed in user and queues
+public struct ResourcesUsed{
+  /// The amount of memory used (in MB)
+  var memory = 0
+  /// The number of virtual cores
+  var vCores = 0
+  /// constructor of ResourcesUsed
+  /// - parameters:
+  ///   - dictionary: [String:Any], a json decoded dictionary of ResourcesUsed
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.memory = dictionary["memory"] as? Int ?? 0
+    self.vCores = dictionary["vCores"] as? Int ?? 0
+  }//init
+}//resourcesUsedType
+
+/// user object containing resources used
+public struct User {
+  /// The username of the user using the resources
+  var username = ""
+  /// The amount of resources used by the user in this queue
+  var resourcesUsed = ResourcesUsed([:])
+  /// The number of active applications for this user in this queue
+  var numActiveApplications = 0
+  /// The number of pending applications for this user in this queue
+  var numPendingApplications = 0
+  /// constructor of User
+  /// - parameters:
+  ///   - dictionary: [String:Any], a json decoded dictionary of user
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.username = dictionary["username"] as? String ?? ""
+    self.resourcesUsed = ResourcesUsed(dictionary["resourcesUsed"] as? [String:Any] ?? [:])
+    self.numActiveApplications = dictionary["numActiveApplications"] as? Int ?? 0
+    self.numPendingApplications = dictionary["numPendingApplications"] as? Int ?? 0
+  }//end init
+}//end User
+
+/// Queues that can actually have jobs submitted to them are referred to as leaf queues. These queues have additional data associated with them.
+public struct Queue {
+  /// Absolute capacity percentage this queue can use of entire cluster
+  var absoluteCapacity:Double = 0.0
+  /// Absolute maximum capacity percentage this queue can use of the entire cluster
+  var absoluteMaxCapacity:Double = 0.0
+  /// Absolute used capacity percentage this queue is using of the entire cluster
+  var absoluteUsedCapacity:Double = 0.0
+  /// Configured queue capacity in percentage relative to its parent queue
+  var capacity:Double = 0.0
+  /// The maximum number of active applications this queue can have
+  var maxActiveApplications = 0
+  /// The maximum number of active applications per user this queue can have
+  var maxActiveApplicationsPerUser = 0
+  /// The maximum number of applications this queue can have
+  var maxApplications = 0
+  /// The maximum number of applications per user this queue can have
+  var maxApplicationsPerUser = 0
+  /// Configured maximum queue capacity in percentage relative to its parent queue
+  var maxCapacity:Double = 0.0
+  /// The number of active applications in this queue
+  var numActiveApplications = 0
+  /// The number of applications currently in the queue
+  var numApplications = 0
+  /// The number of containers being used
+  var numContainers = 0
+  /// The number of pending applications in this queue
+  var numPendingApplications = 0
+  /// The name of the queue
+  var queueName = ""
+  /// A collection of sub-queue information. Omitted if the queue has no sub-queues.
+  var queues = [Queue]()
+  /// The total amount of resources used by this queue
+  var resourcesUsed = ResourcesUsed([:])
+  /// The state of the queue
+  var state = ""
+  /// type of the queue - capacitySchedulerLeafQueueInfo
+  var type = ""
+  /// Used queue capacity in percentage
+  var usedCapacity:Double = 0.0
+  /// A string describing the current resources used by the queue
+  var usedResources = ""
+  /// The minimum user limit percent set in the configuration
+  var userLimit = 0
+  /// The user limit factor set in the configuration
+  var userLimitFactor:Double = 0.0
+  /// A collection of user objects containing resources used
+  var users = [User]()
+  /// constructor of Queue
+  /// - parameters:
+  ///   - dictionary: [String:Any], a json decoded dictionary of Queue
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.absoluteCapacity = Double(any: dictionary["absoluteCapacity"])
+    self.absoluteMaxCapacity = Double(any: dictionary["absoluteMaxCapacity"])
+    self.absoluteUsedCapacity = Double(any: dictionary["absoluteUsedCapacity"])
+    self.capacity = Double(any: dictionary["capacity"])
+    self.maxActiveApplications = dictionary["maxActiveApplications"] as? Int ?? 0
+    self.maxActiveApplicationsPerUser = dictionary["maxActiveApplicationsPerUser"] as? Int ?? 0
+    self.maxApplications = dictionary["maxApplications"] as? Int ?? 0
+    self.maxApplicationsPerUser = dictionary["maxApplicationsPerUser"] as? Int ?? 0
+    self.maxCapacity = Double(any: dictionary["maxCapacity"])
+    self.numActiveApplications = dictionary["numActiveApplications"] as? Int ?? 0
+    self.numApplications = dictionary["numApplications"] as? Int ?? 0
+    self.numContainers = dictionary["numContainers"] as? Int ?? 0
+    self.numPendingApplications = dictionary["numPendingApplications"] as? Int ?? 0
+    self.queueName = dictionary["queueName"] as? String ?? ""
+    let q = dictionary["queues"] as? [String:Any] ?? [:]
+    self.queues = (q["queue"] as? [Any] ?? []).map {Queue($0 as? [String:Any] ?? [:])}
+    self.resourcesUsed = ResourcesUsed(dictionary["resourcesUsed"] as? [String:Any] ?? [:])
+    self.state = dictionary["state"] as? String ?? ""
+    self.type = dictionary["type"] as? String ?? ""
+    self.usedCapacity = Double(any: dictionary["usedCapacity"])
+    self.usedResources = dictionary["usedResources"] as? String ?? ""
+    self.userLimit = dictionary["userLimit"] as? Int ?? 0
+    self.userLimitFactor = Double(any: dictionary["userLimitFactor"])
+    self.users = (dictionary["users"] as? [Any] ?? []).map {User($0 as? [String:Any] ?? [:])}
+  }//init
+}//queue
+
+
+/// The capacity scheduler supports hierarchical queues. This one request will print information about all the queues and any subqueues they have.
+public struct SchedulerInfo {
+  var availNodeCapacity = 0
+  /// Configured queue capacity in percentage relative to its parent queue
+  var capacity: Double = 0
+  var maxCapacity: Double = 0
+  /// Configured maximum queue capacity in percentage relative to its parent queue
+  var maxQueueMemoryCapacity = 0
+  var minQueueMemoryCapacity = 0
+  var numContainers = 0
+  var numNodes = 0
+  var qstate = ""
+  /// Name of the queue
+  var queueName = ""
+  /// A collection of queue resources
+  var queues = [Queue]()
+  var rootQueue = FairQueue([:])
+  var totalNodeCapacity = 0
+  /// Scheduler type - capacityScheduler
+  var type = ""
+  /// Used queue capacity in percentage
+  var usedCapacity: Double = 0
+  var usedNodeCapacity = 0
+
+  /// constructor of SchedulerInfo
+  /// - parameters:
+  ///   - dictionary: [String:Any], a json decoded dictionary of SchedulerInfo
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.availNodeCapacity = dictionary["availNodeCapacity"] as? Int ?? 0
+    self.capacity = Double(any: dictionary["capacity"])
+    self.maxCapacity = Double(any: dictionary["maxCapacity"])
+    self.maxQueueMemoryCapacity = dictionary["maxQueueMemoryCapacity"] as? Int ?? 0
+    self.minQueueMemoryCapacity = dictionary["minQueueMemoryCapacity"] as? Int ?? 0
+    self.numContainers = dictionary["numContainers"] as? Int ?? 0
+    self.numNodes = dictionary["numNodes"] as? Int ?? 0
+    self.qstate = dictionary["qstate"] as? String ?? ""
+    self.queueName = dictionary["queueName"] as? String ?? ""
+    let q = dictionary["queues"] as? [String:Any] ?? [:]
+    self.queues = (q["queue"] as? [Any] ?? []).map {Queue($0 as? [String:Any] ?? [:])}
+    self.rootQueue = FairQueue(dictionary["rootQueue"] as? [String:Any] ?? [:])
+    self.type = dictionary["type"] as? String ?? ""
+    self.usedCapacity = Double(any: dictionary["usedCapacity"])
+    self.usedNodeCapacity = dictionary["usedNodeCapacity"] as? Int ?? 0
+  }//init
+}//schedulerInfo
+
+extension String {
+  /// an express way of decoding scheduler info from a json string
+  public var asSchedulerInfo: SchedulerInfo? {
+    get{
+      do{
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        let sch = dic["scheduler"] as? [String:Any] ?? [:]
+        return SchedulerInfo(sch["schedulerInfo"] as? [String:Any] ?? [:])
+      }catch (let err){
+        print(err)
+        return nil
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
 /// The ResourceManager allow the user to get information about the cluster - status on the cluster, metrics on the cluster, scheduler information, information about nodes in the cluster, and information about applications on the cluster.
 public class YARNResourceManager: YARNNodeManager {
 
@@ -214,5 +392,15 @@ public class YARNResourceManager: YARNNodeManager {
   public func checkClusterMetrics() throws -> ClusterMetrics? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/metrics"))
     return dat.asClusterMetrics
+  }//end func
+
+  /// The capacity scheduler supports hierarchical queues. This one request will print information about all the queues and any subqueues they have. Queues that can actually have jobs submitted to them are referred to as leaf queues. These queues have additional data associated with them.
+  /// - returns:
+  /// SchedulerInfo structure, See SchedulerInfo.
+  /// - throws:
+  /// WebHDFS.Exceptions
+  public func checkSchedulerInfo() throws -> SchedulerInfo? {
+    let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/scheduler"))
+    return dat.asSchedulerInfo
   }//end func
 }//end YARNResourceManager

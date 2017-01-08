@@ -495,6 +495,15 @@ class PerfectHadoopTests: XCTestCase {
       print(m?.allocatedVirtualCores ?? 0)
       print(m?.totalMB ?? 0)
       XCTAssertGreaterThan(m?.totalMB ?? 0, 0)
+
+      let sch = try yarn.checkSchedulerInfo()
+      XCTAssertNotNil(sch)
+      print(sch?.capacity ?? 0.0)
+      print(sch?.maxCapacity ?? 0.0)
+      XCTAssertGreaterThan(sch?.capacity ?? 0.0, 0.0)
+      XCTAssertGreaterThan(sch?.maxCapacity ?? 0.0, 0.0)
+      print(sch?.queueName ?? "")
+      print(sch?.queues.count ?? -1)
     }catch(let err) {
       XCTFail("YARN resource:\(err)")
     }

@@ -19,6 +19,18 @@
 
 import PerfectLib
 
+/// Double / Float patch for integer casting
+extension Double {
+  public init(any: Any?) {
+    switch any {
+    case is Int:
+      self = Double(any as? Int ?? 0)
+    default:
+      self = any as? Double ?? 0.0
+    }//end case
+  }//end init
+}//end Double
+
 /// The ACL spec included in ACL modification operations.
 public struct AclStatus{
   /// ACL entry
