@@ -1,5 +1,5 @@
 //
-//  YARNNode.swift
+//  YARNNodeManager.swift
 //  PerfectHadoop - YARN NodeManager Data Structures
 //
 //  Created by Rockford Wei on 2016-01-05.
@@ -102,7 +102,7 @@ public struct Container{
     case CONTAINER_CLEANEDUP_AFTER_KILL = "CONTAINER_CLEANEDUP_AFTER_KILL"
     case CONTAINER_RESOURCES_CLEANINGUP = "CONTAINER_RESOURCES_CLEANINGUP"
     case DONE = "DONE"
-    case UNKNOWN = ""
+    case INVALID = ""
   }//end enum
 
   /// The http link to the container logs
@@ -116,7 +116,7 @@ public struct Container{
   /// The id of the node the container is on
   var nodeId = ""
   /// State of the container
-  var state: State = .UNKNOWN
+  var state: State = .INVALID
   /// Total amout of memory needed by the container (in MB)
   var totalMemoryNeededMB = 0
   /// Total number of virtual cores needed by the container
@@ -129,7 +129,7 @@ public struct Container{
     self.exitCode = dictionary["exitCode"] as? Int ?? 0
     self.id = dictionary["id"] as? String ?? ""
     self.nodeId = dictionary["nodeId"] as? String ?? ""
-    self.state = State(rawValue: dictionary["state"] as? String ?? "") ?? .UNKNOWN
+    self.state = State(rawValue: dictionary["state"] as? String ?? "") ?? .INVALID
     self.totalMemoryNeededMB = dictionary["totalMemoryNeededMB"] as? Int ?? 0
     self.totalVCoresNeeded = dictionary["totalVCoresNeeded"] as? Int ?? 0
     self.user = dictionary["user"] as? String ?? ""

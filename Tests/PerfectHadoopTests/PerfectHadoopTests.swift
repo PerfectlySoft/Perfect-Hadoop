@@ -475,6 +475,30 @@ class PerfectHadoopTests: XCTestCase {
       XCTFail("yarn node: \(err)")
     }
   }
+
+  func testYARNCluster() {
+    let yarn = YARNResourceManager()
+    do {
+      let i = try yarn.checkClusterInfo()
+      XCTAssertNotNil(i)
+      XCTAssertGreaterThan(i?.id ?? 0, 0)
+      print("========== YARN Resource Manager -- Cluster Info ==============")
+      print(i?.startedOn ?? 0)
+      print(i?.state ?? "")
+      print(i?.hadoopVersion ?? "")
+      print(i?.resourceManagerVersion ?? "")
+
+      let m = try yarn.checkClusterMetrics()
+      XCTAssertNotNil(m)
+      print(m?.availableMB ?? 0)
+      print(m?.availableVirtualCores ?? 0)
+      print(m?.allocatedVirtualCores ?? 0)
+      print(m?.totalMB ?? 0)
+      XCTAssertGreaterThan(m?.totalMB ?? 0, 0)
+    }catch(let err) {
+      XCTFail("YARN resource:\(err)")
+    }
+  }
 /*
     func testToken() {
       let hdfs = WebHDFS(auth:.byDelegation(token: "TTK1234567890"))
