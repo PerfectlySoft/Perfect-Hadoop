@@ -862,7 +862,17 @@ public class YARNResourceManager: YARNNodeManager {
   @discardableResult
   public func checkClusterNodes() throws -> [Node] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes"))
-    print(dat)
     return dat.asNodes
+  }//end func
+
+  /// Use the following URI to obtain a Node Object, from a node identified by the nodeid value.
+  /// - returns:
+  /// Node, See Node Structure.
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public func checkClusterNode(id: String) throws -> Node? {
+    let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes/\(id)"))
+    return dat.asNode
   }//end func
 }//end YARNResourceManager

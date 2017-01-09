@@ -595,6 +595,20 @@ class PerfectHadoopTests: XCTestCase {
         XCTAssertGreaterThan(node.nodeHTTPAddress.utf8.count, 0)
         XCTAssertGreaterThan(node.nodeHostName.utf8.count, 0)
         print("++++++++++++  YARN CLUSTER NODES END ++++++++++++++")
+
+        do {
+          let n = try yarn.checkClusterNode(id: node.id)!
+          XCTAssertEqual(node.rack, n.rack)
+          XCTAssertEqual(node.availableVirtualCores, n.availableVirtualCores)
+          XCTAssertEqual(node.availMemoryMB, n.availMemoryMB)
+          XCTAssertEqual(node.healthReport, n.healthReport)
+          XCTAssertEqual(node.healthStatus, n.healthStatus)
+          XCTAssertEqual(node.lastHealthUpdate, n.lastHealthUpdate)
+          XCTAssertEqual(node.nodeHostName, n.nodeHostName)
+          XCTAssertEqual(node.nodeHTTPAddress, n.nodeHTTPAddress)
+        }catch (let nodeErr) {
+          XCTFail("Cluster Node Error: \(nodeErr)")
+        }
       }
     }catch(let err) {
       XCTFail("YARN resource:\(err)")
