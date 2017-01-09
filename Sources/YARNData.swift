@@ -17,7 +17,252 @@
 //===----------------------------------------------------------------------===//
 //
 
+#if os(Linux)
+  import LinuxBridge
+#else
+  import Darwin
+#endif
+import COpenSSL
 import PerfectLib
+
+/// encode a String by base64 method
+/// - returns:
+/// base64 encoded text
+public class Base64 {
+  public static func encode(from: String, autowrap: Bool = false) -> String {
+    // create a pipe line to manage the encoded data
+    var pipes:[Int32] = [0,0]
+    let res = pipe(&pipes)
+    guard res == 0 else { return "" }
+
+    // use openssl to encode in base64 form
+    let b64 = BIO_new(BIO_f_base64())
+    let bio = BIO_new_fd(pipes[1], BIO_NOCLOSE)
+    BIO_push(b64, bio)
+
+    from.withCString { ptr in
+      let p = unsafeBitCast(ptr, to: UnsafeMutableRawPointer.self)
+      BIO_write(b64, p, Int32(from.utf8.count))
+    }
+
+    BIO_ctrl(b64,BIO_CTRL_FLUSH,0,nil)
+    close(pipes[1])
+    BIO_free_all(b64)
+
+    // prepare a 4k buffer to encode
+    var buf = [CChar]()
+    let size = 4096
+    var received = 0
+    // encode the file buffer by buffer
+    buf.reserveCapacity(size)
+
+    // read encoded data from pipeline and split ascii text
+    // into lines of 80 chars per line as defined in RFC 822
+    let line = 78
+
+    var longStr = ""
+    buf.withUnsafeBufferPointer{ pBuf in
+      let pRaw = unsafeBitCast(pBuf.baseAddress, to: UnsafeMutableRawPointer.self)
+      repeat {
+        memset(pRaw, 0, size)
+        received = read(pipes[0], pRaw, line)
+        if received > 0 {
+          let str = String(cString: buf)
+          longStr += str
+          if autowrap {
+            longStr += "\r\n"
+          }
+        }//end if
+      }while(received >= line)
+    }//end buf
+    close(pipes[0])
+    return longStr
+  }//end encode
+}//end encode
+
+
+public class AmBlackListingRequests:JSONConvertibleObject {
+  /// Whether AM Blacklisting is enabled
+  var amBlackListingEnabled = false
+  /// AM Blacklisting disable failure threshold
+  var disableFailureThreshold:Double = Double.nan
+
+  /// constructor
+  /// - parameters:
+  /// See AmBlackListingRequests' member for each
+  public init(amBlackListingEnabled: Bool = false, disableFailureThreshold: Double = Double.nan) {
+    self.amBlackListingEnabled = amBlackListingEnabled
+    self.disableFailureThreshold = disableFailureThreshold
+  }//end init
+  override public func getJSONValues() -> [String : Any] {
+    var v:[String:Any] = [:]
+    if amBlackListingEnabled {
+      v["am-black-listing-enabled"] = amBlackListingEnabled
+    }//end if
+    if !disableFailureThreshold.isNaN {
+      v["disable-failure-threshold"] = disableFailureThreshold
+    }//end if
+    return v
+  }//end func
+}//end class
+
+public class LogAggregationContext: JSONConvertibleObject {
+  /// The log files which match the defined include pattern will be uploaded when the applicaiton finishes
+  var logIncludePattern = ""
+  /// The log files which match the defined exclude pattern will not be uploaded when the applicaiton finishes
+  var logExcludePattern = ""
+  /// The log files which match the defined include pattern will be aggregated in a rolling fashion
+  var rolledLogIncludePattern = ""
+  /// The log files which match the defined exclude pattern will not be aggregated in a rolling fashion
+  var rolledLogExcludePattern = ""
+  /// The policy which will be used by NodeManager to aggregate the logs
+  var logAggregationPolicyClassName = ""
+  /// The parameters passed to the policy class
+  var logAggregationPolicyParameters = ""
+
+  /// constructor
+  /// - parameters:
+  /// See LogAggregationContext' member for each
+  public init(logIncludePattern:String = "", logExcludePattern:String = "", rolledLogIncludePattern:String = "", rolledLogExcludePattern: String = "", logAggregationPolicyClassName:String = "", logAggregationPolicyParameters:String = "") {
+    self.logIncludePattern = logIncludePattern
+    self.logExcludePattern = logExcludePattern
+    self.rolledLogIncludePattern = rolledLogIncludePattern
+    self.rolledLogExcludePattern = rolledLogExcludePattern
+    self.logAggregationPolicyClassName = logAggregationPolicyClassName
+    self.logAggregationPolicyParameters = logAggregationPolicyParameters
+  }//end init
+
+  override public func getJSONValues() -> [String : Any] {
+    var v:[String:Any] = [:]
+    if !logIncludePattern.isEmpty {
+      v["log-include-pattern"] = logIncludePattern
+    }//end if
+    if !logExcludePattern.isEmpty {
+      v["log-exclude-pattern"] = logExcludePattern
+    }//end if
+    if !rolledLogIncludePattern.isEmpty {
+      v["rolled-log-include-pattern"] = rolledLogIncludePattern
+    }//end if
+    if !rolledLogExcludePattern.isEmpty {
+      v["rolled-log-exclude-pattern"] = rolledLogExcludePattern
+    }//end if
+    if !logAggregationPolicyClassName.isEmpty {
+      v["log-aggregation-policy-class-name"] = logAggregationPolicyClassName
+    }//end if
+    if !logAggregationPolicyParameters.isEmpty {
+      v["log-aggregation-policy-parameters"] = logAggregationPolicyParameters
+    }//end if
+    return v
+  }//end getJSONValue
+}//end class
+
+public class ResourceRequest: JSONConvertibleObject {
+  //Memory required for each container
+  var memory = 0
+  //Virtual cores required for each container
+  var vCores = 0
+
+  /// constructor
+  /// - parameters:
+  ///   - memory:Int, Memory required for each container
+  ///   - vCores:Int, Virtual cores required for each container
+  public init(memory:Int = 0,vCores:Int = 0) {
+    self.memory = memory
+    self.vCores = vCores
+  }//end init
+
+  override public func getJSONValues() -> [String : Any] {
+    var v: [String:Any] = [:]
+    if memory > 0 {
+      v["memory"] = memory
+    }//end if
+    if vCores > 0 {
+      v["vCores"] = vCores
+    }//end if
+    return v
+  }//end func
+}//end class
+
+/// The credentials object should be used to pass data required for the application to authenticate itself such as delegation-tokens and secrets.
+public class Credential: JSONConvertibleObject {
+
+  /// tokens that you wish to pass to your application, specified as key-value pairs. The key is an identifier for the token and the value is the token(which should be obtained using the respective web-services)
+  var tokens: [String:String] = [:]
+  /// Secrets that you wish to use in your application, specified as key-value pairs. They key is an identifier and the value is the base-64 encoding of the secret
+  var secrets: [String: String] = [:]
+
+  /// constructor
+  /// - parameters:
+  ///   - tokens:[String: String], tokens that you wish to pass to your application, specified as key-value pairs. The key is an identifier for the token and the value is the token(which should be obtained using the respective web-services)
+  ///   - secrets:[String: String], Secrets that you wish to use in your application, specified as key-value pairs. They key is an identifier and the value is the base-64 encoding of the secret
+  public init(tokens:[String: String] = [:], secrets:[String: String] = [:]) {
+    self.tokens = tokens
+    self.secrets = [:]
+    for (k,v) in secrets {
+      self.secrets[k] = Base64.encode(from: v)
+    }
+  }//end init
+
+  override public func getJSONValues() -> [String : Any] {
+    var v: [String:Any] = [:]
+    if tokens.count > 0 {
+      v["tokens"] = tokens
+    }//end if
+    if secrets.count > 0 {
+      v["secrets"] = secrets
+    }//end if
+    return v
+  }//end func
+}
+/// Elements of the local-resources object. The object is a collection of key-value pairs. They key is an identifier for the resources to be localized and the value is the details of the resource.
+public class LocalResource : JSONConvertibleObject {
+  /// Type of the resource; options are “ARCHIVE”, “FILE”, and “PATTERN”
+  public enum `Type`: String {
+    case ARCHIVE = "ARCHIVE", FILE = "FILE", PATTERN = "PATTERN", INVALID = "INVALID"
+  }//end type
+  /// options are “PUBLIC”, “PRIVATE”, and “APPLICATION”
+  public enum Visibility: String {
+    case PUBLIC = "PUBLIC", PRIVATE = "PRIVATE", APPLICATION = "APPLICATION", INVALID = "INVALID"
+  }//end enum
+
+  var resource = ""
+  var type: Type = .INVALID
+  var visibility: Visibility = .INVALID
+  var size = 0
+  var timestamp = 0
+
+  public init(resource: String, type: Type = .INVALID, visibility: Visibility = .INVALID, size: Int = 0, timestamp: Int = 0) {
+    self.resource = resource
+    self.type = type
+    self.visibility = visibility
+    self.size = size
+    self.timestamp = timestamp
+  }//end init
+
+  override public func getJSONValues() -> [String : Any] {
+    var v: [String:Any] = [:]
+    if !resource.isEmpty {
+      v["resource"] = resource
+    }//end if
+
+    if type != .INVALID {
+      v["type"] = type
+    }//end if
+
+    if visibility != .INVALID {
+      v["visibility"] = visibility
+    }//end if
+
+    if size > 0 {
+      v["size"] = size
+    }//end if
+
+    if timestamp > 0 {
+      v["timestamp"] = timestamp
+    }//end if
+    return v
+  }//end func
+}//end class
 
 
 public struct JobTaskAttemptCounters {

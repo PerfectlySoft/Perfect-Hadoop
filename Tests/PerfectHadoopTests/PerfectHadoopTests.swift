@@ -633,6 +633,12 @@ class PerfectHadoopTests: XCTestCase {
       XCTFail("YARN New App:\(err)")
     }
   }
+
+  func testBase64() {
+    let hello = Base64.encode(from: "Hello, world!")
+    print(hello)
+    XCTAssertEqual(hello, "SGVsbG8sIHdvcmxkIQ==\n")
+  }
 /*
     func testToken() {
       let hdfs = WebHDFS(auth:.byDelegation(token: "TTK1234567890"))
@@ -723,7 +729,8 @@ class PerfectHadoopTests: XCTestCase {
                //("testToken", testToken),
           //("testAuthKerb", testAuthKerb),
           ("testYARNNode", testYARNNode),
-          ("testYarnClusterNewApp", testYarnClusterNewApp)
+          ("testYarnClusterNewApp", testYarnClusterNewApp),
+          ("testBase64", testBase64)
         ]
     }
 }
