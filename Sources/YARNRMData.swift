@@ -21,36 +21,7 @@ import PerfectLib
 
 
 
-public struct AppAttempt{
-  var containerId = ""
-  var id = 0
-  var logsLink = ""
-  var nodeHttpAddress = ""
-  var nodeId = ""
-  var startTime = 0
-  public init(_ dictionary: [String:Any] = [:]) {
-    self.containerId = dictionary["containerId"] as? String ?? ""
-    self.id = dictionary["id"] as? Int ?? 0
-    self.logsLink = dictionary["logsLink"] as? String ?? ""
-    self.nodeHttpAddress = dictionary["nodeHttpAddress"] as? String ?? ""
-    self.nodeId = dictionary["nodeId"] as? String ?? ""
-    self.startTime = dictionary["startTime"] as? Int ?? 0
-  }//init
-}//Appattempt
 
-extension String {
-  public var asAppAttempts: [AppAttempt] {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let a = dic["appAttempts"] as? [String:Any] ?? [:]
-        return (a["appAttempt"] as? [Any] ?? []).map{ AppAttempt( $0 as? [String:Any] ?? [:]) }
-      }catch{
-        return []
-      }//end do
-    }//end get
-  }//end member
-}//end extension
 
 public struct Node{
   var availMemoryMB = 0

@@ -562,6 +562,43 @@ extension String {
   }//end member
 }//end extension
 
+public struct AppAttempt{
+  var containerId = ""
+  /// The app attempt id
+  var id = 0
+  /// The http link to the app attempt logs
+  var logsLink = ""
+  /// The node http address of the node the attempt ran on
+  var nodeHttpAddress = ""
+  /// The node id of the node the attempt ran on
+  var nodeId = ""
+  /// The start time of the attempt (in ms since epoch)
+  var startTime = 0
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.containerId = dictionary["containerId"] as? String ?? ""
+    self.id = dictionary["id"] as? Int ?? 0
+    self.logsLink = dictionary["logsLink"] as? String ?? ""
+    self.nodeHttpAddress = dictionary["nodeHttpAddress"] as? String ?? ""
+    self.nodeId = dictionary["nodeId"] as? String ?? ""
+    self.startTime = dictionary["startTime"] as? Int ?? 0
+  }//init
+}//Appattempt
+
+extension String {
+  /// nicely convert a json string directly into an array of AppAttempts
+  public var asAppAttempts: [AppAttempt] {
+    get{
+      do{
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        let a = dic["appAttempts"] as? [String:Any] ?? [:]
+        return (a["appAttempt"] as? [Any] ?? []).map{ AppAttempt( $0 as? [String:Any] ?? [:]) }
+      }catch{
+        return []
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
 /// The ResourceManager allow the user to get information about the cluster - status on the cluster, metrics on the cluster, scheduler information, information about nodes in the cluster, and information about applications on the cluster.
 public class YARNResourceManager: YARNNodeManager {
 
@@ -721,5 +758,18 @@ public class YARNResourceManager: YARNNodeManager {
   public override func checkApp(id:String) throws -> APP? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)"))
     return dat.asApp
+  }//end public
+
+  /// With the application attempts API, you can obtain a collection of resources that represent an application attempt. When you run a GET operation on this resource, you obtain a collection of App Attempt Objects.
+  /// - parameters:
+  ///   - id: String, application id
+  /// - returns:
+  /// [AppAttempt], See structur of AppAttempt.
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public func checkAppAttempts(id:String) throws -> [AppAttempt] {
+    let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)/appattempts"))
+    return dat.asAppAttempts
   }//end public
 }//end YARNResourceManager

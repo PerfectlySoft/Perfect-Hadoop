@@ -538,9 +538,23 @@ class PerfectHadoopTests: XCTestCase {
           XCTAssertEqual(a.amRPCAddress, x.amRPCAddress)
           XCTAssertEqual(a.applicationPriority, x.applicationPriority)
           XCTAssertEqual(a.applicationTags, x.applicationTags)
+
+          let attempts = try yarn.checkAppAttempts(id: a.id)
+          attempts.forEach { attempt in
+            print("~~~~~~~~~ YARN ATTEMPTS ~~~~~~~")
+            print(attempt.containerId)
+            print(attempt.id)
+            print(attempt.nodeHttpAddress)
+            print(attempt.nodeId)
+            print(attempt.startTime)
+            XCTAssertGreaterThan(attempt.id, 0)
+            XCTAssertGreaterThan(attempt.containerId.utf8.count, 0)
+          }
         }catch (let appErr) {
           XCTFail("YARN APP: \(appErr)")
         }
+
+
       }//next
 
       app = try yarn.checkApps(states: [APP.State.FINISHED, APP.State.RUNNING], finalStatus: APP.FinalStatus.SUCCEEDED)
