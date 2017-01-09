@@ -198,7 +198,7 @@ public class WebHDFS {
 
     // join all variables into a string
     if (varies.count > 0) {
-      let par = varies.reduce("") { $0 + "&\($1.key)=\($1.value)"}
+      let par = varies.reduce("") { $0 + "&\($1.key)=\($1.value)".stringByEncodingURL}
       url.append(par)
     }//end if
 
