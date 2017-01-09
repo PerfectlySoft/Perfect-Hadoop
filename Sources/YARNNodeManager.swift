@@ -203,6 +203,7 @@ public class YARNNodeManager: WebHDFS {
   /// NodeInfo structure, See NodeInfo.
   /// - throws:
   /// WebHDFS.Exceptions
+  @discardableResult
   public func checkOverall() throws -> NodeInfo? {
     let (_, dat, _) = try self.perform()
     return dat.asNodeInfo
@@ -213,6 +214,7 @@ public class YARNNodeManager: WebHDFS {
   /// An array of APP structure. See APP.
   /// - throws:
   /// WebHDFS.Exceptions
+  @discardableResult
   public func checkApps() throws -> [APP] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps"))
     return dat.asApps
@@ -223,6 +225,7 @@ public class YARNNodeManager: WebHDFS {
   /// An APP struct. See APP.
   /// - throws:
   /// WebHDFS.Exceptions
+  @discardableResult
   public func checkApp(id: String) throws -> APP? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)"))
     return dat.asApp
@@ -233,6 +236,7 @@ public class YARNNodeManager: WebHDFS {
   /// An array of Container. See Container.
   /// - throws:
   /// WebHDFS.Exceptions
+  @discardableResult
   public func checkContainers() throws -> [Container] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/containers"))
     return dat.asContainers
@@ -243,6 +247,7 @@ public class YARNNodeManager: WebHDFS {
   /// Container data structure. See Container.
   /// - throws:
   /// WebHDFS.Exceptions
+  @discardableResult
   public func checkContainer(id: String) throws -> Container? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/containers/\(id)"))
     return dat.asContainer

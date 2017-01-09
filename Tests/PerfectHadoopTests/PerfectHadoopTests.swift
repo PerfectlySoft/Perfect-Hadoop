@@ -504,6 +504,67 @@ class PerfectHadoopTests: XCTestCase {
       XCTAssertGreaterThan(sch?.maxCapacity ?? 0.0, 0.0)
       print(sch?.queueName ?? "")
       print(sch?.queues.count ?? -1)
+
+      var app = try yarn.checkApps()
+      app.forEach{ a in
+        print("============== YARN APP ===================")
+        print(a.allocatedMB)
+        print(a.allocatedVCores)
+        print(a.amContainerLogs)
+        print(a.amHostHttpAddress)
+        print(a.amNodeLabelExpression)
+        print(a.amRPCAddress)
+        print(a.applicationPriority)
+        print(a.applicationTags)
+        XCTAssertGreaterThanOrEqual(a.amRPCAddress.utf8.count, 0)
+
+        do {
+          let xapp = try yarn.checkApp(id: a.id)
+          XCTAssertNotNil(xapp)
+          let x = xapp!
+          print(x.allocatedMB)
+          print(x.allocatedVCores)
+          print(x.amContainerLogs)
+          print(x.amHostHttpAddress)
+          print(x.amNodeLabelExpression)
+          print(x.amRPCAddress)
+          print(x.applicationPriority)
+          print(x.applicationTags)
+          XCTAssertEqual(a.allocatedMB, x.allocatedMB)
+          XCTAssertEqual(a.allocatedVCores, x.allocatedVCores)
+          XCTAssertEqual(a.amContainerLogs, x.amContainerLogs)
+          XCTAssertEqual(a.amHostHttpAddress, x.amHostHttpAddress)
+          XCTAssertEqual(a.amNodeLabelExpression, x.amNodeLabelExpression)
+          XCTAssertEqual(a.amRPCAddress, x.amRPCAddress)
+          XCTAssertEqual(a.applicationPriority, x.applicationPriority)
+          XCTAssertEqual(a.applicationTags, x.applicationTags)
+        }catch (let appErr) {
+          XCTFail("YARN APP: \(appErr)")
+        }
+      }//next
+
+      app = try yarn.checkApps(states: [APP.State.FINISHED, APP.State.RUNNING], finalStatus: APP.FinalStatus.SUCCEEDED)
+      app.forEach{ a in
+        print("============== YARN APP FILTERED ===================")
+        print(a.allocatedMB)
+        print(a.allocatedVCores)
+        print(a.amContainerLogs)
+        print(a.amHostHttpAddress)
+        print(a.amNodeLabelExpression)
+        print(a.amRPCAddress)
+        print(a.applicationPriority)
+        print(a.applicationTags)
+        XCTAssertGreaterThanOrEqual(a.amRPCAddress.utf8.count, 0)
+      }//next
+
+      let sta = try yarn.checkAppStatistics(states: [APP.State.FINISHED, APP.State.RUNNING])
+      sta.forEach{ s in
+        print(s.count)
+        print(s.state)
+        print(s.type)
+        XCTAssertNotEqual(s.state, APP.State.INVALID)
+      }//next s
+
     }catch(let err) {
       XCTFail("YARN resource:\(err)")
     }

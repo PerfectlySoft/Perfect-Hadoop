@@ -334,8 +334,6 @@ public struct FairQueue {
   }//init
 }// FairQueue
 
-
-
 /// The capacity scheduler supports hierarchical queues. This one request will print information about all the queues and any subqueues they have.
 public struct SchedulerInfo {
 
@@ -412,6 +410,158 @@ extension String {
   }//end member
 }//end extension
 
+/// An application resource contains information about a particular application that was submitted to a cluster.
+public struct APP {
+
+  /// The application state according to the ResourceManager - valid values are members of the YarnApplicationState
+  public enum State: String {
+  case NEW = "NEW", NEW_SAVING = "NEW_SAVING", SUBMITTED = "SUBMITTED", ACCEPTED = "ACCEPTED", RUNNING = "RUNNING", FINISHED = "FINISHED", FAILED = "FAILED", KILLED = "KILLED", INVALID = ""
+  }//end enum
+
+  /// The final status of the application if finished - reported by the application itself
+  public enum FinalStatus: String {
+  case UNDEFINED = "UNDEFINED", SUCCEEDED = "SUCCEEDED", FAILED = "FAILED", KILLED = "KILLED", INVALID = ""
+  }//end num
+
+  var allocatedMB = 0
+  var allocatedVCores = 0
+  /// The URL of the application master container logs
+  var amContainerLogs = ""
+  /// The nodes http address of the application master
+  var amHostHttpAddress = ""
+  /// The RPC address of the application master
+  var amRPCAddress = ""
+  /// Node Label expression which is used to identify the node on which application’s AM container is expected to run.
+  var amNodeLabelExpression = ""
+  /// priority of the submitted application
+  var applicationPriority = 0
+  var applicationTags = ""
+  /// The application type
+  var applicationType = ""
+  /// Node Label expression which is used to identify the nodes on which application’s containers are expected to run by default.
+  var appNodeLabelExpression = ""
+  var containerids = [String]()
+  /// The cluster id
+  var clusterId = 0
+  /// Detailed diagnostics information
+  var diagnostics = ""
+  /// The elapsed time since the application started (in ms)
+  var elapsedTime = 0
+  /// The final status of the application if finished - reported by the application itself - valid values are: UNDEFINED, SUCCEEDED, FAILED, KILLED
+  var finalStatus: FinalStatus = .INVALID
+  /// The time in which the application finished (in ms since epoch)
+  var finishedTime = 0
+  /// The application id
+  var id = ""
+  var memorySeconds = 0
+  /// The application name
+  var name = ""
+  /// The progress of the application as a percent
+  var progress: Double = 0.0
+  // The queue the application was submitted to
+  var queue = ""
+  var runningContainers = 0
+  /// The time in which application started (in ms since epoch)
+  var startedTime = 0
+  /// The application state according to the ResourceManager - valid values are members of the YarnApplicationState
+  var state: State = .INVALID
+  /// Where the tracking url is currently pointing - History (for history server) or ApplicationMaster
+  var trackingUI = ""
+  /// The web URL that can be used to track the application
+  var trackingUrl = ""
+  var unmanagedApplication = ""
+  /// The user who started the application
+  var user = ""
+  var vcoreSeconds = 0
+  /// constructor of APP
+  /// - parameters:
+  ///   - dictionary: [String:Any], a json decoded dictionary of APP
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.allocatedMB = dictionary["allocatedMB"] as? Int ?? 0
+    self.allocatedVCores = dictionary["allocatedVCores"] as? Int ?? 0
+    self.amContainerLogs = dictionary["amContainerLogs"] as? String ?? ""
+    self.amHostHttpAddress = dictionary["amHostHttpAddress"] as? String ?? ""
+    self.amRPCAddress = dictionary["amRPCAddress"] as? String ?? ""
+    self.amNodeLabelExpression = dictionary["amnodeLabelExpression"] as? String ?? ""
+    self.applicationPriority = dictionary["applicationPriority"] as? Int ?? 0
+    self.applicationTags = dictionary["applicationTags"] as? String ?? ""
+    self.applicationType = dictionary["applicationType"] as? String ?? ""
+    self.appNodeLabelExpression = dictionary["appNodeLabelExpression"] as? String ?? ""
+    self.containerids = dictionary["containerids"] as? [String] ?? []
+    self.clusterId = dictionary["clusterId"] as? Int ?? 0
+    self.diagnostics = dictionary["diagnostics"] as? String ?? ""
+    self.elapsedTime = dictionary["elapsedTime"] as? Int ?? 0
+    self.finalStatus = FinalStatus(rawValue: dictionary["finalStatus"] as? String ?? "") ?? .INVALID
+    self.finishedTime = dictionary["finishedTime"] as? Int ?? 0
+    self.id = dictionary["id"] as? String ?? ""
+    self.memorySeconds = dictionary["memorySeconds"] as? Int ?? 0
+    self.name = dictionary["name"] as? String ?? ""
+    self.progress = Double(any: dictionary["progress"])
+    self.queue = dictionary["queue"] as? String ?? ""
+    self.runningContainers = dictionary["runningContainers"] as? Int ?? 0
+    self.startedTime = dictionary["startedTime"] as? Int ?? 0
+    self.state = State(rawValue: dictionary["state"] as? String ?? "") ?? .INVALID
+    self.trackingUI = dictionary["trackingUI"] as? String ?? ""
+    self.trackingUrl = dictionary["trackingUrl"] as? String ?? ""
+    self.unmanagedApplication = dictionary["unmanagedApplication"] as? String ?? ""
+    self.user = dictionary["user"] as? String ?? ""
+    self.vcoreSeconds = dictionary["vcoreSeconds"] as? Int ?? 0
+  }//init
+}//APP
+
+extension String {
+  public var asApp: APP? {
+    get {
+      do {
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        return APP(dic["app"] as? [String: Any] ?? [:])
+      }catch {
+        return nil
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
+extension String {
+  public var asApps: [APP] {
+    get {
+      do {
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        let apps = dic["apps"] as? [String:Any] ?? [:]
+        return (apps["app"] as? [Any] ?? []).map { APP($0 as? [String: Any] ?? [:])}
+      }catch {
+        return []
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
+/// The collection of statItem objects
+public struct AppStatItem{
+  var count = 0
+  var state: APP.State = .INVALID
+  var type = ""
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.count = dictionary["count"] as? Int ?? 0
+    self.state = APP.State(rawValue: dictionary["state"] as? String ?? "") ?? .INVALID
+    self.type = dictionary["type"] as? String ?? ""
+  }//init
+}//statItemItem
+
+extension String {
+  public var asAppStatInfo: [AppStatItem] {
+    get{
+      do{
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        let app = dic["appStatInfo"] as? [String:Any] ?? [:]
+        return (app["statItem"] as? [Any] ?? []).map{AppStatItem($0 as? [String : Any] ?? [:])}
+      }catch{
+        return []
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
 /// The ResourceManager allow the user to get information about the cluster - status on the cluster, metrics on the cluster, scheduler information, information about nodes in the cluster, and information about applications on the cluster.
 public class YARNResourceManager: YARNNodeManager {
 
@@ -439,6 +589,7 @@ public class YARNResourceManager: YARNNodeManager {
   /// ClusterInfo structure, See ClusterInfo.
   /// - throws:
   /// WebHDFS.Exceptions
+  @discardableResult
   public func checkClusterInfo() throws -> ClusterInfo? {
     let (_, dat, _) = try self.perform()
     return dat.asClusterInfo
@@ -449,6 +600,7 @@ public class YARNResourceManager: YARNNodeManager {
   /// ClusterMetrics structure, See ClusterMetrics.
   /// - throws:
   /// WebHDFS.Exceptions
+  @discardableResult
   public func checkClusterMetrics() throws -> ClusterMetrics? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/metrics"))
     return dat.asClusterMetrics
@@ -459,8 +611,115 @@ public class YARNResourceManager: YARNNodeManager {
   /// SchedulerInfo structure, See SchedulerInfo.
   /// - throws:
   /// WebHDFS.Exceptions
+  @discardableResult
   public func checkSchedulerInfo() throws -> SchedulerInfo? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/scheduler"))
     return dat.asSchedulerInfo
   }//end func
+
+  /// With the Applications API, you can obtain a collection of resources, each of which represents an application. When you run a GET operation on this resource, you obtain a collection of Application Objects.
+  /// - parameters:
+  ///   - states: [APP.State], applications matching the given application states
+  ///   - finalStatus: APP.FinalStatus, the final status of the application - reported by the application itself
+  ///   - queue: String, queue name
+  ///   - limit: Int, total number of app objects to be returned
+  ///   - startedTimeBegin: Int, applications with start time beginning with this time, specified in ms since epoch
+  ///   - startedTimeEnd: Int, applications with start time ending with this time, specified in ms since epoch
+  ///   - finishedTimeBegin: Int, applications with finish time beginning with this time, specified in ms since epoch
+  ///   - finishedTimeEnd: Int, applications with finish time ending with this time, specified in ms since epoch
+  ///   - applicationTypes: [String], applications matching the given application types
+  ///   - applicationTags: [String], applications matching any of the given application tags
+  /// - returns:
+  /// [APP], See APP.
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public func checkApps(states: [APP.State] = [], finalStatus: APP.FinalStatus = .INVALID, queue: String = "", limit: Int = 0, startedTimeBegin: Int = 0, startedTimeEnd: Int = 0, finishedTimeBegin: Int = 0, finishedTimeEnd: Int = 0, applicationTypes: [String] = [], applicationTags: [String] = []) throws -> [APP] {
+    var v:[String:String] = [:]
+    if states.count > 0 {
+      v["states"] = states.map{$0.rawValue}.joined(separator: ",")
+    }//end if
+    if finalStatus != .INVALID {
+      v["finalStatus"] = finalStatus.rawValue
+    }//end if
+
+    if !user.isEmpty {
+      v["user"] = self.user
+    }//end if
+
+    if limit > 0 {
+      v["limit"] = String(limit)
+    }//end if
+
+    if startedTimeBegin > 0 {
+      v["startedTimeBegin"] = String(startedTimeBegin)
+    }//end if
+
+    if startedTimeEnd > 0 {
+      v["startedTimeEnd"] = String(startedTimeEnd)
+    }//end if
+
+    if finishedTimeBegin > 0 {
+      v["finishedTimeBegin"] = String(finishedTimeBegin)
+    }//end if
+
+    if finishedTimeEnd > 0 {
+      v["finishedTimeEnd"] = String(finishedTimeEnd)
+    }//end if
+
+    if applicationTypes.count > 0 {
+      v["applicationTypes"] = applicationTypes.joined(separator: ",")
+    }//end if
+
+    if applicationTags.count > 0 {
+      v["applicationTags"] = applicationTags.joined(separator: ",")
+    }//end if
+
+    var url = "/apps"
+    if v.count > 0 {
+      url += v.reduce("?") { $0 + "&\($1.key)=\($1.value)".stringByEncodingURL }
+    }//end if
+    let (_, dat, _) = try self.perform(overwriteURL: assembleURL(url))
+    return dat.asApps
+  }//end func
+
+  /// With the Application Statistics API, you can obtain a collection of triples, each of which contains the application type, the application state and the number of applications of this type and this state in ResourceManager context. Note that with the performance concern, we currently only support at most one applicationType per query. We may support multiple applicationTypes per query as well as more statistics in the future. When you run a GET operation on this resource, you obtain a collection of statItem objects.
+  /// - parameters:
+  ///   - states: [APP.State], states of the application. If states is not provided, the API will enumerate all application states and return the counts of them.
+  ///   - applicationTypes: [String], types of the applications. If applicationTypes is not provided, the API will count the applications of any application type. In this case, the response shows * to indicate any application type. Note that we only support at most one applicationType temporarily. Otherwise, users will expect an BadRequestException.
+  /// - returns:
+  /// [AppStatItem], See AppStatItem.
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public func checkAppStatistics(states: [APP.State] = [], applicationTypes: [String] = []) throws -> [AppStatItem] {
+    var v:[String:String] = [:]
+    if states.count > 0 {
+      v["states"] = states.map{$0.rawValue}.joined(separator: ",")
+    }//end if
+
+    if applicationTypes.count > 0 {
+      v["applicationTypes"] = applicationTypes.joined(separator: ",")
+    }//end if
+
+    var url = "/appstatistics"
+    if v.count > 0 {
+      url += v.reduce("?") { $0 + "&\($1.key)=\($1.value)".stringByEncodingURL }
+    }//end if
+    let (_, dat, _) = try self.perform(overwriteURL: assembleURL(url))
+    return dat.asAppStatInfo
+  }//end func
+
+  /// Use the following URI to obtain an app object, from a application identified by the appid value.
+  /// - parameters:
+  ///   - id: String, application id
+  /// - returns:
+  /// APP, See structur of APP.
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public override func checkApp(id:String) throws -> APP? {
+    let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)"))
+    return dat.asApp
+  }//end public
 }//end YARNResourceManager
