@@ -614,6 +614,25 @@ class PerfectHadoopTests: XCTestCase {
       XCTFail("YARN resource:\(err)")
     }
   }
+
+  func testYarnClusterNewApp () {
+    let yarn = YARNResourceManager(user: "rockywei")
+    do {
+      let a = try yarn.newApplication()
+      XCTAssertNotNil(a)
+      let id = a?.id ?? ""
+      let mem = a?.maximumResourceCapability.memory ?? 0
+      let cores = a?.maximumResourceCapability.vCores ?? 0
+      XCTAssertGreaterThan(id.utf8.count, 0)
+      XCTAssertGreaterThan(mem, 0)
+      XCTAssertGreaterThan(cores, 0)
+      print(id)
+      print(mem)
+      print(cores)
+    }catch(let err){
+      XCTFail("YARN New App:\(err)")
+    }
+  }
 /*
     func testToken() {
       let hdfs = WebHDFS(auth:.byDelegation(token: "TTK1234567890"))
@@ -703,7 +722,8 @@ class PerfectHadoopTests: XCTestCase {
                ("testSnapshot", testSnapshot),
                //("testToken", testToken),
           //("testAuthKerb", testAuthKerb),
-          ("testYARNNode", testYARNNode)
+          ("testYARNNode", testYARNNode),
+          ("testYarnClusterNewApp", testYarnClusterNewApp)
         ]
     }
 }

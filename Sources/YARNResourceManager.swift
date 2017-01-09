@@ -680,6 +680,34 @@ extension String {
   }//end member
 }//end extension
 
+/// With the New Application API, you can obtain an application-id which can then be used as part of the Cluster Submit Applications API to submit applications. The response also includes the maximum resource capabilities available on the cluster.This feature is currently in the alpha stage and may change in the future.
+public struct NewApplication {
+  /// The newly created application id
+  var id = ""
+  /// The maximum resource capabilities available on this cluster
+  var maximumResourceCapability = ResourcesUsed()
+  /// constructor
+  /// - parameters:
+  ///   - dictionary: [String:Any], a dictionary decoded from a json string
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.id = dictionary["application-id"] as? String ?? ""
+    self.maximumResourceCapability = ResourcesUsed(dictionary["maximum-resource-capability"] as? [String:Any] ?? [:])
+  }//end init
+}//end structure
+
+extension String {
+  /// nicely convert a json string directly into a NewApplication
+  public var asNewApplication: NewApplication? {
+    get{
+      do{
+        return NewApplication(try self.jsonDecode() as? [String:Any] ?? [:])
+      }catch{
+        return nil
+      }//end do
+    }//end get
+  }
+}//end extension
+
 /// The ResourceManager allow the user to get information about the cluster - status on the cluster, metrics on the cluster, scheduler information, information about nodes in the cluster, and information about applications on the cluster.
 public class YARNResourceManager: YARNNodeManager {
 
@@ -699,7 +727,7 @@ public class YARNResourceManager: YARNNodeManager {
                         auth: Authentication = .off, proxyUser: String = "",
                         extraHeaders: [String] = [],
                         apibase: String = "/ws/v1/cluster", timeout: Int = 0) {
-    super.init(service: service, host: host, port: port, auth: auth, proxyUser: proxyUser, extraHeaders: extraHeaders, apibase: apibase, timeout: timeout)
+    super.init(service: service, host: host, port: port, user: user, auth: auth, proxyUser: proxyUser, extraHeaders: extraHeaders, apibase: apibase, timeout: timeout)
   }//end constructor
 
   /// The cluster information resource provides overall information about the cluster.
@@ -874,5 +902,20 @@ public class YARNResourceManager: YARNNodeManager {
   public func checkClusterNode(id: String) throws -> Node? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes/\(id)"))
     return dat.asNode
+  }//end func
+
+  /// With the New Application API, you can obtain an application-id which can then be used as part of the Cluster Submit Applications API to submit applications. The response also includes the maximum resource capabilities available on the cluster.
+  /// - returns:
+  /// NewApplication, See Structure of NewApplication.
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public func newApplication() throws -> NewApplication? {
+    guard !user.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let url = assembleURL("/apps/new-application?user=\(user)")
+    let (_, dat, _) = try self.perform(method:.POST, overwriteURL: url)
+    return dat.asNewApplication
   }//end func
 }//end YARNResourceManager

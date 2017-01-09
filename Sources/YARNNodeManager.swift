@@ -185,7 +185,7 @@ public class YARNNodeManager: WebHDFS {
                         auth: Authentication = .off, proxyUser: String = "",
                         extraHeaders: [String] = [],
                         apibase: String = "/ws/v1/node", timeout: Int = 0) {
-    super.init(service: service, host: host, port: port, auth: auth, proxyUser: proxyUser, extraHeaders: extraHeaders, apibase: apibase, timeout: timeout)
+    super.init(service: service, host: host, port: port, user:user, auth: auth, proxyUser: proxyUser, extraHeaders: extraHeaders, apibase: apibase, timeout: timeout)
   }//end constructor
 
   /// generate a url by the provided information

@@ -21,26 +21,7 @@ import PerfectLib
 
 
 
-public struct NewApplication {
-  var id = ""
-  var maximumResourceCapability = ResourcesUsed()
-  public init(_ dictionary: [String:Any] = [:]) {
-    self.id = dictionary["application-id"] as? String ?? ""
-    self.maximumResourceCapability = ResourcesUsed(dictionary["maximum-resource-capability"] as? [String:Any] ?? [:])
-  }//end init
-}//end structure
 
-extension String {
-  public var asNewApplication: NewApplication? {
-    get{
-      do{
-        return NewApplication(try self.jsonDecode() as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }
-}//end extension
 
 public struct Token {
   var expirationTime = 0
