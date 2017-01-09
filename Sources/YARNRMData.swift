@@ -21,63 +21,6 @@ import PerfectLib
 
 
 
-
-
-public struct Node{
-  var availMemoryMB = 0
-  var availableVirtualCores = 0
-  var healthReport = ""
-  var healthStatus = ""
-  var id = ""
-  var lastHealthUpdate = 0
-  var nodeHTTPAddress = ""
-  var nodeHostName = ""
-  var numContainers = 0
-  var rack = ""
-  var state = ""
-  var usedMemoryMB = 0
-  var usedVirtualCores = 0
-  public init(_ dictionary: [String:Any] = [:]) {
-    self.availMemoryMB = dictionary["availMemoryMB"] as? Int ?? 0
-    self.availableVirtualCores = dictionary["availableVirtualCores"] as? Int ?? 0
-    self.healthReport = dictionary["healthReport"] as? String ?? ""
-    self.healthStatus = dictionary["healthStatus"] as? String ?? ""
-    self.id = dictionary["id"] as? String ?? ""
-    self.lastHealthUpdate = dictionary["lastHealthUpdate"] as? Int ?? 0
-    self.nodeHTTPAddress = dictionary["nodeHTTPAddress"] as? String ?? ""
-    self.nodeHostName = dictionary["nodeHostName"] as? String ?? ""
-    self.numContainers = dictionary["numContainers"] as? Int ?? 0
-    self.rack = dictionary["rack"] as? String ?? ""
-    self.state = dictionary["state"] as? String ?? ""
-    self.usedMemoryMB = dictionary["usedMemoryMB"] as? Int ?? 0
-    self.usedVirtualCores = dictionary["usedVirtualCores"] as? Int ?? 0
-  }//init
-}//Node
-
-extension String {
-  public var asNode: Node? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return Node(dic["node"] as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }//end member
-  public var asNodes: [Node] {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let n = dic["nodes"] as? [String:Any] ?? [:]
-        return (n["node"] as? [Any] ?? []).map { Node($0 as? [String:Any] ?? [:]) }
-      }catch{
-        return []
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 public struct NewApplication {
   var id = ""
   var maximumResourceCapability = ResourcesUsed()

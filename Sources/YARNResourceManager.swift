@@ -599,6 +599,87 @@ extension String {
   }//end member
 }//end extension
 
+
+/// Cluster Node Info
+public struct Node{
+
+  public enum State: String {
+    case NEW = "NEW", RUNNING = "RUNNING", UNHEALTHY = "UNHEALTHY", DECOMMISSIONED = "DECOMMISSIONED", LOST = "LOST", REBOOTED = "REBOOTED", INVALID = ""
+  }//end state
+
+  public enum Health: String {
+    case Healthy = "Healthy", Unhealthy = "Unhealthy", INVALID = ""
+  }//end Health
+
+  var availMemoryMB = 0
+  var availableVirtualCores = 0
+  /// A detailed health report
+  var healthReport = ""
+  /// The health status of the node - Healthy or Unhealthy
+  var healthStatus: Health = .INVALID
+  /// The node id
+  var id = ""
+  /// The health status of the node - Healthy or Unhealthy
+  var lastHealthUpdate = 0
+  /// The nodes HTTP address
+  var nodeHTTPAddress = ""
+  /// The host name of the node
+  var nodeHostName = ""
+  var numContainers = 0
+  /// The rack location of this node
+  var rack = ""
+  /// State of the node - valid values are:
+  var state: State = .INVALID
+  /// The total amount of memory currently used on the node (in MB)
+  var usedMemoryMB = 0
+  /// The total number of vCores currently used on the node
+  var usedVirtualCores = 0
+  /// constructor
+  /// - parameters:
+  ///   - dictionary: [String:Any], a dictionary decoded from a json string
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.availMemoryMB = dictionary["availMemoryMB"] as? Int ?? 0
+    self.availableVirtualCores = dictionary["availableVirtualCores"] as? Int ?? 0
+    self.healthReport = dictionary["healthReport"] as? String ?? ""
+    self.healthStatus = Health(rawValue: dictionary["healthStatus"] as? String ?? "") ?? .INVALID
+    self.id = dictionary["id"] as? String ?? ""
+    self.lastHealthUpdate = dictionary["lastHealthUpdate"] as? Int ?? 0
+    self.nodeHTTPAddress = dictionary["nodeHTTPAddress"] as? String ?? ""
+    self.nodeHostName = dictionary["nodeHostName"] as? String ?? ""
+    self.numContainers = dictionary["numContainers"] as? Int ?? 0
+    self.rack = dictionary["rack"] as? String ?? ""
+    self.state = State(rawValue: dictionary["state"] as? String ?? "") ?? .INVALID
+    self.usedMemoryMB = dictionary["usedMemoryMB"] as? Int ?? 0
+    self.usedVirtualCores = dictionary["usedVirtualCores"] as? Int ?? 0
+  }//init
+}//Node
+
+extension String {
+  /// nicely convert a json string directly into a Node
+  public var asNode: Node? {
+    get{
+      do{
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        return Node(dic["node"] as? [String:Any] ?? [:])
+      }catch{
+        return nil
+      }//end do
+    }//end get
+  }//end member
+  /// nicely convert a json string directly into an array of Node
+  public var asNodes: [Node] {
+    get{
+      do{
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        let n = dic["nodes"] as? [String:Any] ?? [:]
+        return (n["node"] as? [Any] ?? []).map { Node($0 as? [String:Any] ?? [:]) }
+      }catch{
+        return []
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
 /// The ResourceManager allow the user to get information about the cluster - status on the cluster, metrics on the cluster, scheduler information, information about nodes in the cluster, and information about applications on the cluster.
 public class YARNResourceManager: YARNNodeManager {
 
@@ -758,7 +839,7 @@ public class YARNResourceManager: YARNNodeManager {
   public override func checkApp(id:String) throws -> APP? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)"))
     return dat.asApp
-  }//end public
+  }//end func
 
   /// With the application attempts API, you can obtain a collection of resources that represent an application attempt. When you run a GET operation on this resource, you obtain a collection of App Attempt Objects.
   /// - parameters:
@@ -771,5 +852,17 @@ public class YARNResourceManager: YARNNodeManager {
   public func checkAppAttempts(id:String) throws -> [AppAttempt] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)/appattempts"))
     return dat.asAppAttempts
-  }//end public
+  }//end func
+
+  /// Cluster Nodes API: With the Nodes API, you can obtain a collection of resources, each of which represents a node. When you run a GET operation on this resource, you obtain a collection of Node Objects.
+  /// - returns:
+  /// [Node], See Node Structure.
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public func checkClusterNodes() throws -> [Node] {
+    let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes"))
+    print(dat)
+    return dat.asNodes
+  }//end func
 }//end YARNResourceManager

@@ -123,6 +123,9 @@ public struct Container{
   var totalVCoresNeeded = 0
   /// The user name of the user which started the container
   var user = ""
+  /// constructor
+  /// - parameters:
+  ///   - dictionary: [String:Any], a dictionary decoded from a json string
   public init(_ dictionary: [String:Any] = [:]) {
     self.containerLogsLink = dictionary["containerLogsLink"] as? String ?? ""
     self.diagnostics = dictionary["diagnostics"] as? String ?? ""
