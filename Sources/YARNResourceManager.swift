@@ -289,29 +289,89 @@ public struct Queue {
   }//init
 }//queue
 
+/// Fair Scheduler API
+public struct FairQueue {
+  /// The maximum number of applications the queue can have
+  var maxApps = 0
+  /// The configured minimum resources that are guaranteed to the queue
+  var minResources = ResourcesUsed([:])
+  /// The configured maximum resources that are allowed to the queue
+  var maxResources = ResourcesUsed([:])
+  /// The sum of resources allocated to containers within the queue
+  var usedResources = ResourcesUsed([:])
+  /// The queue’s fair share of resources
+  var fairResources = ResourcesUsed([:])
+  /// The capacity of the cluster
+  var clusterResources = ResourcesUsed([:])
+  /// The name of the queue
+  var queueName = ""
+  /// The name of the scheduling policy used by the queue
+  var schedulingPolicy = ""
+  /// A collection of sub-queue information. Omitted if the queue has no childQueues.
+  var childQueues = [FairQueue]()
+  /// type of the queue - fairSchedulerLeafQueueInfo
+  var type = ""
+  /// The number of active applications in this queue
+  var numActiveApps = 0
+  /// The number of pending applications in this queue
+  var numPendingApps = 0
+  /// constructor of FairQueue
+  /// - parameters:
+  ///   - dictionary: [String:Any], a json decoded dictionary of FairQueue
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.maxApps = dictionary["maxApps"] as? Int ?? 0
+    self.minResources = ResourcesUsed(dictionary["minResources"] as? [String:Any] ?? [:])
+    self.maxResources = ResourcesUsed(dictionary["maxResources"] as? [String:Any] ?? [:])
+    self.usedResources = ResourcesUsed(dictionary["usedResources"] as? [String:Any] ?? [:])
+    self.fairResources = ResourcesUsed(dictionary["fairResources"] as? [String:Any] ?? [:])
+    self.clusterResources = ResourcesUsed(dictionary["clusterResources"] as? [String:Any] ?? [:])
+    self.queueName = dictionary["queueName"] as? String ?? ""
+    self.type = dictionary["type"] as? String ?? ""
+    self.numActiveApps = dictionary["numActiveApps"] as? Int ?? 0
+    self.numPendingApps = dictionary["numPendingApps"] as? Int ?? 0
+    let q = dictionary["childQueues"] as? [String:Any] ?? [:]
+    self.childQueues = (q["queue"] as? [Any] ?? []).map {FairQueue($0 as? [String:Any] ?? [:])}
+  }//init
+}// FairQueue
+
+
 
 /// The capacity scheduler supports hierarchical queues. This one request will print information about all the queues and any subqueues they have.
 public struct SchedulerInfo {
+
+  /// State of the queue - valid values are: STOPPED, RUNNING
+  enum QState: String {
+    case STOPPED = "STOPPED", RUNNING = "RUNNING", INVALID = ""
+  }//end enum
+
+  /// The available node capacity
   var availNodeCapacity = 0
   /// Configured queue capacity in percentage relative to its parent queue
   var capacity: Double = 0
   var maxCapacity: Double = 0
   /// Configured maximum queue capacity in percentage relative to its parent queue
   var maxQueueMemoryCapacity = 0
+  /// Minimum queue memory capacity
   var minQueueMemoryCapacity = 0
+  /// The number of containers
   var numContainers = 0
+  /// The total number of nodes
   var numNodes = 0
-  var qstate = ""
+  /// State of the queue - valid values are: STOPPED, RUNNING
+  var qstate:QState = .INVALID
   /// Name of the queue
   var queueName = ""
   /// A collection of queue resources
   var queues = [Queue]()
+  /// A collection of root queue resources
   var rootQueue = FairQueue([:])
+  /// The total node capacity
   var totalNodeCapacity = 0
   /// Scheduler type - capacityScheduler
   var type = ""
   /// Used queue capacity in percentage
   var usedCapacity: Double = 0
+  /// The used node capacity
   var usedNodeCapacity = 0
 
   /// constructor of SchedulerInfo
@@ -325,7 +385,7 @@ public struct SchedulerInfo {
     self.minQueueMemoryCapacity = dictionary["minQueueMemoryCapacity"] as? Int ?? 0
     self.numContainers = dictionary["numContainers"] as? Int ?? 0
     self.numNodes = dictionary["numNodes"] as? Int ?? 0
-    self.qstate = dictionary["qstate"] as? String ?? ""
+    self.qstate = QState(rawValue: dictionary["qstate"] as? String ?? "") ?? .INVALID
     self.queueName = dictionary["queueName"] as? String ?? ""
     let q = dictionary["queues"] as? [String:Any] ?? [:]
     self.queues = (q["queue"] as? [Any] ?? []).map {Queue($0 as? [String:Any] ?? [:])}

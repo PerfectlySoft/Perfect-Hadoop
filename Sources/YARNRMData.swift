@@ -21,36 +21,6 @@ import PerfectLib
 
 
 
-public struct FairQueue {
-  var maxApps = 0
-  var minResources = ResourcesUsed([:])
-  var maxResources = ResourcesUsed([:])
-  var usedResources = ResourcesUsed([:])
-  var fairResources = ResourcesUsed([:])
-  var clusterResources = ResourcesUsed([:])
-  var queueName = ""
-  var schedulingPolicy = ""
-  var childQueues = [FairQueue]()
-  var type = ""
-  var numActiveApps = 0
-  var numPendingApps = 0
-  public init(_ dictionary: [String:Any] = [:]) {
-    self.maxApps = dictionary["maxApps"] as? Int ?? 0
-    self.minResources = ResourcesUsed(dictionary["minResources"] as? [String:Any] ?? [:])
-    self.maxResources = ResourcesUsed(dictionary["maxResources"] as? [String:Any] ?? [:])
-    self.usedResources = ResourcesUsed(dictionary["usedResources"] as? [String:Any] ?? [:])
-    self.fairResources = ResourcesUsed(dictionary["fairResources"] as? [String:Any] ?? [:])
-    self.clusterResources = ResourcesUsed(dictionary["clusterResources"] as? [String:Any] ?? [:])
-    self.queueName = dictionary["queueName"] as? String ?? ""
-    self.type = dictionary["type"] as? String ?? ""
-    self.numActiveApps = dictionary["numActiveApps"] as? Int ?? 0
-    self.numPendingApps = dictionary["numPendingApps"] as? Int ?? 0
-    let q = dictionary["childQueues"] as? [String:Any] ?? [:]
-    self.childQueues = (q["queue"] as? [Any] ?? []).map {FairQueue($0 as? [String:Any] ?? [:])}
-  }//init
-}// FairQueue
-
-
 public struct APP {
   var allocatedMB = 0
   var allocatedVCores = 0
