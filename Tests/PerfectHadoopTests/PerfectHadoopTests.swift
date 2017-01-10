@@ -637,7 +637,8 @@ class PerfectHadoopTests: XCTestCase {
   func testBase64() {
     let hello = Base64.encode(from: "Hello, world!")
     print(hello)
-    XCTAssertEqual(hello, "SGVsbG8sIHdvcmxkIQ==\n")
+    XCTAssertEqual(hello, "SGVsbG8sIHdvcmxkIQ==")
+
   }
 /*
     func testToken() {

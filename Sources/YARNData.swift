@@ -29,7 +29,7 @@ import PerfectLib
 /// - returns:
 /// base64 encoded text
 public class Base64 {
-  public static func encode(from: String, autowrap: Bool = false) -> String {
+  public static func encode(from: [UInt8], autowrap: Bool = false) -> String {
     // create a pipe line to manage the encoded data
     var pipes:[Int32] = [0,0]
     let res = pipe(&pipes)
@@ -38,12 +38,14 @@ public class Base64 {
     // use openssl to encode in base64 form
     let b64 = BIO_new(BIO_f_base64())
     let bio = BIO_new_fd(pipes[1], BIO_NOCLOSE)
+    // set this flag to merge all data into one line
+    if !autowrap {
+      BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL)
+    }//end
+
     BIO_push(b64, bio)
 
-    from.withCString { ptr in
-      let p = unsafeBitCast(ptr, to: UnsafeMutableRawPointer.self)
-      BIO_write(b64, p, Int32(from.utf8.count))
-    }
+    BIO_write(b64, UnsafePointer(from), Int32(from.count))
 
     BIO_ctrl(b64,BIO_CTRL_FLUSH,0,nil)
     close(pipes[1])
@@ -61,24 +63,36 @@ public class Base64 {
     let line = 78
 
     var longStr = ""
-    buf.withUnsafeBufferPointer{ pBuf in
-      let pRaw = unsafeBitCast(pBuf.baseAddress, to: UnsafeMutableRawPointer.self)
-      repeat {
-        memset(pRaw, 0, size)
-        received = read(pipes[0], pRaw, line)
-        if received > 0 {
-          let str = String(cString: buf)
-          longStr += str
-          if autowrap {
-            longStr += "\r\n"
-          }
+
+    // read out all bytes encoded, split into lines if need
+    repeat {
+      // clear the buffer - MUST DO for string ending with zero char
+      buf.removeAll(keepingCapacity: true)
+      // read the data from pipe to buffer
+      received = read(pipes[0], UnsafeMutablePointer(mutating: buf), line)
+      // if something read
+      if received > 0 {
+        // append the buf to the string
+        let str = String(cString: buf)
+        longStr += str
+        // add new line if need
+        if autowrap {
+          longStr += "\r\n"
         }//end if
-      }while(received >= line)
-    }//end buf
+      }//end if
+    }while(received >= line)
+
+    // finish reading
     close(pipes[0])
-    return longStr
-  }//end encode
-}//end encode
+
+    // trim new line ending if if need
+    return autowrap ? longStr : String(longStr.characters.filter { !["\n", "\r", "\t", " "].contains($0)})
+  }//end func
+
+  public static func encode(from: String, autowrap: Bool = false) -> String {
+    return encode(from: [UInt8](from.utf8), autowrap: autowrap)
+  }//end func
+}//end class
 
 
 public class AmBlackListingRequests:JSONConvertibleObject {
@@ -184,7 +198,7 @@ public class ResourceRequest: JSONConvertibleObject {
 }//end class
 
 /// The credentials object should be used to pass data required for the application to authenticate itself such as delegation-tokens and secrets.
-public class Credential: JSONConvertibleObject {
+public class Credentials: JSONConvertibleObject {
 
   /// tokens that you wish to pass to your application, specified as key-value pairs. The key is an identifier for the token and the value is the token(which should be obtained using the respective web-services)
   var tokens: [String:String] = [:]
@@ -214,24 +228,25 @@ public class Credential: JSONConvertibleObject {
     return v
   }//end func
 }
+
 /// Elements of the local-resources object. The object is a collection of key-value pairs. They key is an identifier for the resources to be localized and the value is the details of the resource.
-public class LocalResource : JSONConvertibleObject {
+public class LocalResource: JSONConvertibleObject {
   /// Type of the resource; options are “ARCHIVE”, “FILE”, and “PATTERN”
-  public enum `Type`: String {
-    case ARCHIVE = "ARCHIVE", FILE = "FILE", PATTERN = "PATTERN", INVALID = "INVALID"
+  public enum ResourceType: String {
+    case ARCHIVE = "ARCHIVE", FILE = "FILE", PATTERN = "PATTERN", INVALID = ""
   }//end type
   /// options are “PUBLIC”, “PRIVATE”, and “APPLICATION”
   public enum Visibility: String {
-    case PUBLIC = "PUBLIC", PRIVATE = "PRIVATE", APPLICATION = "APPLICATION", INVALID = "INVALID"
+    case PUBLIC = "PUBLIC", PRIVATE = "PRIVATE", APPLICATION = "APPLICATION", INVALID = ""
   }//end enum
 
   var resource = ""
-  var type: Type = .INVALID
+  var type: ResourceType = .INVALID
   var visibility: Visibility = .INVALID
   var size = 0
   var timestamp = 0
 
-  public init(resource: String, type: Type = .INVALID, visibility: Visibility = .INVALID, size: Int = 0, timestamp: Int = 0) {
+  public init(resource: String, type: ResourceType = .INVALID, visibility: Visibility = .INVALID, size: Int = 0, timestamp: Int = 0) {
     self.resource = resource
     self.type = type
     self.visibility = visibility
@@ -246,11 +261,11 @@ public class LocalResource : JSONConvertibleObject {
     }//end if
 
     if type != .INVALID {
-      v["type"] = type
+      v["type"] = type.rawValue
     }//end if
 
     if visibility != .INVALID {
-      v["visibility"] = visibility
+      v["visibility"] = visibility.rawValue
     }//end if
 
     if size > 0 {
@@ -262,9 +277,50 @@ public class LocalResource : JSONConvertibleObject {
     }//end if
     return v
   }//end func
+}//end struct
+
+
+public class Entry: JSONConvertibleObject {
+  public var key = ""
+  public var value: JSONConvertibleObject
+  public init(key: String, value: JSONConvertibleObject) {
+    self.key = key
+    self.value = value
+  }//end init
+  public override func getJSONValues() -> [String : Any] {
+    return ["key": key, "value": value]
+  }
 }//end class
 
+public class Entries: JSONConvertibleObject {
+  public var entry: [Entry]
+  public init(_ entry: [Entry]) {
+    self.entry = entry
+  }//end init
+  public override func getJSONValues() -> [String : Any] {
+    return ["entry": entry]
+  }
+}//end class
 
+/// The commands for launching your container, in the order in which they should be executed
+/// CAUTION: Hadoop 3.0 alpha document may not be correct about this part
+public class Commands: JSONConvertibleObject {
+  public var command = ""
+  public init(_ command: String = "") {
+    self.command = command
+  }//end public
+  public override func getJSONValues() -> [String : Any] {
+    return ["command": command]
+  }//end func
+}//end class
+
+public class AmContainerSpec: JSONConvertibleObject {
+  var localResources = Entries([])
+  var environment = Entries([])
+  var commands = Commands()
+
+  //var commands:
+}
 public struct JobTaskAttemptCounters {
 
   public enum Exception: Error {
