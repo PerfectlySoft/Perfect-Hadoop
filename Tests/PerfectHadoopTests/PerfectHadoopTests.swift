@@ -523,9 +523,15 @@ class PerfectHadoopTests: XCTestCase {
           XCTAssertNotEqual(state, APP.State.INVALID)
           print("= = = = = = = = = = = = = = YARN APP check state = = = = = = = = = = = = = = = = = = =")
           print(state)
-
           try yarn.setApplicationStatus(id: a.id, state: state)
 
+          print("# # # # # # YARN APP check queue # # # # # #")
+          let queue = try yarn.getApplicationQueue(id: a.id)
+          XCTAssertGreaterThan(queue.utf8.count, 1)
+          print(queue)
+
+          try yarn.setApplicationQueue(id: a.id, queue: queue)
+          
           let xapp = try yarn.checkApp(id: a.id)
           XCTAssertNotNil(xapp)
           let x = xapp!

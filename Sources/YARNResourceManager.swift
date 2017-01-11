@@ -1021,16 +1021,16 @@ public class YARNResourceManager: YARNNodeManager {
   @discardableResult
   public func getApplicationStatus(id: String) throws -> APP.State {
     if id.isEmpty {
-      throw WebHDFS.Exception.insufficientParameters
+      throw Exception.insufficientParameters
     }//end if
     let url = assembleURL("/apps/\(id)/state")
     let (header, body, _) = try self.perform(overwriteURL: url)
     guard let dic = try body.jsonDecode() as? [String:String] else {
-      throw WebHDFS.Exception.unexpectedResponse(url: url, header: header, body: body)
+      throw Exception.unexpectedResponse(url: url, header: header, body: body)
     }//end guard
     let state = APP.State(rawValue: dic["state"] ?? "")
     if state == .INVALID {
-      throw WebHDFS.Exception.unexpectedResponse(url: url, header: header, body: body)
+      throw Exception.unexpectedResponse(url: url, header: header, body: body)
     }//end if
     return state ?? .INVALID
   }//end getApplicationStatus
@@ -1043,12 +1043,53 @@ public class YARNResourceManager: YARNNodeManager {
   /// WebHDFS.Exceptions
   public func setApplicationStatus(id: String, state: APP.State) throws {
     guard !id.isEmpty && state != .INVALID else {
-      throw WebHDFS.Exception.insufficientParameters
+      throw Exception.insufficientParameters
     }//end if
 
     let json = "{\"state\":\"\(state.rawValue)\"}"
 
     let url = assembleURL("/apps/\(id)/state")
+
+    let _ = try submitRequest(url: url, extensionType: "json", content: json)
+  }//end func
+
+  ///With the application queue API, you can query the queue of a submitted app as well move a running app to another queue using a PUT request specifying the target queue. To perform the PUT operation, authentication has to be setup for the RM web services. In addition, you must be authorized to move the app. Currently you can only move the app if you’re using the Capacity scheduler or the Fair scheduler.
+  /// returns:
+  /// queue name, as a string
+  /// - parameters:
+  /// id: String, the application id
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public func getApplicationQueue(id: String) throws -> String {
+    if id.isEmpty {
+      throw Exception.insufficientParameters
+    }//end if
+    let url = assembleURL("/apps/\(id)/queue")
+    let (header, body, _) = try self.perform(overwriteURL: url)
+    guard let dic = try body.jsonDecode() as? [String:String] else {
+      throw Exception.unexpectedResponse(url: url, header: header, body: body)
+    }//end guard
+    guard let queue =  dic["queue"] else {
+      throw Exception.unexpectedResponse(url: url, header: header, body: body)
+    }//end if
+    return queue
+  }//end getApplicationStatus
+
+  /// set application queue
+  /// - parameters:
+  ///   - id: String, the application id
+  ///   - queue: String, the queue name to set
+  /// - throws:
+  /// WebHDFS.Exceptions
+  public func setApplicationQueue(id: String, queue: String) throws {
+    guard !id.isEmpty && !queue.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end if
+
+    let json = "{\"queue\":\"\(queue)\"}"
+
+    let url = assembleURL("/apps/\(id)/queue")
 
     let _ = try submitRequest(url: url, extensionType: "json", content: json)
   }//end func
