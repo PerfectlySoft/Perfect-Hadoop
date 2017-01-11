@@ -740,6 +740,20 @@ class PerfectHadoopTests: XCTestCase {
           XCTFail("map reduce history job counter error: \(jobCounterError)")
         }
 
+        print(" >> >>   >>>      >>> JobConfig <<<  << <<<<     <<<")
+        do {
+          let conf = try his.checkJobConfig(jobId: j.id)
+          XCTAssertNotNil(conf)
+          print(conf?.path ?? "")
+          (conf?.property ?? []).forEach { p in
+            print(p.name)
+            print(p.value)
+            print(p.source)
+          }
+        }catch(let jobCounterError) {
+          XCTFail("map reduce history job counter error: \(jobCounterError)")
+        }
+
       }
     }catch(let err) {
       XCTFail("map reduce historical jobs: \(err)")

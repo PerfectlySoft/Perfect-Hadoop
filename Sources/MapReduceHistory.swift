@@ -265,6 +265,52 @@ extension String {
   }//end member
 }//end extension
 
+/// A job configuration resource contains information about the job configuration for this job.
+public struct JobConfig{
+  /// Elements of the property object
+  public struct Property{
+    /// The value of the configuration property
+    var value = ""
+    /// The name of the configuration property
+    var name = ""
+    /// The location this configuration object came from. If there is more then one of these it shows the history with the latest source at the end of the list.
+    var source = [String]()
+    /// constructor of Property
+    /// - parameters:
+    /// a dictionary decoded from json string
+    public init(_ dictionary: [String:Any] = [:]) {
+      self.value = dictionary["value"] as? String ?? ""
+      self.name = dictionary["name"] as? String ?? ""
+      self.source = dictionary["source"] as? [String] ?? []
+    }//init
+  }//Property
+  /// The path to the job configuration file
+  var path = ""
+  /// Collection of configuration property objects
+  var property = [Property]()
+  /// constructor of CounterGroup
+  /// - parameters:
+  /// a dictionary decoded from json string
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.property = (dictionary["property"] as? [Any] ?? []).map{Property($0 as? [String : Any] ?? [:])}
+    self.path = dictionary["path"] as? String ?? ""
+  }//init
+}//JobConfig
+
+extension String {
+  /// nicely convert a json string into a JobCounters structure
+  public var asJobConfig: JobConfig? {
+    get{
+      do{
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        return JobConfig(dic["conf"] as? [String:Any] ?? [:])
+      }catch{
+        return nil
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
 /// The history server information resource provides overall information about the history server.
 public class MapReduceHistroy: YARNResourceManager {
 
@@ -391,5 +437,22 @@ public class MapReduceHistroy: YARNResourceManager {
     let url = assembleURL("/mapreduce/jobs/\(jobId)/counters")
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asJobcounters
+  }//end func
+
+  /// A job configuration resource contains information about the job configuration for this job.
+  /// - parameters:
+  ///   - jobId: the job's id to check
+  /// - throws
+  /// WebHDFS.Exceptions
+  /// - returns:
+  /// JobConfig, see JobConfig structure
+  @discardableResult
+  public func checkJobConfig(jobId: String) throws -> JobConfig? {
+    guard !jobId.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let url = assembleURL("/mapreduce/jobs/\(jobId)/conf")
+    let (_, dat, _) = try self.perform(overwriteURL: url)
+    return dat.asJobConfig
   }//end func
 }//end MapReduceHistory
