@@ -678,6 +678,23 @@ class PerfectHadoopTests: XCTestCase {
     print(hello)
     XCTAssertEqual(hello, "SGVsbG8sIHdvcmxkIQ==")
   }
+
+  func testMapReduceHistory() {
+    print(", ,, , , , , , , , HISTORY ,, ,, , , ,, , ")
+    let his = MapReduceHistroy()
+    do {
+      let info = try his.info()
+      XCTAssertNotNil(info)
+      let inf = info!
+      print(inf.startedOn)
+      print(inf.hadoopVersion)
+      print(inf.hadoopBuildVersion)
+      print(inf.hadoopVersionBuiltOn)
+      XCTAssertGreaterThan(inf.startedOn, 0)
+    }catch(let err) {
+      XCTFail("map reduce history: \(err)")
+    }
+  }
 /*
     func testToken() {
       let hdfs = WebHDFS(auth:.byDelegation(token: "TTK1234567890"))
@@ -769,7 +786,8 @@ class PerfectHadoopTests: XCTestCase {
           //("testAuthKerb", testAuthKerb),
           ("testYARNNode", testYARNNode),
           ("testYarnClusterNewApp", testYarnClusterNewApp),
-          ("testBase64", testBase64)
+          ("testBase64", testBase64),
+          ("testMapReduceHistory", testMapReduceHistory)
         ]
     }
 }

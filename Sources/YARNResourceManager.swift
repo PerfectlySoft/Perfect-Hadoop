@@ -726,10 +726,8 @@ public class YARNResourceManager: YARNNodeManager {
   public override init (service: String = "http",
                         host: String = "localhost", port: Int = 8088, user: String = "",
                         auth: Authentication = .off, proxyUser: String = "",
-                        // extraHeaders: [String] = [],
                         apibase: String = "/ws/v1/cluster", timeout: Int = 0) {
     super.init(service: service, host: host, port: port, user: user, auth: auth, proxyUser: proxyUser,
-               //extraHeaders: extraHeaders, 
         apibase: apibase, timeout: timeout)
   }//end constructor
 
