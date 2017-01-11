@@ -163,6 +163,46 @@ extension String {
   }//end member
 }//end extension
 
+/// With the job attempts API, you can obtain a collection of resources that represent a job attempt. When you run a GET operation on this resource, you obtain a collection of Job Attempt Objects.
+public struct JobAttempt{
+  /// The id of the container for the job attempt
+  var containerId = ""
+  /// The job attempt id
+  var id = 0
+  /// The http link to the job attempt logs
+  var logsLink = ""
+  /// The node http address of the node the attempt ran on
+  var nodeHttpAddress = ""
+  /// The node id of the node the attempt ran on
+  var nodeId = ""
+  /// The node id of the node the attempt ran on
+  var startTime = 0
+  /// constructor of JobAttempt
+  /// - parameters:
+  /// A dictionary decoded from a json string
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.containerId = dictionary["containerId"] as? String ?? ""
+    self.id = dictionary["id"] as? Int ?? 0
+    self.logsLink = dictionary["logsLink"] as? String ?? ""
+    self.nodeHttpAddress = dictionary["nodeHttpAddress"] as? String ?? ""
+    self.nodeId = dictionary["nodeId"] as? String ?? ""
+    self.startTime = dictionary["startTime"] as? Int ?? 0
+  }//init
+}//jobAttemptItem
+
+extension String {
+  public var asJobAttempts: [JobAttempt] {
+    get {
+      do {
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        let jobs = dic["jobAttempts"] as? [String: Any] ?? [:]
+        return (jobs["jobAttempt"] as? [Any] ?? []).map {JobAttempt($0 as? [String:Any] ?? [:])}
+      }catch {
+        return []
+      }//end do
+    }//end get
+  }//end member
+}//end extension
 
 /// The history server information resource provides overall information about the history server.
 public class MapReduceHistroy: YARNResourceManager {
@@ -256,5 +296,22 @@ public class MapReduceHistroy: YARNResourceManager {
     }//end if
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asJobs
+  }//end func
+
+  /// With the job attempts API, you can obtain a collection of resources that represent a job attempt. When you run a GET operation on this resource, you obtain a collection of Job Attempt Objects.
+  /// - parameters:
+  ///   - jobId: the job's id to check
+  /// - throws
+  /// WebHDFS.Exceptions
+  /// - returns:
+  /// [JobAttempt], an array of JobAttemp structures
+  @discardableResult
+  public func checkJobAttempts(jobId: String) throws -> [JobAttempt] {
+    guard !jobId.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let url = assembleURL("/mapreduce/jobs/\(jobId)/jobattempts")
+    let (_, dat, _) = try self.perform(overwriteURL: url)
+    return dat.asJobAttempts
   }//end func
 }//end MapReduceHistory

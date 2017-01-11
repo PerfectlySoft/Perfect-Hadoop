@@ -707,6 +707,19 @@ class PerfectHadoopTests: XCTestCase {
         print(j.name)
         print(j.queue)
         print(j.state)
+        do {
+          let attempts = try his.checkJobAttempts(jobId: j.id)
+          XCTAssertGreaterThan(attempts.count, 0)
+          attempts.forEach { attempt in
+            print(attempt.id)
+            print(attempt.containerId)
+            print(attempt.nodeHttpAddress)
+            print(attempt.nodeId)
+            print(attempt.startTime)
+          }
+        }catch(let jobErr) {
+          XCTFail("job attempt failed: \(jobErr)")
+        }
       }
     }catch(let err) {
       XCTFail("map reduce historical jobs: \(err)")
