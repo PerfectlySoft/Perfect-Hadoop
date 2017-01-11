@@ -629,6 +629,26 @@ class PerfectHadoopTests: XCTestCase {
       print(id)
       print(mem)
       print(cores)
+      let sum = SubmitApplication()
+      sum.id = id
+      sum.name = "test"
+      let local = LocalResource(resource: "hdfs://localhost:9000/user/rockywei/DistributedShell/demo-app/AppMaster.jar", type: .FILE, visibility: .APPLICATION, size: 43004, timestamp: 1405452071209)
+      let localResources = Entries([Entry(key:"AppMaster.jar", value: local)])
+      let commands = Commands("{{JAVA_HOME}}/bin/java -Xmx10m org.apache.hadoop.yarn.applications.distributedshell.ApplicationMaster --container_memory 10 --container_vcores 1 --num_containers 1 --priority 0 1><LOG_DIR>/AppMaster.stdout 2><LOG_DIR>/AppMaster.stderr")
+      let environments = Entries([Entry(key:"DISTRIBUTEDSHELLSCRIPTTIMESTAMP", value: "1405459400754"), Entry(key:"CLASSPATH", value:"{{CLASSPATH}}<CPS>./*<CPS>{{HADOOP_CONF_DIR}}<CPS>{{HADOOP_COMMON_HOME}}/share/hadoop/common/*<CPS>{{HADOOP_COMMON_HOME}}/share/hadoop/common/lib/*<CPS>{{HADOOP_HDFS_HOME}}/share/hadoop/hdfs/*<CPS>{{HADOOP_HDFS_HOME}}/share/hadoop/hdfs/lib/*<CPS>{{HADOOP_YARN_HOME}}/share/hadoop/yarn/*<CPS>{{HADOOP_YARN_HOME}}/share/hadoop/yarn/lib/*<CPS>./log4j.properties"), Entry(key:"DISTRIBUTEDSHELLSCRIPTLEN", value:6), Entry(key:"DISTRIBUTEDSHELLSCRIPTLOCATION", value: "hdfs://localhost:9000/user/rockywei/demo-app/shellCommands")])
+      sum.amContainerSpec = AmContainerSpec(localResources: localResources, environment: environments, commands: commands)
+      sum.unmanagedAM = false
+      sum.maxAppAttempts = 2
+      sum.resource = ResourceRequest(memory: 1024, vCores: 1)
+      sum.type = "YARN"
+      sum.keepContainersAcrossApplicationAttempts = false
+      sum.logAggregationContext = LogAggregationContext(logIncludePattern: "file1", logExcludePattern: "file2", rolledLogIncludePattern: "file3", rolledLogExcludePattern: "file4", logAggregationPolicyClassName: "org.apache.hadoop.yarn.server.nodemanager.containermanager.logaggregation.AllContainerLogAggregationPolicy", logAggregationPolicyParameters: "")
+      sum.attemptFailuresValidityInterval = 3600000
+      sum.reservationId = "reservation_1454114874_1"
+      sum.amBlackListingRequests = AmBlackListingRequests(amBlackListingEnabled: true, disableFailureThreshold: 0.01)
+      let appUrl = try yarn.submit(app: sum)
+      print(appUrl)
+      XCTAssertGreaterThan(appUrl.utf8.count, 5)
     }catch(let err){
       XCTFail("YARN New App:\(err)")
     }
@@ -638,7 +658,6 @@ class PerfectHadoopTests: XCTestCase {
     let hello = Base64.encode(from: "Hello, world!")
     print(hello)
     XCTAssertEqual(hello, "SGVsbG8sIHdvcmxkIQ==")
-
   }
 /*
     func testToken() {

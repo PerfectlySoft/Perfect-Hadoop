@@ -16,7 +16,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-
+import cURL
 import PerfectLib
 
 /// The cluster information resource provides overall information about the cluster.
@@ -918,4 +918,28 @@ public class YARNResourceManager: YARNNodeManager {
     let (_, dat, _) = try self.perform(method:.POST, overwriteURL: url)
     return dat.asNewApplication
   }//end func
+
+  /// The Submit Applications API can be used to submit applications. In case of submitting applications, you must first obtain an application-id using the Cluster New Application API.
+  /// - returns:
+  /// application control url.
+  /// - parameters:
+  /// submit: See SubmitApplication class definition
+  /// - throws:
+  /// WebHDFS.Exceptions
+  public func submit(app:SubmitApplication) throws -> String {
+
+    let (header, _, _) = try self.perform(overwriteURL: "/apps") { curl in
+      do {
+        let json = try app.jsonEncodedString()
+        let str = "Accept: application/json\nContent-Type: application/json\n\(json)"
+        let bytes = [UInt8](str.utf8)
+        curl.setOption(CURLOPT_POST, int: 1)
+        curl.setOption(CURLOPT_POSTFIELDSIZE, int: bytes.count)
+        curl.setOption(CURLOPT_COPYPOSTFIELDS, v: UnsafeMutablePointer(mutating: bytes))
+        let _ = curl.setOption(CURLOPT_VERBOSE, int: 1)
+      }catch {
+      }//end
+    }//end perform
+    return relocation(header: header, body: "")
+  }//end submit
 }//end YARNResourceManager
