@@ -1033,7 +1033,7 @@ public class YARNResourceManager: YARNNodeManager {
       throw Exception.unexpectedResponse(url: url, header: header, body: body)
     }//end if
     return state ?? .INVALID
-  }//end getApplicationStatus
+  }//end func
 
   /// set application status
   /// - parameters:
@@ -1074,7 +1074,7 @@ public class YARNResourceManager: YARNNodeManager {
       throw Exception.unexpectedResponse(url: url, header: header, body: body)
     }//end if
     return queue
-  }//end getApplicationStatus
+  }//end func
 
   /// set application queue
   /// - parameters:
@@ -1090,6 +1090,47 @@ public class YARNResourceManager: YARNNodeManager {
     let json = "{\"queue\":\"\(queue)\"}"
 
     let url = assembleURL("/apps/\(id)/queue")
+
+    let _ = try submitRequest(url: url, extensionType: "json", content: json)
+  }//end func
+
+  ///With the application priority API, you can query the priority of a submitted app as well update priority of a running or accepted app using a PUT request specifying the target priority. To perform the PUT operation, authentication has to be setup for the RM web services. In addition, you must be authorized to update the app priority. Currently you can only update the app priority if you’re using the Capacity scheduler.
+  /// returns:
+  /// current priority value, as int
+  /// - parameters:
+  /// id: String, the application id
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public func getApplicationPriority(id: String) throws -> Int {
+    if id.isEmpty {
+      throw Exception.insufficientParameters
+    }//end if
+    let url = assembleURL("/apps/\(id)/priority")
+    let (header, body, _) = try self.perform(overwriteURL: url)
+    guard let dic = try body.jsonDecode() as? [String:Int] else {
+      throw Exception.unexpectedResponse(url: url, header: header, body: body)
+    }//end guard
+    guard let priority =  dic["priority"] else {
+      throw Exception.unexpectedResponse(url: url, header: header, body: body)
+    }//end if
+    return priority
+  }//end func
+
+  /// set application priority
+  /// - parameters:
+  ///   - id: String, the application id
+  ///   - priority: Int, the priority to set
+  /// - throws:
+  /// WebHDFS.Exceptions
+  public func setApplicationPriority(id: String, priority: Int) throws {
+    guard !id.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end if
+
+    let json = "{\"priority\":\(priority)}"
+
+    let url = assembleURL("/apps/\(id)/priority")
 
     let _ = try submitRequest(url: url, extensionType: "json", content: json)
   }//end func

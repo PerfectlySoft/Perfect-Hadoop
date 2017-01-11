@@ -533,6 +533,12 @@ class PerfectHadoopTests: XCTestCase {
           try yarn.setApplicationQueue(id: a.id, queue: queue)
           
           let xapp = try yarn.checkApp(id: a.id)
+
+          let priority = try yarn.getApplicationPriority(id: a.id)
+          XCTAssertGreaterThanOrEqual(priority, 0)
+
+          try yarn.setApplicationPriority(id: a.id, priority: priority + 1)
+          
           XCTAssertNotNil(xapp)
           let x = xapp!
           print(x.allocatedMB)
