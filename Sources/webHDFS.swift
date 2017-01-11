@@ -57,7 +57,7 @@ public class WebHDFS {
 
   /// Extra headers, such as X-XSRF-HEADER: "",
   /// for Cross-Site Request Forgery Prevention, if applicable
-  internal var extraHeaders: [String] = []
+  // internal var extraHeaders: [String] = []
 
   /// cURL agent, must be set for some of the system.
   internal let agent: String = "PerfectCURL"
@@ -126,14 +126,14 @@ public class WebHDFS {
   public init (service: String = "http",
                host: String = "localhost", port: Int = 9870, user: String = "",
                auth: Authentication = .off, proxyUser: String = "",
-               extraHeaders: [String] = [],
+               // extraHeaders: [String] = [],
                apibase: String = "/webhdfs/v1", timeout: Int = 0) {
     self.service = service
     self.host = host
     self.port = port
     self.user = user
     self.auth = auth
-    self.extraHeaders = extraHeaders
+    // self.extraHeaders = extraHeaders
     self.proxyUser = proxyUser
     self.base = apibase
     self.timeout = timeout
@@ -279,7 +279,7 @@ public class WebHDFS {
       let _ = curl.setOption(CURLOPT_USERPWD, s: ":")
     default: ()
     }//end case
-
+/*
     // create a handle for these headers
     var headerList = UnsafeMutablePointer<curl_slist>(bitPattern: 0)
 
@@ -297,7 +297,7 @@ public class WebHDFS {
       // pass the handle pointer to curl
       curl.setOption(CURLOPT_HTTPHEADER, v: headerList!)
     }//end if
-
+*/
     // if there are more options, call them.
     if let callbackOptions = moreOptions {
 
@@ -311,7 +311,7 @@ public class WebHDFS {
     guard code > -1 else {
       throw Exception.unexpectedResponse(url: url, header: "code = \(code)", body: "")
     }//end guard
-
+/*
     // release the header list immediately, if applicable
     if headerList != nil {
 
@@ -319,7 +319,7 @@ public class WebHDFS {
       curl_slist_free_all(headerList!)
 
     }//end if
-
+*/
     var content:String = ""
 
     if !body.isEmpty && decode {
@@ -369,6 +369,23 @@ public class WebHDFS {
       return ""
     }//end do
   }//end relocation
+
+  /// parse response codes from header
+  /// - returns:
+  /// [HTTP Response Code: Int]: for example "HTTP/1.1 100 Continue\nHTTP/1.1 200" will return [100, 200]
+  /// - parameters:
+  ///   - header: String, the response header
+  @discardableResult
+  static public func getResponseCodesFrom(header: String) -> [Int] {
+    let arraies = header.uppercased().characters.split(separator: "\n").map{String($0)}.filter{ $0.hasPrefix("HTTP") }.map {$0.characters.split(separator: " ").map{String($0)}}
+    var ret = [Int]()
+    arraies.forEach { a in
+      if a.count > 1 {
+        ret.append(Int(a[1]) ?? 0)
+      }//end if
+    }//next
+    return ret
+  }//end getResponses
 
   /// Open an hdfs file
   /// - returns:

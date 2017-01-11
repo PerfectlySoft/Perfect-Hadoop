@@ -183,9 +183,11 @@ public class YARNNodeManager: WebHDFS {
   public override init (service: String = "http",
                         host: String = "localhost", port: Int = 8042, user: String = "",
                         auth: Authentication = .off, proxyUser: String = "",
-                        extraHeaders: [String] = [],
+                        // extraHeaders: [String] = [],
                         apibase: String = "/ws/v1/node", timeout: Int = 0) {
-    super.init(service: service, host: host, port: port, user:user, auth: auth, proxyUser: proxyUser, extraHeaders: extraHeaders, apibase: apibase, timeout: timeout)
+    super.init(service: service, host: host, port: port, user:user, auth: auth, proxyUser: proxyUser,
+               // extraHeaders: extraHeaders,
+               apibase: apibase, timeout: timeout)
   }//end constructor
 
   /// generate a url by the provided information

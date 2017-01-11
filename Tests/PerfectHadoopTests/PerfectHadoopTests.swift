@@ -519,6 +519,13 @@ class PerfectHadoopTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(a.amRPCAddress.utf8.count, 0)
 
         do {
+          let state = try yarn.getApplicationStatus(id: a.id)
+          XCTAssertNotEqual(state, APP.State.INVALID)
+          print("= = = = = = = = = = = = = = YARN APP check state = = = = = = = = = = = = = = = = = = =")
+          print(state)
+
+          try yarn.setApplicationStatus(id: a.id, state: state)
+
           let xapp = try yarn.checkApp(id: a.id)
           XCTAssertNotNil(xapp)
           let x = xapp!
@@ -617,6 +624,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testYarnClusterNewApp () {
     let yarn = YARNResourceManager(user: "rockywei")
+    print(".................... YARN NEW APP ......................")
     do {
       let a = try yarn.newApplication()
       XCTAssertNotNil(a)
@@ -646,7 +654,7 @@ class PerfectHadoopTests: XCTestCase {
       sum.attemptFailuresValidityInterval = 3600000
       sum.reservationId = "reservation_1454114874_1"
       sum.amBlackListingRequests = AmBlackListingRequests(amBlackListingEnabled: true, disableFailureThreshold: 0.01)
-      let appUrl = try yarn.submit(app: sum)
+      let appUrl = try yarn.submit(application: sum)
       print(appUrl ?? "")
     }catch(let err){
       XCTFail("YARN New App:\(err)")

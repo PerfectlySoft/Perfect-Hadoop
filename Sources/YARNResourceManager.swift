@@ -18,6 +18,7 @@
 //
 import cURL
 import PerfectLib
+import PerfectHTTP
 
 /// The cluster information resource provides overall information about the cluster.
 public struct ClusterInfo{
@@ -725,10 +726,76 @@ public class YARNResourceManager: YARNNodeManager {
   public override init (service: String = "http",
                         host: String = "localhost", port: Int = 8088, user: String = "",
                         auth: Authentication = .off, proxyUser: String = "",
-                        extraHeaders: [String] = [],
+                        // extraHeaders: [String] = [],
                         apibase: String = "/ws/v1/cluster", timeout: Int = 0) {
-    super.init(service: service, host: host, port: port, user: user, auth: auth, proxyUser: proxyUser, extraHeaders: extraHeaders, apibase: apibase, timeout: timeout)
+    super.init(service: service, host: host, port: port, user: user, auth: auth, proxyUser: proxyUser,
+               //extraHeaders: extraHeaders, 
+        apibase: apibase, timeout: timeout)
   }//end constructor
+
+  /// Submit a request
+  /// - throws:
+  /// WebHDFS.Exception
+  /// - parameters:
+  ///   - url: String, request url
+  ///   - extensionType: String, such as "json", "txt", "html", etc.
+  ///   - content: String, request content
+  ///   - method: HTTPMethod, usually POST / PUT, etc.
+  /// - returns
+  /// the HTTP headers / body returned. *NOTE* if response include a code greater than 400, it will raise an exception
+  @discardableResult
+  internal func submitRequest(url: String, extensionType: String, content: String, method: HTTPMethod = .POST) throws -> (String, String) {
+
+    // validate input
+    guard !url.isEmpty && !extensionType.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end if
+
+    let mimeType = MimeType(extension: extensionType).longType
+
+    guard !mimeType.isEmpty else {
+      throw Exception.invalidLocalFile(reason: "INVALID MIME TYPE OF FILE EXTENSION\(extensionType)")
+    }
+    // debug on, please comment out for release
+    self.debug = true
+    // prepare the post header
+
+    // header & body to request
+
+    var hlist = UnsafeMutablePointer<curl_slist>(bitPattern: 0)
+
+    for item in ["Accept: \(mimeType)", "Content-Type: \(mimeType)", content] {
+      hlist = curl_slist_append(hlist, item)
+    }//next item
+
+    guard hlist != nil else {
+      throw Exception.invalidLocalFile(reason: "HTTP HEADER CREATION FAILED")
+    }//end guard
+
+    let (header, body, _) = try self.perform(method:method, overwriteURL: url) { curl in
+      let _ = curl.setOption(CURLOPT_NOBODY, int: 1)
+      let _ = curl.setOption(CURLOPT_HTTPHEADER, v: hlist!)
+    }//end perform
+
+    // release the header list immediately, if applicable
+    if hlist != nil {
+      // free them all
+      curl_slist_free_all(hlist!)
+    }//end if
+
+    let responses = WebHDFS.getResponseCodesFrom(header: header)
+    guard let m = responses.max() else {
+      throw Exception.unexpectedResponse(url: url, header: header, body: body)
+    }//end
+
+    guard m < 400 else {
+      throw Exception.unexpectedReturn
+    }//end
+
+    // debug off, pleae comment out for release
+    self.debug = false
+    return (header, body)
+  }//end if
 
   /// The cluster information resource provides overall information about the cluster.
   /// - returns:
@@ -923,23 +990,60 @@ public class YARNResourceManager: YARNNodeManager {
   /// - returns:
   /// application control url - for real cluster, or nil by default.
   /// - parameters:
-  /// submit: See SubmitApplication class definition
+  /// application: See SubmitApplication class definition
   /// - throws:
   /// WebHDFS.Exceptions
-  public func submit(app:SubmitApplication) throws -> String? {
+  @discardableResult
+  public func submit(application:SubmitApplication) throws -> String? {
+
+    // check the permission
     guard !user.isEmpty else {
       throw Exception.insufficientParameters
     }//end guard
-    let json = try app.jsonEncodedString()
-    self.debug = true
-    self.extraHeaders = ["Accept: application/json\nContent-Type: application/json\n\(json)"]
-    let (header, _, _) = try self.perform(overwriteURL: assembleURL("/apps?user=\(user)"))
-    self.extraHeaders = []
+
+    // prepare a json string
+    let json = try application.jsonEncodedString()
+
+    let (header, _) = try submitRequest(url: assembleURL("/apps?user=\(user)"), extensionType: "json", content: json)
+
     let url = relocation(header: header, body: "")
     if url.isEmpty {
       return nil
     }//end if
-    self.debug = false
     return url
   }//end submit
+
+  ///With the application state API, you can query the state of a submitted app as well kill a running app by modifying the state of a running app using a PUT request with the state set to “KILLED”. To perform the PUT operation, authentication has to be setup for the RM web services. In addition, you must be authorized to kill the app. Currently you can only change the state to “KILLED”; an attempt to change the state to any other results in a 400 error response. Examples of the unauthorized and bad request errors are below. When you carry out a successful PUT, the iniital response may be a 202. You can confirm that the app is killed by repeating the PUT request until you get a 200, querying the state using the GET method or querying for app information and checking the state. In the examples below, we repeat the PUT request and get a 200 response.
+  /// - parameters:
+  /// id: String, the application id
+  /// - throws:
+  /// WebHDFS.Exceptions
+  @discardableResult
+  public func getApplicationStatus(id: String) throws -> APP.State {
+    if id.isEmpty {
+      throw WebHDFS.Exception.insufficientParameters
+    }//end if
+    let url = assembleURL("/apps/\(id)/state")
+    let (header, body, _) = try self.perform(overwriteURL: url)
+    guard let dic = try body.jsonDecode() as? [String:String] else {
+      throw WebHDFS.Exception.unexpectedResponse(url: url, header: header, body: body)
+    }//end guard
+    let state = APP.State(rawValue: dic["state"] ?? "")
+    if state == .INVALID {
+      throw WebHDFS.Exception.unexpectedResponse(url: url, header: header, body: body)
+    }//end if
+    return state ?? .INVALID
+  }//end getApplicationStatus
+
+  public func setApplicationStatus(id: String, state: APP.State) throws {
+    guard !id.isEmpty && state != .INVALID else {
+      throw WebHDFS.Exception.insufficientParameters
+    }//end if
+
+    let json = "{\"state\":\"\(state.rawValue)\"}"
+
+    let url = assembleURL("/apps/\(id)/state")
+
+    let _ = try submitRequest(url: url, extensionType: "json", content: json)
+  }//end func
 }//end YARNResourceManager
