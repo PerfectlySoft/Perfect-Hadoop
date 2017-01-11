@@ -1035,6 +1035,12 @@ public class YARNResourceManager: YARNNodeManager {
     return state ?? .INVALID
   }//end getApplicationStatus
 
+  /// set application status
+  /// - parameters:
+  ///   - id: String, the application id
+  ///   - state: APP.State, new state to set
+  /// - throws:
+  /// WebHDFS.Exceptions
   public func setApplicationStatus(id: String, state: APP.State) throws {
     guard !id.isEmpty && state != .INVALID else {
       throw WebHDFS.Exception.insufficientParameters
