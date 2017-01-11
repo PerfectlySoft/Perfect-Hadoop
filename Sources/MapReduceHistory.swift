@@ -311,6 +311,74 @@ extension String {
   }//end member
 }//end extension
 
+/// A Task resource contains information about a particular task within a job.
+public struct JobTask{
+  /// The state of the task - valid values are: NEW, SCHEDULED, RUNNING, SUCCEEDED, FAILED, KILL_WAIT, KILLED
+  public enum State: String {
+    case NEW = "NEW", SCHEDULED = "SCHEDULED", RUNNING = "RUNNING", SUCCEEDED = "SUCCEEDED", FAILED = "FAILED", KILL_WAIT = "KILL_WAIT", KILLED = "KILLED", INVALID = ""
+  }//end enum
+
+  /// The task type - MAP or REDUCE
+  public enum TaskType: String {
+    case MAP = "MAP", REDUCE = "REDUCE", INVALID = ""
+  }//end enum
+
+  /// The elapsed time since the application started (in ms)
+  var elapsedTime = 0
+  /// The time in which the task finished (in ms since epoch)
+  var finishTime = 0
+  /// The task id
+  var id = ""
+  /// The progress of the task as a percent
+  var progress: Double = 0
+  /// The time in which the task started (in ms since epoch) or -1 if it was never started
+  var startTime = -1
+  /// The state of the task - valid values are: NEW, SCHEDULED, RUNNING, SUCCEEDED, FAILED, KILL_WAIT, KILLED
+  var state:State = .INVALID
+  /// The id of the last successful attempt
+  var successfulAttempt = ""
+  /// The task type - MAP or REDUCE
+  var type: TaskType = .INVALID
+
+  /// constructor of JobTask
+  /// - parameters:
+  /// a dictionary decoded from a json string
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.elapsedTime = dictionary["elapsedTime"] as? Int ?? 0
+    self.finishTime = dictionary["finishTime"] as? Int ?? 0
+    self.id = dictionary["id"] as? String ?? ""
+    self.progress = Double(dictionary["progress"] as? String ?? "") ?? 0.0
+    self.startTime = dictionary["startTime"] as? Int ?? 0
+    self.state = State(rawValue: dictionary["state"] as? String ?? "") ?? .INVALID
+    self.successfulAttempt = dictionary["successfulAttempt"] as? String ?? ""
+    self.type = TaskType(rawValue: dictionary["type"] as? String ?? "") ?? .INVALID
+  }//init
+}//JobTask
+
+extension String {
+  public var asJobTasks: [JobTask] {
+    get {
+      do {
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        let tasks = dic["tasks"] as? [String: Any] ?? [:]
+        return (tasks["task"] as? [Any] ?? []).map {JobTask($0 as? [String:Any] ?? [:])}
+      }catch {
+        return []
+      }//end do
+    }//end get
+  }//end member
+  public var asJobTask: JobTask? {
+    get {
+      do {
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        return JobTask(dic["task"] as? [String: Any] ?? [:])
+      }catch {
+        return nil
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
 /// The history server information resource provides overall information about the history server.
 public class MapReduceHistroy: YARNResourceManager {
 
@@ -455,4 +523,21 @@ public class MapReduceHistroy: YARNResourceManager {
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asJobConfig
   }//end func
+
+  /// A Task resource contains information about a particular task within a job.
+  /// - parameters:
+  ///   - jobId: the job's id to check
+  /// - throws
+  /// WebHDFS.Exceptions
+  /// - returns:
+  /// JobTask, see JobTask structure
+  @discardableResult
+  public func checkJobTasks(jobId: String) throws -> [JobTask] {
+    guard !jobId.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks")
+    let (_, dat, _) = try self.perform(overwriteURL: url)
+    return dat.asJobTasks
+  }//end checkJobTasks
 }//end MapReduceHistory

@@ -754,6 +754,26 @@ class PerfectHadoopTests: XCTestCase {
           XCTFail("map reduce history job counter error: \(jobCounterError)")
         }
 
+        print(" ! ! ! ! ! ! ! Map Reduce Job Tasks ! ! ! ! ! ! !")
+        do {
+          let tasks = try his.checkJobTasks(jobId: j.id)
+          XCTAssertGreaterThan(tasks.count, 0)
+          tasks.forEach { t in
+            print(t.progress)
+            print(t.elapsedTime)
+            print(t.state)
+            print(t.startTime)
+            print(t.id)
+            XCTAssertGreaterThan(t.id.utf8.count, 0)
+            print(t.type)
+            print(t.successfulAttempt)
+            print(t.finishTime)
+          }
+
+        }catch(let jobCounterError) {
+          XCTFail("map reduce history job counter error: \(jobCounterError)")
+        }
+
       }
     }catch(let err) {
       XCTFail("map reduce historical jobs: \(err)")
