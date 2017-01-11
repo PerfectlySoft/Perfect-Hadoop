@@ -379,6 +379,61 @@ extension String {
   }//end member
 }//end extension
 
+/// With the task counters API, you can object a collection of resources that represent all the counters for that task.
+public struct JobTaskCounters{
+  public struct CounterGroup{
+    public struct Counter{
+      /// The name of the counter
+      var name = ""
+      /// The value of the counter
+      var value = 0
+      /// constructor of Counter
+      /// - parameters:
+      /// a dictionary decoded from json string
+      public init(_ dictionary: [String:Any] = [:]) {
+        self.name = dictionary["name"] as? String ?? ""
+        self.value = dictionary["value"] as? Int ?? 0
+      }//init
+    }//Counter
+    /// A collection of counter objects
+    var counters : [Counter] = []
+    /// The name of the counter group
+    var counterGroupName = ""
+    /// constructor of CounterGroup
+    /// - parameters:
+    /// a dictionary decoded from json string
+    public init(_ dictionary: [String:Any] = [:]) {
+      self.counters = (dictionary["counter"] as? [Any] ?? []).map{Counter($0 as? [String : Any] ?? [:])}
+      self.counterGroupName = dictionary["counterGroupName"] as? String ?? ""
+    }//init
+  }//CounterGroup
+  /// The task id
+  var id = ""
+  /// A collection of counter group objects
+  var taskCounterGroup : [CounterGroup] = []
+  /// constructor of JobCounters
+  /// - parameters:
+  /// a dictionary decoded from json string
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.id = dictionary["id"] as? String ?? ""
+    self.taskCounterGroup = (dictionary["taskCounterGroup"] as? [Any] ?? []).map{CounterGroup($0 as? [String : Any] ?? [:])}
+  }//init
+}//Jobcounters
+
+extension String {
+  /// nicely convert a json string into a JobTaskCounters structure
+  public var asJobTaskCounters: JobTaskCounters? {
+    get{
+      do{
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        return JobTaskCounters(dic["jobTaskCounters"] as? [String:Any] ?? [:])
+      }catch{
+        return nil
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
 /// The history server information resource provides overall information about the history server.
 public class MapReduceHistroy: YARNResourceManager {
 
@@ -564,5 +619,23 @@ public class MapReduceHistroy: YARNResourceManager {
     let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)")
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asJobTask
+  }//end checkJobTasks
+
+  /// With the task counters API, you can object a collection of resources that represent all the counters for that task.
+  /// - parameters:
+  ///   - jobId: the job's id to check
+  ///   - taskId: the task id of a job
+  /// - throws
+  /// WebHDFS.Exceptions
+  /// - returns:
+  /// JobTaskCounters, see JobTaskCounters structure
+  @discardableResult
+  public func checkJobTaskCounters(jobId: String, taskId: String) throws -> JobTaskCounters? {
+    guard !jobId.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)/counters")
+    let (_, dat, _) = try self.perform(overwriteURL: url)
+    return dat.asJobTaskCounters
   }//end checkJobTasks
 }//end MapReduceHistory

@@ -800,6 +800,23 @@ class PerfectHadoopTests: XCTestCase {
             }catch (let tskErr) {
               XCTFail("map reduce history job task error: \(tskErr)")
             }
+            print(" 2 2 2 2 2 2  --- MAP REDUCE JOB TASK COUNTERS ----- 2 2 2 2 2 2 ")
+            do {
+              let jobTaskcounters = try his.checkJobTaskCounters(jobId: j.id, taskId: t.id)
+              XCTAssertNotNil(jobTaskcounters)
+              let js = jobTaskcounters!
+              print(js.id)
+              XCTAssertGreaterThan(js.id.utf8.count, 0)
+              js.taskCounterGroup.forEach{ group in
+                print(group.counterGroupName)
+                group.counters.forEach { counter in
+                  print(counter.name)
+                  print(counter.value)
+                }
+              }
+            }catch (let tskErr) {
+              XCTFail("map reduce history job task error: \(tskErr)")
+            }
 
           }//next
 
