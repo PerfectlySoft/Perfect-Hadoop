@@ -755,7 +755,7 @@ public class YARNResourceManager: YARNNodeManager {
       throw Exception.invalidLocalFile(reason: "INVALID MIME TYPE OF FILE EXTENSION\(extensionType)")
     }
     // debug on, please comment out for release
-    self.debug = true
+    // self.debug = true
     // prepare the post header
 
     // header & body to request
@@ -791,7 +791,7 @@ public class YARNResourceManager: YARNNodeManager {
     }//end
 
     // debug off, pleae comment out for release
-    self.debug = false
+    // self.debug = false
     return (header, body)
   }//end if
 

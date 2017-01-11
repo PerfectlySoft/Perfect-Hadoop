@@ -695,6 +695,23 @@ class PerfectHadoopTests: XCTestCase {
       XCTFail("map reduce history: \(err)")
     }
   }
+
+  func testMapReduceHistoryJobs () {
+    print("^ ^ ^ ^ ^ ^ HISTORICAL JOBS  ^ ^ ^ ^ ^ ^")
+    let his = MapReduceHistroy()
+    do {
+      let jobs = try his.checkJobs(state: .SUCCEEDED, queue: "default", limit: 10)
+      XCTAssertGreaterThan(jobs.count, 0)
+      jobs.forEach { j in
+        print(j.id)
+        print(j.name)
+        print(j.queue)
+        print(j.state)
+      }
+    }catch(let err) {
+      XCTFail("map reduce historical jobs: \(err)")
+    }
+  }
 /*
     func testToken() {
       let hdfs = WebHDFS(auth:.byDelegation(token: "TTK1234567890"))
@@ -787,7 +804,8 @@ class PerfectHadoopTests: XCTestCase {
           ("testYARNNode", testYARNNode),
           ("testYarnClusterNewApp", testYarnClusterNewApp),
           ("testBase64", testBase64),
-          ("testMapReduceHistory", testMapReduceHistory)
+          ("testMapReduceHistory", testMapReduceHistory),
+          ("testMapReduceHistoryJobs", testMapReduceHistoryJobs)
         ]
     }
 }

@@ -51,6 +51,118 @@ extension String {
   }//end member
 }//end extension
 
+/// The jobs resource provides a list of the MapReduce jobs.
+public struct Job{
+  public struct ACL{
+    var name = ""
+    var value = ""
+    public init(_ dictionary: [String:Any] = [:]) {
+      self.name = dictionary["name"] as? String ?? ""
+      self.value = dictionary["value"] as? String ?? ""
+    }//init
+  }//ACL
+
+  /// the job state
+  var state = ""
+  var mapsCompleted = 0
+  var newMapAttempts = 0
+  var finishTime = 0
+  var reducesPending = 0
+  var reducesTotal = 0
+  var runningMapAttempts = 0
+  var elapsedTime = 0
+  var reducesCompleted = 0
+  var mapProgress = 0
+  var successfulReduceAttempts = 0
+  var reducesRunning = 0
+  var id = ""
+  var runningReduceAttempts = 0
+  var name = ""
+  /// user name
+  var user = ""
+  var uberized = false
+  var mapsPending = 0
+  var failedMapAttempts = 0
+  var killedMapAttempts = 0
+  var successfulMapAttempts = 0
+  var reduceProgress: Double = 0
+  var newReduceAttempts = 0
+  var killedReduceAttempts = 0
+  var acls : [ACL] = []
+  var mapsRunning = 0
+  var mapsTotal = 0
+  var diagnostics = ""
+  var failedReduceAttempts = 0
+  var startTime = 0
+  var avgShuffleTime = 0
+  /// queue name
+  var queue = ""
+  var avgMergeTime = 0
+  var avgMapTime = 0
+  var avgReduceTime = 0
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.avgReduceTime = dictionary["avgReduceTime"] as? Int ?? 0
+    self.avgMapTime = dictionary["avgMapTime"] as? Int ?? 0
+    self.avgMergeTime = dictionary["avgMergeTime"] as? Int ?? 0
+    self.queue = dictionary["queue"] as? String ?? ""
+    self.avgShuffleTime = dictionary["avgShuffleTime"] as? Int ?? 0
+    self.state = dictionary["state"] as? String ?? ""
+    self.mapsCompleted = dictionary["mapsCompleted"] as? Int ?? 0
+    self.newMapAttempts = dictionary["newMapAttempts"] as? Int ?? 0
+    self.finishTime = dictionary["finishTime"] as? Int ?? 0
+    self.reducesPending = dictionary["reducesPending"] as? Int ?? 0
+    self.reducesTotal = dictionary["reducesTotal"] as? Int ?? 0
+    self.runningMapAttempts = dictionary["runningMapAttempts"] as? Int ?? 0
+    self.elapsedTime = dictionary["elapsedTime"] as? Int ?? 0
+    self.reducesCompleted = dictionary["reducesCompleted"] as? Int ?? 0
+    self.mapProgress = dictionary["mapProgress"] as? Int ?? 0
+    self.successfulReduceAttempts = dictionary["successfulReduceAttempts"] as? Int ?? 0
+    self.reducesRunning = dictionary["reducesRunning"] as? Int ?? 0
+    self.id = dictionary["id"] as? String ?? ""
+    self.runningReduceAttempts = dictionary["runningReduceAttempts"] as? Int ?? 0
+    self.name = dictionary["name"] as? String ?? ""
+    self.user = dictionary["user"] as? String ?? ""
+    self.uberized = dictionary["uberized"] as? Bool ?? false
+    self.mapsPending = dictionary["mapsPending"] as? Int ?? 0
+    self.failedMapAttempts = dictionary["failedMapAttempts"] as? Int ?? 0
+    self.killedMapAttempts = dictionary["killedMapAttempts"] as? Int ?? 0
+    self.successfulMapAttempts = dictionary["successfulMapAttempts"] as? Int ?? 0
+    self.reduceProgress = dictionary["reduceProgress"] as? Double ?? 0.0
+    self.newReduceAttempts = dictionary["newReduceAttempts"] as? Int ?? 0
+    self.killedReduceAttempts = dictionary["killedReduceAttempts"] as? Int ?? 0
+    self.acls = (dictionary["acls"] as? [Any] ?? []).map{ACL($0 as? [String : Any] ?? [:])}
+    self.mapsRunning = dictionary["mapsRunning"] as? Int ?? 0
+    self.mapsTotal = dictionary["mapsTotal"] as? Int ?? 0
+    self.diagnostics = dictionary["diagnostics"] as? String ?? ""
+    self.failedReduceAttempts = dictionary["failedReduceAttempts"] as? Int ?? 0
+    self.startTime = dictionary["startTime"] as? Int ?? 0
+  }//init
+}//Job
+
+extension String {
+  public var asJobs: [Job] {
+    get {
+      do {
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        let jobs = dic["jobs"] as? [String: Any] ?? [:]
+        return (jobs["job"] as? [Any] ?? []).map {Job($0 as? [String:Any] ?? [:])}
+      }catch {
+        return []
+      }//end do
+    }//end get
+  }//end member
+  public var asJob: Job? {
+    get {
+      do {
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        return Job(dic["job"] as? [String: Any] ?? [:])
+      }catch {
+        return nil
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
 
 /// The history server information resource provides overall information about the history server.
 public class MapReduceHistroy: YARNResourceManager {
@@ -79,9 +191,70 @@ public class MapReduceHistroy: YARNResourceManager {
   /// HistoryInfo structure, See HistoryInfo.
   /// - throws:
   /// WebHDFS.Exceptions
+  @discardableResult
   public func info() throws -> HistoryInfo? {
     let url = assembleURL("")
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asHistoryInfo
   }//end checkOverall
+
+  /// The jobs resource provides a list of the MapReduce jobs that have finished. It does not currently return a full list of parameters
+  /// - parameters:
+  ///   - finishedTimeBegin: jobs with finish time beginning with this time, specified in ms since epoch
+  ///   - finishedTimeEnd: jobs with finish time ending with this time, specified in ms since epoch
+  ///   - startedTimeBegin: jobs with start time beginning with this time, specified in ms since epoch
+  ///   - startedTimeEnd: jobs with start time ending with this time, specified in ms since epoch
+  ///   - limit: total number of app objects to be returned
+  ///   - user: user name
+  ///   - state: the job state, see APP.State
+  ///   - queue: queue name
+  /// - throws
+  /// WebHDFS.Exceptions
+  /// - returns:
+  /// [Job], an array of Job Structures
+  @discardableResult
+  public func checkJobs(user: String? = nil, state:APP.FinalStatus? = nil, queue: String? = nil, limit: Int? = nil, startedTimeBegin: Int? = nil, startedTimeEnd: Int? = nil, finishedTimeBegin: Int? = nil, finishedTimeEnd: Int? = nil) throws -> [Job] {
+    var url = assembleURL("/mapreduce/jobs")
+    var v: [String: Any] = [:]
+    if user != nil {
+      v["user"] = user ?? ""
+    }//end if
+    if state != nil {
+      v["state"] = state ?? .INVALID
+    }//end if
+    if queue != nil {
+      v["queue"] = queue ?? ""
+    }//end if
+    if limit != nil {
+      v["limit"] = limit ?? 10
+    }//end if
+    if startedTimeBegin != nil {
+      v["startedTimeBegin"] = startedTimeBegin ?? 0
+    }//end if
+    if startedTimeEnd != nil {
+      v["startedTimeEnd"] = startedTimeEnd ?? 0
+    }//end if
+
+    if finishedTimeBegin != nil {
+      v["finishedTimeBegin"] = finishedTimeBegin ?? 0
+    }//end if
+
+    if finishedTimeEnd != nil {
+      v["finishedTimeEnd"] = finishedTimeEnd ?? 0
+    }//end if
+
+    if v.count > 0 {
+      let x = v.reduce("?") { previous, next in
+
+        let exp = "\(next.key)=\(next.value)".stringByEncodingURL
+        if previous == "?" {
+          return previous + exp
+        }//end if
+        return previous + "&" + exp
+      }//end x
+      url.append(x)
+    }//end if
+    let (_, dat, _) = try self.perform(overwriteURL: url)
+    return dat.asJobs
+  }//end func
 }//end MapReduceHistory
