@@ -94,39 +94,6 @@ public class Base64 {
   }//end func
 }//end class
 
-extension String {
-  /// convert a string buffer into a FILE (pipe) pointer for reading, for CURL upload operations
-  public var asFILE:UnsafeMutablePointer<FILE>? {
-    get {
-      guard !self.isEmpty else {
-        return nil
-      }//end guard
-
-      // setup a pipe line
-      var p:[Int32] = [0, 0]
-      let result = pipe(&p)
-      guard result == 0 else {
-        return nil
-      }//end result
-
-      // turn the low level pipe file numbers into FILE pointers
-      let fi = fdopen(p[0], "rb")
-
-      // write the string into pipe
-      self.withCString { ptr in
-        let raw = unsafeBitCast(ptr, to: UnsafeMutableRawPointer.self)
-        var iov = iovec(iov_base: raw, iov_len: self.utf8.count)
-        let _ = writev(p[1], &iov, 1)
-      }//end cstring
-      // close pipe writing end for reading
-      close(p[1])
-
-      // return the pipe reading end
-      return fi
-    }//end get
-  }//end freader
-}//end String
-
 /// Elements of the POST request body am-black-listing-requests object
 public class AmBlackListingRequests:JSONConvertibleObject {
   /// Whether AM Blacklisting is enabled
