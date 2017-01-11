@@ -524,20 +524,45 @@ public class MapReduceHistroy: YARNResourceManager {
     return dat.asJobConfig
   }//end func
 
+  public enum QueryTaskType: String {
+  case MAP = "m", REDUCE = "r"
+  }//end QueryTaskType
+
   /// A Task resource contains information about a particular task within a job.
   /// - parameters:
   ///   - jobId: the job's id to check
   /// - throws
   /// WebHDFS.Exceptions
   /// - returns:
-  /// JobTask, see JobTask structure
+  /// [JobTask], an array of JobTask structures
   @discardableResult
-  public func checkJobTasks(jobId: String) throws -> [JobTask] {
+  public func checkJobTasks(jobId: String, taskType: QueryTaskType? = nil) throws -> [JobTask] {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
     }//end guard
-    let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks")
+    var url = assembleURL("/mapreduce/jobs/\(jobId)/tasks")
+    if taskType != nil {
+      url.append("?type=" + (taskType?.rawValue ?? ""))
+    }
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asJobTasks
+  }//end checkJobTasks
+
+  /// A Task resource contains information about a particular task within a job.
+  /// - parameters:
+  ///   - jobId: the job's id to check
+  ///   - taskId: the task id of a job
+  /// - throws
+  /// WebHDFS.Exceptions
+  /// - returns:
+  /// JobTask, see JobTask structure
+  @discardableResult
+  public func checkJobTask(jobId: String, taskId: String) throws -> JobTask? {
+    guard !jobId.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)")
+    let (_, dat, _) = try self.perform(overwriteURL: url)
+    return dat.asJobTask
   }//end checkJobTasks
 }//end MapReduceHistory
