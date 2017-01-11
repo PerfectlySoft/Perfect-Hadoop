@@ -24,6 +24,9 @@ import PerfectLib
 /// WebHDFS - hadoop connector for Perfect Framework
 public class WebHDFS {
 
+  /// users may set it to true to see the debug info (verbose)
+  public var debug = false
+
   /// Web Protocol, may be http / https / hdfs or webhdfs
   internal var service: String = "http"
 
@@ -225,12 +228,13 @@ public class WebHDFS {
     // get the full url string
     let url = overwriteURL.isEmpty ? assembleURL(operation, path, variables) : overwriteURL
 
-    #if DEBUG
-    print(url)
-    #endif
-
     // initialize a curl request object
     let curl = CURL(url: url)
+
+    if debug {
+      print(url)
+      let _ = curl.setOption(CURLOPT_VERBOSE, int: 1)
+    }//end if
 
     defer {
       curl.close()

@@ -921,25 +921,25 @@ public class YARNResourceManager: YARNNodeManager {
 
   /// The Submit Applications API can be used to submit applications. In case of submitting applications, you must first obtain an application-id using the Cluster New Application API.
   /// - returns:
-  /// application control url.
+  /// application control url - for real cluster, or nil by default.
   /// - parameters:
   /// submit: See SubmitApplication class definition
   /// - throws:
   /// WebHDFS.Exceptions
-  public func submit(app:SubmitApplication) throws -> String {
-
-    let (header, _, _) = try self.perform(overwriteURL: "/apps") { curl in
-      do {
-        let json = try app.jsonEncodedString()
-        let str = "Accept: application/json\nContent-Type: application/json\n\(json)"
-        let bytes = [UInt8](str.utf8)
-        curl.setOption(CURLOPT_POST, int: 1)
-        curl.setOption(CURLOPT_POSTFIELDSIZE, int: bytes.count)
-        curl.setOption(CURLOPT_COPYPOSTFIELDS, v: UnsafeMutablePointer(mutating: bytes))
-        let _ = curl.setOption(CURLOPT_VERBOSE, int: 1)
-      }catch {
-      }//end
-    }//end perform
-    return relocation(header: header, body: "")
+  public func submit(app:SubmitApplication) throws -> String? {
+    guard !user.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let json = try app.jsonEncodedString()
+    self.debug = true
+    self.extraHeaders = ["Accept: application/json\nContent-Type: application/json\n\(json)"]
+    let (header, _, _) = try self.perform(overwriteURL: assembleURL("/apps?user=\(user)"))
+    self.extraHeaders = []
+    let url = relocation(header: header, body: "")
+    if url.isEmpty {
+      return nil
+    }//end if
+    self.debug = false
+    return url
   }//end submit
 }//end YARNResourceManager
