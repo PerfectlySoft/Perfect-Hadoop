@@ -720,6 +720,26 @@ class PerfectHadoopTests: XCTestCase {
         }catch(let jobErr) {
           XCTFail("job attempt failed: \(jobErr)")
         }
+
+        print(" >>>>>>>>>>>>>>>> JobCounters <<<<<<<<<<<<<<<<<")
+        do {
+          let jcounters = try his.checkJobCounters(jobId: j.id)
+          XCTAssertNotNil(jcounters)
+          let js = jcounters!
+          print(js.id)
+          js.counterGroup.forEach{ group in
+            print(group.counterGroupName)
+            group.counters.forEach { counter in
+              print(counter.name)
+              print(counter.mapCounterValue)
+              print(counter.reduceCounterValue)
+              print(counter.totalCounterValue)
+            }
+          }
+        }catch(let jobCounterError) {
+          XCTFail("map reduce history job counter error: \(jobCounterError)")
+        }
+
       }
     }catch(let err) {
       XCTFail("map reduce historical jobs: \(err)")
