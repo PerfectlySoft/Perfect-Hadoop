@@ -53,89 +53,163 @@ extension String {
 
 /// The jobs resource provides a list of the MapReduce jobs.
 public struct Job{
+  /// the job state - valid values are: NEW, INITED, RUNNING, SUCCEEDED, FAILED, KILL_WAIT, KILLED, ERROR
+  public enum State: String{
+    case NEW="NEW", INITED="INITED", RUNNING="RUNNING", SUCCEEDED="SUCCEEDED", FAILED="FAILED", KILL_WAIT="KILL_WAIT", KILLED="KILLED", ERROR = "ERROR", INVALID = ""
+  }//end enum
+
+  /// A collection of acls objects
   public struct ACL{
+
+    /// The acl name
     var name = ""
+
+    /// The acl value
     var value = ""
+
+    /// constructor of ACL
+    /// - parameters:
+    /// a dictionary decoded from json
     public init(_ dictionary: [String:Any] = [:]) {
       self.name = dictionary["name"] as? String ?? ""
       self.value = dictionary["value"] as? String ?? ""
     }//init
-  }//ACL
+  }//aclsItem
+
+  /// A collection of acls objects
+  var acls : [ACL] = []
+
+  /// The average time of a map task (in ms)
+  var avgMapTime = 0
+
+  /// The average time of the merge (in ms)
+  var avgMergeTime = 0
+
+  /// The average time of the reduce (in ms)
+  var avgReduceTime = 0
+
+  /// The average time of the shuffle (in ms)
+  var avgShuffleTime = 0
+
+  /// A diagnostic message
+  var diagnostics = ""
+  var elapsedTime = 0
+
+  /// The number of failed map attempts
+  var failedMapAttempts = 0
+
+  /// The number of failed reduce attempts
+  var failedReduceAttempts = 0
+
+  /// The time the job finished (in ms since epoch)
+  var finishTime = 0
+
+  /// The job id
+  var id = ""
+
+  /// The number of killed map attempts
+  var killedMapAttempts = 0
+
+  /// The number of killed reduce attempts
+  var killedReduceAttempts = 0
+
+  var mapProgress = 0
+  /// The number of completed maps
+  var mapsCompleted = 0
+
+  var mapsPending = 0
+
+  var mapsRunning = 0
+
+  /// The total number of maps
+  var mapsTotal = 0
+
+  /// The job name
+  var name = ""
+
+  var newMapAttempts = 0
+
+  var newReduceAttempts = 0
+
+  /// The queue the job was submitted to
+  var queue = ""
+
+  var reduceProgress: Double = 0
+
+  /// The number of completed reduces
+  var reducesCompleted = 0
+
+  var reducesPending = 0
+
+  var reducesRunning = 0
+
+  /// The total number of reduces
+  var reducesTotal = 0
+
+  var runningMapAttempts = 0
+
+  var runningReduceAttempts = 0
+
+  /// The time the job started (in ms since epoch)
+  var startTime = 0
 
   /// the job state
-  var state = ""
-  var mapsCompleted = 0
-  var newMapAttempts = 0
-  var finishTime = 0
-  var reducesPending = 0
-  var reducesTotal = 0
-  var runningMapAttempts = 0
-  var elapsedTime = 0
-  var reducesCompleted = 0
-  var mapProgress = 0
-  var successfulReduceAttempts = 0
-  var reducesRunning = 0
-  var id = ""
-  var runningReduceAttempts = 0
-  var name = ""
-  /// user name
-  var user = ""
-  var uberized = false
-  var mapsPending = 0
-  var failedMapAttempts = 0
-  var killedMapAttempts = 0
+  var state: State = .INVALID
+
+  /// The time the job submitted (in ms since epoch)
+  var submitTime = 0
+
+  /// The number of successful map attempts
   var successfulMapAttempts = 0
-  var reduceProgress: Double = 0
-  var newReduceAttempts = 0
-  var killedReduceAttempts = 0
-  var acls : [ACL] = []
-  var mapsRunning = 0
-  var mapsTotal = 0
-  var diagnostics = ""
-  var failedReduceAttempts = 0
-  var startTime = 0
-  var avgShuffleTime = 0
-  /// queue name
-  var queue = ""
-  var avgMergeTime = 0
-  var avgMapTime = 0
-  var avgReduceTime = 0
+
+  /// The number of successful reduce attempts
+  var successfulReduceAttempts = 0
+
+  /// Indicates if the job was an uber job - ran completely in the application master
+  var uberized = false
+
+  /// The user name
+  var user = ""
+  
+  /// Constructor
+
   public init(_ dictionary: [String:Any] = [:]) {
-    self.avgReduceTime = dictionary["avgReduceTime"] as? Int ?? 0
+    self.acls = (dictionary["acls"] as? [Any] ?? []).map{ACL($0 as? [String : Any] ?? [:])}
     self.avgMapTime = dictionary["avgMapTime"] as? Int ?? 0
     self.avgMergeTime = dictionary["avgMergeTime"] as? Int ?? 0
-    self.queue = dictionary["queue"] as? String ?? ""
+    self.avgReduceTime = dictionary["avgReduceTime"] as? Int ?? 0
     self.avgShuffleTime = dictionary["avgShuffleTime"] as? Int ?? 0
-    self.state = dictionary["state"] as? String ?? ""
-    self.mapsCompleted = dictionary["mapsCompleted"] as? Int ?? 0
-    self.newMapAttempts = dictionary["newMapAttempts"] as? Int ?? 0
-    self.finishTime = dictionary["finishTime"] as? Int ?? 0
-    self.reducesPending = dictionary["reducesPending"] as? Int ?? 0
-    self.reducesTotal = dictionary["reducesTotal"] as? Int ?? 0
-    self.runningMapAttempts = dictionary["runningMapAttempts"] as? Int ?? 0
+    self.diagnostics = dictionary["diagnostics"] as? String ?? ""
     self.elapsedTime = dictionary["elapsedTime"] as? Int ?? 0
-    self.reducesCompleted = dictionary["reducesCompleted"] as? Int ?? 0
-    self.mapProgress = dictionary["mapProgress"] as? Int ?? 0
-    self.successfulReduceAttempts = dictionary["successfulReduceAttempts"] as? Int ?? 0
-    self.reducesRunning = dictionary["reducesRunning"] as? Int ?? 0
-    self.id = dictionary["id"] as? String ?? ""
-    self.runningReduceAttempts = dictionary["runningReduceAttempts"] as? Int ?? 0
-    self.name = dictionary["name"] as? String ?? ""
-    self.user = dictionary["user"] as? String ?? ""
-    self.uberized = dictionary["uberized"] as? Bool ?? false
-    self.mapsPending = dictionary["mapsPending"] as? Int ?? 0
     self.failedMapAttempts = dictionary["failedMapAttempts"] as? Int ?? 0
+    self.failedReduceAttempts = dictionary["failedReduceAttempts"] as? Int ?? 0
+    self.finishTime = dictionary["finishTime"] as? Int ?? 0
+    self.id = dictionary["id"] as? String ?? ""
     self.killedMapAttempts = dictionary["killedMapAttempts"] as? Int ?? 0
-    self.successfulMapAttempts = dictionary["successfulMapAttempts"] as? Int ?? 0
-    self.reduceProgress = dictionary["reduceProgress"] as? Double ?? 0.0
-    self.newReduceAttempts = dictionary["newReduceAttempts"] as? Int ?? 0
     self.killedReduceAttempts = dictionary["killedReduceAttempts"] as? Int ?? 0
-    self.acls = (dictionary["acls"] as? [Any] ?? []).map{ACL($0 as? [String : Any] ?? [:])}
+    self.mapProgress = dictionary["mapProgress"] as? Int ?? 0
+    self.mapsCompleted = dictionary["mapsCompleted"] as? Int ?? 0
+    self.mapsPending = dictionary["mapsPending"] as? Int ?? 0
     self.mapsRunning = dictionary["mapsRunning"] as? Int ?? 0
     self.mapsTotal = dictionary["mapsTotal"] as? Int ?? 0
-    self.diagnostics = dictionary["diagnostics"] as? String ?? ""
-    self.failedReduceAttempts = dictionary["failedReduceAttempts"] as? Int ?? 0
+    self.name = dictionary["name"] as? String ?? ""
+    self.newMapAttempts = dictionary["newMapAttempts"] as? Int ?? 0
+    self.newReduceAttempts = dictionary["newReduceAttempts"] as? Int ?? 0
+    self.queue = dictionary["queue"] as? String ?? ""
+    self.reduceProgress = dictionary["reduceProgress"] as? Double ?? 0.0
+    self.reducesCompleted = dictionary["reducesCompleted"] as? Int ?? 0
+    self.reducesPending = dictionary["reducesPending"] as? Int ?? 0
+    self.reducesRunning = dictionary["reducesRunning"] as? Int ?? 0
+    self.reducesTotal = dictionary["reducesTotal"] as? Int ?? 0
+    self.runningMapAttempts = dictionary["runningMapAttempts"] as? Int ?? 0
+    self.runningReduceAttempts = dictionary["runningReduceAttempts"] as? Int ?? 0
     self.startTime = dictionary["startTime"] as? Int ?? 0
+    self.state = State(rawValue: dictionary["state"] as? String ?? "") ?? .INVALID
+    self.submitTime = dictionary["submitTime"] as? Int ?? 0
+    self.successfulMapAttempts = dictionary["successfulMapAttempts"] as? Int ?? 0
+    self.successfulReduceAttempts = dictionary["successfulReduceAttempts"] as? Int ?? 0
+    self.uberized = dictionary["uberized"] as? Bool ?? false
+    self.user = dictionary["user"] as? String ?? ""
   }//init
 }//Job
 
@@ -793,7 +867,7 @@ public class MapReduceHistroy: YARNResourceManager {
     let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)/counters")
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asJobTaskCounters
-  }//end checkJobTasks
+  }//end checkJobTaskCounters
 
   /// With the task attempts API, you can obtain a collection of resources that represent a task attempt within a job. When you run a GET operation on this resource, you obtain a collection of Task Attempt Objects.
   /// - parameters:
@@ -811,7 +885,7 @@ public class MapReduceHistroy: YARNResourceManager {
     let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)/attempts")
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asTaskAttemps
-  }//end checkJobTasks
+  }//end checkJobTaskAttempts
 
   /// A Task Attempt resource contains information about a particular task attempt within a job.
   /// - parameters:
@@ -830,7 +904,7 @@ public class MapReduceHistroy: YARNResourceManager {
     let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)/attempts/\(attemptId)")
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asTaskAttemp
-  }//end checkJobTasks
+  }//end checkJobTaskAttempt
 
   /// With the task attempt counters API, you can object a collection of resources that represent al the counters for that task attempt.
   /// - parameters:
