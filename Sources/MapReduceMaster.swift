@@ -236,7 +236,7 @@ public class MapReduceApplication: YARNResourceManager {
     if self.user.isEmpty {
       return url
     }//end if
-    return url + (url.contains("?") ? "&" : "?") + "user.name=" + user.stringByEncodingURL
+    return url + (url.characters.contains("?") ? "&" : "?") + "user.name=" + user.stringByEncodingURL
   }//end assembleURL
 
   /// When you make a request for the mapreduce application master information, the information will be returned as an info object.
