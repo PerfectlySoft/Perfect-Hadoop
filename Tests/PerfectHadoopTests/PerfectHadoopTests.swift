@@ -839,8 +839,19 @@ class PerfectHadoopTests: XCTestCase {
                 XCTAssertEqual(attempt.assignedContainerId, attempt2?.assignedContainerId)
                 XCTAssertEqual(attempt.rack, attempt2?.rack)
                 XCTAssertEqual(attempt.state, attempt2?.state)
-
+                print(" 4 4 4 4 4 4  --- MAP REDUCE JOB TASK ATTEMPT COUNTERS ----- 4 4 4 4 4 4 ")
+                let counters = try his.checkJobTaskAttemptCounters(jobId: j.id, taskId: t.id, attemptId: attempt.id)
+                XCTAssertNotNil(counters)
+                XCTAssertEqual(counters?.id, attempt.id)
+                for group in counters?.taskAttemptcounterGroup ?? [] {
+                  print(group.counterGroupName)
+                  for counter in group.counters {
+                    print(counter.name)
+                    print(counter.value)
+                  }//next counter
+                }//next group
               }
+
             }catch (let tskErr) {
               XCTFail("map reduce history job task error: \(tskErr)")
             }

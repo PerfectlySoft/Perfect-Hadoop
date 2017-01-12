@@ -379,34 +379,35 @@ extension String {
   }//end member
 }//end extension
 
-/// With the task counters API, you can object a collection of resources that represent all the counters for that task.
-public struct JobTaskCounters{
-  public struct CounterGroup{
-    public struct Counter{
-      /// The name of the counter
-      var name = ""
-      /// The value of the counter
-      var value = 0
-      /// constructor of Counter
-      /// - parameters:
-      /// a dictionary decoded from json string
-      public init(_ dictionary: [String:Any] = [:]) {
-        self.name = dictionary["name"] as? String ?? ""
-        self.value = dictionary["value"] as? Int ?? 0
-      }//init
-    }//Counter
-    /// A collection of counter objects
-    var counters : [Counter] = []
-    /// The name of the counter group
-    var counterGroupName = ""
-    /// constructor of CounterGroup
+public struct CounterGroup{
+  public struct Counter{
+    /// The name of the counter
+    var name = ""
+    /// The value of the counter
+    var value = 0
+    /// constructor of Counter
     /// - parameters:
     /// a dictionary decoded from json string
     public init(_ dictionary: [String:Any] = [:]) {
-      self.counters = (dictionary["counter"] as? [Any] ?? []).map{Counter($0 as? [String : Any] ?? [:])}
-      self.counterGroupName = dictionary["counterGroupName"] as? String ?? ""
+      self.name = dictionary["name"] as? String ?? ""
+      self.value = dictionary["value"] as? Int ?? 0
     }//init
-  }//CounterGroup
+  }//Counter
+  /// A collection of counter objects
+  var counters : [Counter] = []
+  /// The name of the counter group
+  var counterGroupName = ""
+  /// constructor of CounterGroup
+  /// - parameters:
+  /// a dictionary decoded from json string
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.counters = (dictionary["counter"] as? [Any] ?? []).map{Counter($0 as? [String : Any] ?? [:])}
+    self.counterGroupName = dictionary["counterGroupName"] as? String ?? ""
+  }//init
+}//CounterGroup
+
+/// With the task counters API, you can object a collection of resources that represent all the counters for that task.
+public struct JobTaskCounters{
   /// The task id
   var id = ""
   /// A collection of counter group objects
@@ -420,6 +421,21 @@ public struct JobTaskCounters{
   }//init
 }//Jobcounters
 
+/// With the task attempt counters API, you can object a collection of resources that represent al the counters for that task attempt.
+public struct JobTaskAttemptCounters{
+  /// The task id
+  var id = ""
+  /// A collection of counter group objects
+  var taskAttemptcounterGroup : [CounterGroup] = []
+  /// constructor of JobTaskAttemptCounters
+  /// - parameters:
+  /// a dictionary decoded from json string
+  public init(_ dictionary: [String:Any] = [:]) {
+    self.id = dictionary["id"] as? String ?? ""
+    self.taskAttemptcounterGroup = (dictionary["taskAttemptcounterGroup"] as? [Any] ?? []).map{CounterGroup($0 as? [String : Any] ?? [:])}
+  }//init
+}//Jobcounters
+
 extension String {
   /// nicely convert a json string into a JobTaskCounters structure
   public var asJobTaskCounters: JobTaskCounters? {
@@ -427,6 +443,17 @@ extension String {
       do{
         let dic = try self.jsonDecode() as? [String:Any] ?? [:]
         return JobTaskCounters(dic["jobTaskCounters"] as? [String:Any] ?? [:])
+      }catch{
+        return nil
+      }//end do
+    }//end get
+  }//end member
+  /// nicely convert a json string into a JobTaskAttemptCounters structure
+  public var asJobTaskAttemptCounters: JobTaskAttemptCounters? {
+    get{
+      do{
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        return JobTaskAttemptCounters(dic["jobTaskAttemptCounters"] as? [String:Any] ?? [:])
       }catch{
         return nil
       }//end do
@@ -804,5 +831,24 @@ public class MapReduceHistroy: YARNResourceManager {
     let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)/attempts/\(attemptId)")
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asTaskAttemp
+  }//end checkJobTasks
+
+  /// With the task attempt counters API, you can object a collection of resources that represent al the counters for that task attempt.
+  /// - parameters:
+  ///   - jobId: the job's id to check
+  ///   - taskId: the task id of a job
+  ///   - attemptId: id of the task attempt
+  /// - throws
+  /// WebHDFS.Exceptions
+  /// - returns:
+  /// JobTaskAttemptCounters?, see JobTaskAttemptCounters data structure
+  @discardableResult
+  public func checkJobTaskAttemptCounters(jobId: String, taskId: String, attemptId: String) throws -> JobTaskAttemptCounters? {
+    guard !jobId.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)/attempts/\(attemptId)/counters")
+    let (_, dat, _) = try self.perform(overwriteURL: url)
+    return dat.asJobTaskAttemptCounters
   }//end checkJobTasks
 }//end MapReduceHistory
