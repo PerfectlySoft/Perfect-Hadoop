@@ -232,7 +232,11 @@ public class MapReduceApplication: YARNResourceManager {
   @discardableResult
   internal func assembleURL(path: String) -> String {
     // assamble the url path
-    return "\(service)://\(host):\(port)\(base)/\(id)/ws/v1/mapreduce\(path)"
+    let url = "\(service)://\(host):\(port)\(base)/\(id)/ws/v1/mapreduce\(path)"
+    if self.user.isEmpty {
+      return url
+    }//end if
+    return url + (url.contains("?") ? "&" : "?") + "user.name=" + user.stringByEncodingURL
   }//end assembleURL
 
   /// When you make a request for the mapreduce application master information, the information will be returned as an info object.
