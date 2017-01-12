@@ -32,22 +32,31 @@ public struct ClusterInfo{
 
   /// Hadoop common build string with build version, user, and checksum
   var hadoopBuildVersion = ""
+
   /// Version of hadoop common
   var hadoopVersion = ""
+
   /// Timestamp when hadoop common was built(in ms since epoch)
   var hadoopVersionBuiltOn = ""
+
   /// The ResourceManager HA state
   var haState: HAState = .STOPPED
+
   /// The cluster id
   var id = 0
+
   /// ResourceManager build string with build version, user, and checksum
   var resourceManagerBuildVersion = ""
+
   /// Version of the ResourceManager
   var resourceManagerVersion = ""
+
   /// Timestamp when ResourceManager was built (in ms since epoch)
   var resourceManagerVersionBuiltOn = ""
+
   /// The time the cluster started (in ms since epoch)
   var startedOn = 0
+
   /// The ResourceManager state - valid values are: NOTINITED, INITED, STARTED, STOPPED
   var state: State = .STOPPED
 
@@ -84,50 +93,73 @@ extension String {
 
 /// The cluster metrics resource provides some overall metrics about the cluster. More detailed metrics should be retrieved from the jmx interface.
 public struct ClusterMetrics{
+
   /// The number of active nodes
   var activeNodes = 0
+
   /// The amount of memory allocated in MB
   var allocatedMB = 0
+
   /// The number of allocated virtual cores
   var allocatedVirtualCores = 0
+
   /// The number of applications completed
   var appsCompleted = 0
+
   /// The number of applications failed
   var appsFailed = 0
+
   /// The number of applications killed
   var appsKilled = 0
+
   /// The number of applications pending
   var appsPending = 0
+
   /// The number of applications running
   var appsRunning = 0
+
   /// The number of applications submitted
   var appsSubmitted = 0
+
   /// The amount of memory available in MB
   var availableMB = 0
+
   /// The number of available virtual cores
   var availableVirtualCores = 0
+
   /// The number of containers allocated
   var containersAllocated = 0
+
   /// The number of containers pending
   var containersPending = 0
+
   /// The number of containers reserved
   var containersReserved = 0
+
   /// The number of nodes decommissioned
   var decommissionedNodes = 0
+
   /// The number of lost nodes
   var lostNodes = 0
+
   /// The number of nodes rebooted
   var rebootedNodes = 0
+
   /// The amount of memory reserved in MB
   var reservedMB = 0
+
   /// The number of reserved virtual cores
   var reservedVirtualCores = 0
+
   /// The amount of total memory in MB
   var totalMB = 0
+
   /// The total number of nodes
   var totalNodes = 0
+
   /// The total number of virtual cores
   var totalVirtualCores = 0
+
   /// The number of unhealthy nodes
   var unhealthyNodes = 0
 
@@ -177,10 +209,13 @@ extension String {
 
 /// the resource object for resourcesUsed in user and queues
 public struct ResourcesUsed{
+
   /// The amount of memory used (in MB)
   var memory = 0
+
   /// The number of virtual cores
   var vCores = 0
+
   /// constructor of ResourcesUsed
   /// - parameters:
   ///   - dictionary: [String:Any], a json decoded dictionary of ResourcesUsed
@@ -192,14 +227,19 @@ public struct ResourcesUsed{
 
 /// user object containing resources used
 public struct User {
+
   /// The username of the user using the resources
   var username = ""
+
   /// The amount of resources used by the user in this queue
   var resourcesUsed = ResourcesUsed([:])
+
   /// The number of active applications for this user in this queue
   var numActiveApplications = 0
+
   /// The number of pending applications for this user in this queue
   var numPendingApplications = 0
+
   /// constructor of User
   /// - parameters:
   ///   - dictionary: [String:Any], a json decoded dictionary of user
@@ -213,52 +253,76 @@ public struct User {
 
 /// Queues that can actually have jobs submitted to them are referred to as leaf queues. These queues have additional data associated with them.
 public struct Queue {
+
   /// Absolute capacity percentage this queue can use of entire cluster
   var absoluteCapacity:Double = 0.0
+
   /// Absolute maximum capacity percentage this queue can use of the entire cluster
   var absoluteMaxCapacity:Double = 0.0
+
   /// Absolute used capacity percentage this queue is using of the entire cluster
   var absoluteUsedCapacity:Double = 0.0
+
   /// Configured queue capacity in percentage relative to its parent queue
   var capacity:Double = 0.0
+
   /// The maximum number of active applications this queue can have
   var maxActiveApplications = 0
+
   /// The maximum number of active applications per user this queue can have
   var maxActiveApplicationsPerUser = 0
+
   /// The maximum number of applications this queue can have
   var maxApplications = 0
+
   /// The maximum number of applications per user this queue can have
   var maxApplicationsPerUser = 0
+
   /// Configured maximum queue capacity in percentage relative to its parent queue
   var maxCapacity:Double = 0.0
+
   /// The number of active applications in this queue
   var numActiveApplications = 0
+
   /// The number of applications currently in the queue
   var numApplications = 0
+
   /// The number of containers being used
   var numContainers = 0
+
   /// The number of pending applications in this queue
   var numPendingApplications = 0
+
   /// The name of the queue
   var queueName = ""
+
   /// A collection of sub-queue information. Omitted if the queue has no sub-queues.
   var queues = [Queue]()
+
   /// The total amount of resources used by this queue
   var resourcesUsed = ResourcesUsed([:])
+
   /// The state of the queue
   var state = ""
+
   /// type of the queue - capacitySchedulerLeafQueueInfo
   var type = ""
+
   /// Used queue capacity in percentage
   var usedCapacity:Double = 0.0
+
   /// A string describing the current resources used by the queue
   var usedResources = ""
+
   /// The minimum user limit percent set in the configuration
   var userLimit = 0
+
   /// The user limit factor set in the configuration
   var userLimitFactor:Double = 0.0
+
   /// A collection of user objects containing resources used
   var users = [User]()
+
   /// constructor of Queue
   /// - parameters:
   ///   - dictionary: [String:Any], a json decoded dictionary of Queue
@@ -292,30 +356,43 @@ public struct Queue {
 
 /// Fair Scheduler API
 public struct FairQueue {
+
   /// The maximum number of applications the queue can have
   var maxApps = 0
+
   /// The configured minimum resources that are guaranteed to the queue
   var minResources = ResourcesUsed([:])
+
   /// The configured maximum resources that are allowed to the queue
   var maxResources = ResourcesUsed([:])
+
   /// The sum of resources allocated to containers within the queue
   var usedResources = ResourcesUsed([:])
+
   /// The queue’s fair share of resources
   var fairResources = ResourcesUsed([:])
+
   /// The capacity of the cluster
   var clusterResources = ResourcesUsed([:])
+
   /// The name of the queue
   var queueName = ""
+
   /// The name of the scheduling policy used by the queue
   var schedulingPolicy = ""
+
   /// A collection of sub-queue information. Omitted if the queue has no childQueues.
   var childQueues = [FairQueue]()
+
   /// type of the queue - fairSchedulerLeafQueueInfo
   var type = ""
+
   /// The number of active applications in this queue
   var numActiveApps = 0
+
   /// The number of pending applications in this queue
   var numPendingApps = 0
+
   /// constructor of FairQueue
   /// - parameters:
   ///   - dictionary: [String:Any], a json decoded dictionary of FairQueue
@@ -345,31 +422,45 @@ public struct SchedulerInfo {
 
   /// The available node capacity
   var availNodeCapacity = 0
+
   /// Configured queue capacity in percentage relative to its parent queue
   var capacity: Double = 0
+
   var maxCapacity: Double = 0
+
   /// Configured maximum queue capacity in percentage relative to its parent queue
   var maxQueueMemoryCapacity = 0
+
   /// Minimum queue memory capacity
   var minQueueMemoryCapacity = 0
+
   /// The number of containers
   var numContainers = 0
+
   /// The total number of nodes
   var numNodes = 0
+
   /// State of the queue - valid values are: STOPPED, RUNNING
   var qstate:QState = .INVALID
+
   /// Name of the queue
   var queueName = ""
+
   /// A collection of queue resources
   var queues = [Queue]()
+
   /// A collection of root queue resources
   var rootQueue = FairQueue([:])
+
   /// The total node capacity
   var totalNodeCapacity = 0
+
   /// Scheduler type - capacityScheduler
   var type = ""
+
   /// Used queue capacity in percentage
   var usedCapacity: Double = 0
+
   /// The used node capacity
   var usedNodeCapacity = 0
 
@@ -426,53 +517,79 @@ public struct APP {
 
   var allocatedMB = 0
   var allocatedVCores = 0
+
   /// The URL of the application master container logs
   var amContainerLogs = ""
+
   /// The nodes http address of the application master
   var amHostHttpAddress = ""
+
   /// The RPC address of the application master
   var amRPCAddress = ""
+
   /// Node Label expression which is used to identify the node on which application’s AM container is expected to run.
   var amNodeLabelExpression = ""
+
   /// priority of the submitted application
   var applicationPriority = 0
+
   var applicationTags = ""
+
   /// The application type
   var applicationType = ""
   /// Node Label expression which is used to identify the nodes on which application’s containers are expected to run by default.
   var appNodeLabelExpression = ""
+
   var containerids = [String]()
+
   /// The cluster id
   var clusterId = 0
+
   /// Detailed diagnostics information
   var diagnostics = ""
+
   /// The elapsed time since the application started (in ms)
   var elapsedTime = 0
+
   /// The final status of the application if finished - reported by the application itself - valid values are: UNDEFINED, SUCCEEDED, FAILED, KILLED
   var finalStatus: FinalStatus = .INVALID
+
   /// The time in which the application finished (in ms since epoch)
   var finishedTime = 0
+
   /// The application id
   var id = ""
+
   var memorySeconds = 0
+
   /// The application name
   var name = ""
+
   /// The progress of the application as a percent
   var progress: Double = 0.0
+
   // The queue the application was submitted to
   var queue = ""
+
   var runningContainers = 0
+
   /// The time in which application started (in ms since epoch)
   var startedTime = 0
+
   /// The application state according to the ResourceManager - valid values are members of the YarnApplicationState
   var state: State = .INVALID
+
   /// Where the tracking url is currently pointing - History (for history server) or ApplicationMaster
   var trackingUI = ""
+
   /// The web URL that can be used to track the application
   var trackingUrl = ""
+
   var unmanagedApplication = ""
+
   /// The user who started the application
   var user = ""
+
   var vcoreSeconds = 0
   /// constructor of APP
   /// - parameters:
@@ -564,15 +681,21 @@ extension String {
 }//end extension
 
 public struct AppAttempt{
+
   var containerId = ""
+
   /// The app attempt id
   var id = 0
+
   /// The http link to the app attempt logs
   var logsLink = ""
+
   /// The node http address of the node the attempt ran on
   var nodeHttpAddress = ""
+
   /// The node id of the node the attempt ran on
   var nodeId = ""
+
   /// The start time of the attempt (in ms since epoch)
   var startTime = 0
   public init(_ dictionary: [String:Any] = [:]) {
@@ -613,26 +736,38 @@ public struct Node{
   }//end Health
 
   var availMemoryMB = 0
+
   var availableVirtualCores = 0
+
   /// A detailed health report
   var healthReport = ""
+
   /// The health status of the node - Healthy or Unhealthy
   var healthStatus: Health = .INVALID
+
   /// The node id
   var id = ""
+
   /// The health status of the node - Healthy or Unhealthy
   var lastHealthUpdate = 0
+
   /// The nodes HTTP address
   var nodeHTTPAddress = ""
+
   /// The host name of the node
   var nodeHostName = ""
+
   var numContainers = 0
+
   /// The rack location of this node
   var rack = ""
+
   /// State of the node - valid values are:
   var state: State = .INVALID
+
   /// The total amount of memory currently used on the node (in MB)
   var usedMemoryMB = 0
+
   /// The total number of vCores currently used on the node
   var usedVirtualCores = 0
   /// constructor
@@ -732,14 +867,14 @@ public class YARNResourceManager: YARNNodeManager {
 
   /// Submit a request
   /// - throws:
-  /// WebHDFS.Exception
+  ///   Exception
   /// - parameters:
   ///   - url: String, request url
   ///   - extensionType: String, such as "json", "txt", "html", etc.
   ///   - content: String, request content
   ///   - method: HTTPMethod, usually POST / PUT, etc.
   /// - returns
-  /// the HTTP headers / body returned. *NOTE* if response include a code greater than 400, it will raise an exception
+  ///   the HTTP headers / body returned. *NOTE* if response include a code greater than 400, it will raise an exception
   @discardableResult
   internal func submitRequest(url: String, extensionType: String, content: String, method: HTTPMethod = .POST) throws -> (String, String) {
 
@@ -796,9 +931,9 @@ public class YARNResourceManager: YARNNodeManager {
 
   /// The cluster information resource provides overall information about the cluster.
   /// - returns:
-  /// ClusterInfo structure, See ClusterInfo.
+  ///   ClusterInfo structure, See ClusterInfo.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func checkClusterInfo() throws -> ClusterInfo? {
     let (_, dat, _) = try self.perform()
@@ -807,9 +942,9 @@ public class YARNResourceManager: YARNNodeManager {
 
   /// The cluster metrics resource provides some overall metrics about the cluster. More detailed metrics should be retrieved from the jmx interface
   /// - returns:
-  /// ClusterMetrics structure, See ClusterMetrics.
+  ///   ClusterMetrics structure, See ClusterMetrics.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func checkClusterMetrics() throws -> ClusterMetrics? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/metrics"))
@@ -818,9 +953,9 @@ public class YARNResourceManager: YARNNodeManager {
 
   /// The capacity scheduler supports hierarchical queues. This one request will print information about all the queues and any subqueues they have. Queues that can actually have jobs submitted to them are referred to as leaf queues. These queues have additional data associated with them.
   /// - returns:
-  /// SchedulerInfo structure, See SchedulerInfo.
+  ///   SchedulerInfo structure, See SchedulerInfo.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func checkSchedulerInfo() throws -> SchedulerInfo? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/scheduler"))
@@ -840,9 +975,9 @@ public class YARNResourceManager: YARNNodeManager {
   ///   - applicationTypes: [String], applications matching the given application types
   ///   - applicationTags: [String], applications matching any of the given application tags
   /// - returns:
-  /// [APP], See APP.
+  ///   [APP], See APP.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func checkApps(states: [APP.State] = [], finalStatus: APP.FinalStatus = .INVALID, queue: String = "", limit: Int = 0, startedTimeBegin: Int = 0, startedTimeEnd: Int = 0, finishedTimeBegin: Int = 0, finishedTimeEnd: Int = 0, applicationTypes: [String] = [], applicationTags: [String] = []) throws -> [APP] {
     var v:[String:String] = [:]
@@ -898,9 +1033,9 @@ public class YARNResourceManager: YARNNodeManager {
   ///   - states: [APP.State], states of the application. If states is not provided, the API will enumerate all application states and return the counts of them.
   ///   - applicationTypes: [String], types of the applications. If applicationTypes is not provided, the API will count the applications of any application type. In this case, the response shows * to indicate any application type. Note that we only support at most one applicationType temporarily. Otherwise, users will expect an BadRequestException.
   /// - returns:
-  /// [AppStatItem], See AppStatItem.
+  ///   [AppStatItem], See AppStatItem.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func checkAppStatistics(states: [APP.State] = [], applicationTypes: [String] = []) throws -> [AppStatItem] {
     var v:[String:String] = [:]
@@ -926,7 +1061,7 @@ public class YARNResourceManager: YARNNodeManager {
   /// - returns:
   /// APP, See structur of APP.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public override func checkApp(id:String) throws -> APP? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)"))
@@ -937,9 +1072,9 @@ public class YARNResourceManager: YARNNodeManager {
   /// - parameters:
   ///   - id: String, application id
   /// - returns:
-  /// [AppAttempt], See structur of AppAttempt.
+  ///   [AppAttempt], See structur of AppAttempt.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func checkAppAttempts(id:String) throws -> [AppAttempt] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)/appattempts"))
@@ -948,9 +1083,9 @@ public class YARNResourceManager: YARNNodeManager {
 
   /// Cluster Nodes API: With the Nodes API, you can obtain a collection of resources, each of which represents a node. When you run a GET operation on this resource, you obtain a collection of Node Objects.
   /// - returns:
-  /// [Node], See Node Structure.
+  ///   [Node], See Node Structure.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func checkClusterNodes() throws -> [Node] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes"))
@@ -959,9 +1094,9 @@ public class YARNResourceManager: YARNNodeManager {
 
   /// Use the following URI to obtain a Node Object, from a node identified by the nodeid value.
   /// - returns:
-  /// Node, See Node Structure.
+  ///   Node, See Node Structure.
   /// - throws:
-  /// WebHDFS.Exceptions
+  /// Exceptions
   @discardableResult
   public func checkClusterNode(id: String) throws -> Node? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes/\(id)"))
@@ -970,9 +1105,9 @@ public class YARNResourceManager: YARNNodeManager {
 
   /// With the New Application API, you can obtain an application-id which can then be used as part of the Cluster Submit Applications API to submit applications. The response also includes the maximum resource capabilities available on the cluster.
   /// - returns:
-  /// NewApplication, See Structure of NewApplication.
+  ///   NewApplication, See Structure of NewApplication.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func newApplication() throws -> NewApplication? {
     guard !user.isEmpty else {
@@ -985,11 +1120,11 @@ public class YARNResourceManager: YARNNodeManager {
 
   /// The Submit Applications API can be used to submit applications. In case of submitting applications, you must first obtain an application-id using the Cluster New Application API.
   /// - returns:
-  /// application control url - for real cluster, or nil by default.
+  ///   application control url - for real cluster, or nil by default.
   /// - parameters:
-  /// application: See SubmitApplication class definition
+  ///   application: See SubmitApplication class definition
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func submit(application:SubmitApplication) throws -> String? {
 
@@ -1012,9 +1147,9 @@ public class YARNResourceManager: YARNNodeManager {
 
   ///With the application state API, you can query the state of a submitted app as well kill a running app by modifying the state of a running app using a PUT request with the state set to “KILLED”. To perform the PUT operation, authentication has to be setup for the RM web services. In addition, you must be authorized to kill the app. Currently you can only change the state to “KILLED”; an attempt to change the state to any other results in a 400 error response. Examples of the unauthorized and bad request errors are below. When you carry out a successful PUT, the iniital response may be a 202. You can confirm that the app is killed by repeating the PUT request until you get a 200, querying the state using the GET method or querying for app information and checking the state. In the examples below, we repeat the PUT request and get a 200 response.
   /// - parameters:
-  /// id: String, the application id
+  ///   id: String, the application id
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func getApplicationStatus(id: String) throws -> APP.State {
     if id.isEmpty {
@@ -1037,7 +1172,7 @@ public class YARNResourceManager: YARNNodeManager {
   ///   - id: String, the application id
   ///   - state: APP.State, new state to set
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   public func setApplicationStatus(id: String, state: APP.State) throws {
     guard !id.isEmpty && state != .INVALID else {
       throw Exception.insufficientParameters
@@ -1052,11 +1187,11 @@ public class YARNResourceManager: YARNNodeManager {
 
   ///With the application queue API, you can query the queue of a submitted app as well move a running app to another queue using a PUT request specifying the target queue. To perform the PUT operation, authentication has to be setup for the RM web services. In addition, you must be authorized to move the app. Currently you can only move the app if you’re using the Capacity scheduler or the Fair scheduler.
   /// returns:
-  /// queue name, as a string
+  ///   queue name, as a string
   /// - parameters:
   /// id: String, the application id
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func getApplicationQueue(id: String) throws -> String {
     if id.isEmpty {
@@ -1078,7 +1213,7 @@ public class YARNResourceManager: YARNNodeManager {
   ///   - id: String, the application id
   ///   - queue: String, the queue name to set
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   public func setApplicationQueue(id: String, queue: String) throws {
     guard !id.isEmpty && !queue.isEmpty else {
       throw Exception.insufficientParameters
@@ -1093,11 +1228,11 @@ public class YARNResourceManager: YARNNodeManager {
 
   ///With the application priority API, you can query the priority of a submitted app as well update priority of a running or accepted app using a PUT request specifying the target priority. To perform the PUT operation, authentication has to be setup for the RM web services. In addition, you must be authorized to update the app priority. Currently you can only update the app priority if you’re using the Capacity scheduler.
   /// returns:
-  /// current priority value, as int
+  ///   current priority value, as int
   /// - parameters:
   /// id: String, the application id
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func getApplicationPriority(id: String) throws -> Int {
     if id.isEmpty {
@@ -1119,7 +1254,7 @@ public class YARNResourceManager: YARNNodeManager {
   ///   - id: String, the application id
   ///   - priority: Int, the priority to set
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   public func setApplicationPriority(id: String, priority: Int) throws {
     guard !id.isEmpty else {
       throw Exception.insufficientParameters

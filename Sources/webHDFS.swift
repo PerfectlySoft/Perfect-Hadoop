@@ -397,7 +397,7 @@ public class WebHDFS {
   ///   - length: The number of bytes to be processed.
   ///   - buffersize: The size of the buffer used in transferring data.
   /// - throws:
-  ///	Invalid file / unauthorized operation
+  ///   Invalid file / unauthorized operation
   @discardableResult
   public func openFile(path:String, offset: Int = 0, length: Int = -1, buffersize: Int = 0) throws -> [UInt8] {
 
@@ -508,7 +508,7 @@ public class WebHDFS {
   ///		- path: full path of the remote file / directory.
   ///		- recursive: delete (a directory) recursively.
   /// - throws:
-  ///	unauthorized access / Invalid file or directory.
+  ///   unauthorized access / Invalid file or directory.
   @discardableResult
   public func delete(path:String, recursive: Bool = true) throws {
 
@@ -530,7 +530,7 @@ public class WebHDFS {
   ///		- replication: The number of replications of a file.
   ///		- buffersize: The size of the buffer used in transferring data.
   /// - throws:
-  ///	unauthorized access / Invalid file or directory.
+  ///   unauthorized access / Invalid file or directory.
   @discardableResult
   public func create(path:String, localFile:String, overwrite: Bool = false, permission: Int = 644, blocksize: CLong = 1048576, replication: CShort = -1, buffersize: Int = -1) throws{
 
@@ -605,7 +605,7 @@ public class WebHDFS {
   ///		- localFile: full path of file to upload
   ///		- buffersize: The size of the buffer used in transferring data.
   /// - throws:
-  ///	unauthorized access / Invalid file or directory.
+  ///   unauthorized access / Invalid file or directory.
   @discardableResult
   public func append(path:String, localFile:String, buffersize: Int = -1) throws {
 
@@ -668,7 +668,7 @@ public class WebHDFS {
   ///		- path: full path of the remote file / directory.
   ///		- sources: A list of source paths.
   /// - throws:
-  ///	unauthorized access / Invalid file or directory / Unsupport Operation.
+  ///   unauthorized access / Invalid file or directory / Unsupport Operation.
   @discardableResult
   public func concat(path:String, sources:[String]) throws {
 
@@ -691,7 +691,7 @@ public class WebHDFS {
   ///		- destination: full path of the symbolic link to create
   ///		- createParent: create full path even parent path does not exist
   /// - throws:
-  ///	unauthorized access / Invalid file or directory / Unsupport Operation.
+  ///   unauthorized access / Invalid file or directory / Unsupport Operation.
   @discardableResult
   public func createSymLink(path: String, destination: String, createParent: Bool) throws{
 
@@ -709,7 +709,7 @@ public class WebHDFS {
   ///		- path: full path of the remote file / directory.
   ///		- newlength: new length of the file
   /// - throws:
-  ///	unauthorized access / Invalid file or directory / Unsupport Operation.
+  ///   unauthorized access / Invalid file or directory / Unsupport Operation.
   @discardableResult
   public func truncate(path: String, newlength:CLong) throws {
 
@@ -742,11 +742,11 @@ public class WebHDFS {
 
   /// set permission
   /// - returns:
-  /// - parameters
+  /// - parameters:
   ///   - path: full path of the remote file / directory
   ///   - permission: oct permission of (u)rwx(g)rwx(o)rwx
   /// - throws
-  /// unauthorized access / Invalid file or directory
+  ///   unauthorized access / Invalid file or directory
   @discardableResult
   public func setPermission(path: String, permission: Int) throws {
     guard permission >= 0 else {
@@ -758,7 +758,7 @@ public class WebHDFS {
 
   /// set owner
   ///
-  /// - parameters
+  /// - parameters:
   ///   - path: full path of the remote file / directory
   ///   - owner: owner's name
   ///   - group: group's name
@@ -771,11 +771,11 @@ public class WebHDFS {
   }//end setOwner
 
   /// set replication factor
-  /// - parameters
+  /// - parameters:
   ///   - path: full path of the remote file / directory
   ///   - replication: replication factor
   /// - throws
-  /// unauthorized access / Invalid file or directory
+  ///   unauthorized access / Invalid file or directory
   @discardableResult
   public func setReplication(path: String, factor:ushort) throws {
 
@@ -790,12 +790,12 @@ public class WebHDFS {
   }//end setReplication
 
   /// set times
-  /// - parameters
+  /// - parameters:
   ///   - path: full path of the remote file / directory
   ///   - modification: modification time of the file / directory
   ///   - access: access time of the file / directory
   /// - throws
-  /// unauthorized access / Invalid file or directory
+  ///   unauthorized access / Invalid file or directory
   @discardableResult
   public func setTimes(path: String, modification: Int = -1, access: Int = -1) throws{
     // prepare the variables
@@ -819,7 +819,7 @@ public class WebHDFS {
   /// get ACL
   /// - returns:
   /// AclStatus
-  /// - parameters
+  /// - parameters:
   ///   - path: full path of the remote file / directory
   @discardableResult
   public func getACL(path: String) throws -> AclStatus? {
@@ -830,11 +830,11 @@ public class WebHDFS {
 
 
   /// set ACL
-  /// - parameters
+  /// - parameters:
   ///   - path: full path of the remote file / directory
   ///   - specification: ACL spec string, such as "user::rwx,user:user1:---,group::rwx,other::rwx"
   /// - throws
-  /// unauthorized access / Invalid file or directory
+  ///   unauthorized access / Invalid file or directory
   @discardableResult
   public func setACL(path: String, specification: String) throws {
     // perform the test
@@ -842,11 +842,11 @@ public class WebHDFS {
   }//end setACL
 
   /// modify ACL entries
-  /// - parameters
+  /// - parameters:
   ///   - path: full path of the remote file / directory
   ///   - entries: ACL spec string, such as "user::rwx,user:user1:---,group::rwx,other::rwx"
   /// - throws
-  /// unauthorized access / Invalid file or directory
+  ///   unauthorized access / Invalid file or directory
   @discardableResult
   public func modifyACL(path: String, entries: String) throws {
 
@@ -855,7 +855,7 @@ public class WebHDFS {
   }//end modifyACL
 
   /// remove ACL entries
-  /// - parameters
+  /// - parameters:
   ///   - path: full path of the remote file / directory
   ///   - entries: ACL spec string, such as "user::rwx,user:user1:---,group::rwx,other::rwx"
   /// - throws

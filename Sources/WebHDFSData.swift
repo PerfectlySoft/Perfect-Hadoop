@@ -21,6 +21,9 @@ import PerfectLib
 
 /// Double / Float patch for integer casting
 extension Double {
+  /// constructor from any numbers and convert it from integer to double
+  /// - parameters:
+  ///   Any?: any strings or numbers
   public init(any: Any?) {
     switch any {
     case is Int:
@@ -33,16 +36,25 @@ extension Double {
 
 /// The ACL spec included in ACL modification operations.
 public struct AclStatus{
+
   /// ACL entry
   var entries : [String] = []
+
   /// the user who is the owner
   var owner = ""
+
   /// the group owner
   var group = ""
+
   /// permission string, unix style
   var permission = 0
+
   /// true if the sticky bit is on
   var stickyBit = false
+
+  /// constructor of AclStatus
+  /// - parameters:
+  ///   a dictionary decoded from a json string
   public init(_ dictionary: [String:Any] = [:]) {
     self.entries = dictionary["entries"] as? [String] ?? []
     self.owner = dictionary["owner"] as? String ?? ""
@@ -73,10 +85,16 @@ public enum XAttrFlag:String {
 
 /// The XAttr value of a file/directory.
 public struct XAttr{
+
   /// names are any string prefixed with user./trusted./system./security..
   var name = ""
+
   /// Enclosed in double quotes or prefixed with 0x or 0s.
   var value = "<>"
+
+  /// constructor of XAttr
+  /// - parameters:
+  ///   a dictionary decoded from a json string
   public init(_ dictionary: [String:Any] = [:]) {
     self.name = dictionary["name"] as? String ?? ""
     self.value = dictionary["value"] as? String ?? "<>"
@@ -207,24 +225,34 @@ extension String {
 
 /// common file status parsed from json
 public struct FileStatus{
+
   /// unix time for last access
   var accessTime = 0
+
   /// file suffix / extension - type
   var pathSuffix = ""
+
   /// replicated nodes count
   var replication = 0
+
   /// node type: directory or file
   var type = ""
+
   /// storage unit, default = 128M, min = 1M
   var blockSize = 0
+
   /// node owner
   var owner = ""
+
   /// last modification in unix epoch time format
   var modificationTime = 0
+
   /// node group info
   var group = ""
+
   /// node permission, (u)rwx (g)rwx (o)rwx
   var permission = 0
+  
   /// file length
   var length = 0
   public init(_ dictionary: [String:Any] = [:]) {

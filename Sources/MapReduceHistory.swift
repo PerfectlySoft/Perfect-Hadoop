@@ -21,15 +21,22 @@ import PerfectLib
 
 /// History Info when check an overall info from a history server.
 public struct HistoryInfo {
+
   /// Hadoop common build string with build version, user, and checksum
   var hadoopBuildVersion = ""
+
   /// Version of hadoop common
   var hadoopVersion = ""
+
   /// Timestamp when hadoop common was built
   var hadoopVersionBuiltOn = ""
+
   /// The time the history server was started (in ms since epoch)
   var startedOn = 0
+
   /// constructor
+  /// - parameters:
+  ///   a dictionary decoded from a json string
   public init(_ dictionary: [String:Any] = [:]){
     self.hadoopBuildVersion = dictionary["hadoopBuildVersion"] as? String ?? ""
     self.hadoopVersion = dictionary["hadoopVersion"] as? String ?? ""
@@ -239,21 +246,28 @@ extension String {
 
 /// With the job attempts API, you can obtain a collection of resources that represent a job attempt. When you run a GET operation on this resource, you obtain a collection of Job Attempt Objects.
 public struct JobAttempt{
+
   /// The id of the container for the job attempt
   var containerId = ""
+
   /// The job attempt id
   var id = 0
+
   /// The http link to the job attempt logs
   var logsLink = ""
+
   /// The node http address of the node the attempt ran on
   var nodeHttpAddress = ""
+
   /// The node id of the node the attempt ran on
   var nodeId = ""
+
   /// The node id of the node the attempt ran on
   var startTime = 0
+
   /// constructor of JobAttempt
   /// - parameters:
-  /// A dictionary decoded from a json string
+  ///   A dictionary decoded from a json string
   public init(_ dictionary: [String:Any] = [:]) {
     self.containerId = dictionary["containerId"] as? String ?? ""
     self.id = dictionary["id"] as? Int ?? 0
@@ -282,14 +296,19 @@ extension String {
 public struct JobCounters{
   public struct CounterGroup{
     public struct Counter{
+
       /// The counter value of map tasks
       var mapCounterValue = 0
+
       /// The name of the counter
       var name = ""
+
       /// The counter value of reduce tasks
       var reduceCounterValue = 0
+
       /// The counter value of all tasks
       var totalCounterValue = 0
+
       /// constructor of Counter
       /// - parameters:
       /// a dictionary decoded from json string
@@ -300,10 +319,13 @@ public struct JobCounters{
         self.totalCounterValue = dictionary["totalCounterValue"] as? Int ?? 0
       }//init
     }//Counter
+
     /// A collection of counter objects
     var counters : [Counter] = []
+
     /// The name of the counter group
     var counterGroupName = ""
+
     /// constructor of CounterGroup
     /// - parameters:
     /// a dictionary decoded from json string
@@ -312,10 +334,13 @@ public struct JobCounters{
       self.counterGroupName = dictionary["counterGroupName"] as? String ?? ""
     }//init
   }//CounterGroup
+
   /// A collection of counter group objects
   var counterGroup : [CounterGroup] = []
+
   /// The job id
   var id = ""
+
   /// constructor of JobCounters
   /// - parameters:
   /// a dictionary decoded from json string
@@ -341,14 +366,19 @@ extension String {
 
 /// A job configuration resource contains information about the job configuration for this job.
 public struct JobConfig{
+
   /// Elements of the property object
   public struct Property{
+
     /// The value of the configuration property
     var value = ""
+
     /// The name of the configuration property
     var name = ""
+
     /// The location this configuration object came from. If there is more then one of these it shows the history with the latest source at the end of the list.
     var source = [String]()
+
     /// constructor of Property
     /// - parameters:
     /// a dictionary decoded from json string
@@ -358,10 +388,13 @@ public struct JobConfig{
       self.source = dictionary["source"] as? [String] ?? []
     }//init
   }//Property
+
   /// The path to the job configuration file
   var path = ""
+
   /// Collection of configuration property objects
   var property = [Property]()
+
   /// constructor of CounterGroup
   /// - parameters:
   /// a dictionary decoded from json string
@@ -372,6 +405,7 @@ public struct JobConfig{
 }//JobConfig
 
 extension String {
+
   /// nicely convert a json string into a JobCounters structure
   public var asJobConfig: JobConfig? {
     get{
@@ -387,6 +421,7 @@ extension String {
 
 /// A Task resource contains information about a particular task within a job.
 public struct JobTask{
+
   /// The state of the task - valid values are: NEW, SCHEDULED, RUNNING, SUCCEEDED, FAILED, KILL_WAIT, KILLED
   public enum State: String {
     case NEW = "NEW", SCHEDULED = "SCHEDULED", RUNNING = "RUNNING", SUCCEEDED = "SUCCEEDED", FAILED = "FAILED", KILL_WAIT = "KILL_WAIT", KILLED = "KILLED", INVALID = ""
@@ -399,18 +434,25 @@ public struct JobTask{
 
   /// The elapsed time since the application started (in ms)
   var elapsedTime = 0
+
   /// The time in which the task finished (in ms since epoch)
   var finishTime = 0
+
   /// The task id
   var id = ""
+
   /// The progress of the task as a percent
   var progress: Double = 0
+
   /// The time in which the task started (in ms since epoch) or -1 if it was never started
   var startTime = -1
+
   /// The state of the task - valid values are: NEW, SCHEDULED, RUNNING, SUCCEEDED, FAILED, KILL_WAIT, KILLED
   var state:State = .INVALID
+
   /// The id of the last successful attempt
   var successfulAttempt = ""
+
   /// The task type - MAP or REDUCE
   var type: TaskType = .INVALID
 
@@ -454,11 +496,15 @@ extension String {
 }//end extension
 
 public struct CounterGroup{
+
   public struct Counter{
+
     /// The name of the counter
     var name = ""
+
     /// The value of the counter
     var value = 0
+
     /// constructor of Counter
     /// - parameters:
     /// a dictionary decoded from json string
@@ -467,10 +513,13 @@ public struct CounterGroup{
       self.value = dictionary["value"] as? Int ?? 0
     }//init
   }//Counter
+
   /// A collection of counter objects
   var counters : [Counter] = []
+
   /// The name of the counter group
   var counterGroupName = ""
+
   /// constructor of CounterGroup
   /// - parameters:
   /// a dictionary decoded from json string
@@ -482,10 +531,13 @@ public struct CounterGroup{
 
 /// With the task counters API, you can object a collection of resources that represent all the counters for that task.
 public struct JobTaskCounters{
+
   /// The task id
   var id = ""
+
   /// A collection of counter group objects
   var taskCounterGroup : [CounterGroup] = []
+
   /// constructor of JobCounters
   /// - parameters:
   /// a dictionary decoded from json string
@@ -497,10 +549,13 @@ public struct JobTaskCounters{
 
 /// With the task attempt counters API, you can object a collection of resources that represent al the counters for that task attempt.
 public struct JobTaskAttemptCounters{
+
   /// The task id
   var id = ""
+
   /// A collection of counter group objects
   var taskAttemptCounterGroup : [CounterGroup] = []
+
   /// constructor of JobTaskAttemptCounters
   /// - parameters:
   /// a dictionary decoded from json string
@@ -511,6 +566,7 @@ public struct JobTaskAttemptCounters{
 }//Jobcounters
 
 extension String {
+
   /// nicely convert a json string into a JobTaskCounters structure
   public var asJobTaskCounters: JobTaskCounters? {
     get{
@@ -522,6 +578,7 @@ extension String {
       }//end do
     }//end get
   }//end member
+
   /// nicely convert a json string into a JobTaskAttemptCounters structure
   public var asJobTaskAttemptCounters: JobTaskAttemptCounters? {
     get{
@@ -538,6 +595,7 @@ extension String {
 
 /// With the task attempts API, you can obtain a collection of resources that represent a task attempt within a job. When you run a GET operation on this resource, you obtain a collection of Task Attempt Objects.
 public struct TaskAttempt {
+
   /// The state of the task attempt - valid values are: NEW, UNASSIGNED, ASSIGNED, RUNNING, COMMIT_PENDING, SUCCESS_CONTAINER_CLEANUP, SUCCEEDED, FAIL_CONTAINER_CLEANUP, FAIL_TASK_CLEANUP, FAILED, KILL_CONTAINER_CLEANUP, KILL_TASK_CLEANUP, KILLED
   public enum State: String {
     case NEW="NEW",  UNASSIGNED="UNASSIGNED",  ASSIGNED="ASSIGNED",  RUNNING="RUNNING",  COMMIT_PENDING="COMMIT_PENDING",  SUCCESS_CONTAINER_CLEANUP="SUCCESS_CONTAINER_CLEANUP",  SUCCEEDED="SUCCEEDED",  FAIL_CONTAINER_CLEANUP="FAIL_CONTAINER_CLEANUP",  FAIL_TASK_CLEANUP="FAIL_TASK_CLEANUP",  FAILED="FAILED",  KILL_CONTAINER_CLEANUP="KILL_CONTAINER_CLEANUP",  KILL_TASK_CLEANUP="KILL_TASK_CLEANUP",  KILLED = "KILLED", INVALID = ""
@@ -688,9 +746,9 @@ public class MapReduceHistroy: YARNResourceManager {
 
   /// The history server information resource provides overall information about the history server.
   /// - returns:
-  /// HistoryInfo structure, See HistoryInfo.
+  ///   HistoryInfo structure, See HistoryInfo.
   /// - throws:
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   @discardableResult
   public func info() throws -> HistoryInfo? {
     let url = assembleURL("")
@@ -709,9 +767,9 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   - state: the job state, see APP.State
   ///   - queue: queue name
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// [Job], an array of Job Structures
+  ///   [Job], an array of Job Structures
   @discardableResult
   public func checkJobs(user: String? = nil, state:APP.FinalStatus? = nil, queue: String? = nil, limit: Int? = nil, startedTimeBegin: Int? = nil, startedTimeEnd: Int? = nil, finishedTimeBegin: Int? = nil, finishedTimeEnd: Int? = nil) throws -> [Job] {
     var url = assembleURL("/mapreduce/jobs")
@@ -762,9 +820,9 @@ public class MapReduceHistroy: YARNResourceManager {
   /// - parameters:
   ///   - jobId: the job's id to check
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// [JobAttempt], an array of JobAttemp structures
+  ///   [JobAttempt], an array of JobAttemp structures
   @discardableResult
   public func checkJobAttempts(jobId: String) throws -> [JobAttempt] {
     guard !jobId.isEmpty else {
@@ -779,9 +837,9 @@ public class MapReduceHistroy: YARNResourceManager {
   /// - parameters:
   ///   - jobId: the job's id to check
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// JobCounters, see JobCounters structure
+  ///   JobCounters, see JobCounters structure
   @discardableResult
   public func checkJobCounters(jobId: String) throws -> JobCounters? {
     guard !jobId.isEmpty else {
@@ -796,9 +854,9 @@ public class MapReduceHistroy: YARNResourceManager {
   /// - parameters:
   ///   - jobId: the job's id to check
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// JobConfig, see JobConfig structure
+  ///   JobConfig, see JobConfig structure
   @discardableResult
   public func checkJobConfig(jobId: String) throws -> JobConfig? {
     guard !jobId.isEmpty else {
@@ -817,9 +875,9 @@ public class MapReduceHistroy: YARNResourceManager {
   /// - parameters:
   ///   - jobId: the job's id to check
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// [JobTask], an array of JobTask structures
+  ///   [JobTask], an array of JobTask structures
   @discardableResult
   public func checkJobTasks(jobId: String, taskType: QueryTaskType? = nil) throws -> [JobTask] {
     guard !jobId.isEmpty else {
@@ -838,9 +896,9 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   - jobId: the job's id to check
   ///   - taskId: the task id of a job
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// JobTask, see JobTask structure
+  ///   JobTask, see JobTask structure
   @discardableResult
   public func checkJobTask(jobId: String, taskId: String) throws -> JobTask? {
     guard !jobId.isEmpty else {
@@ -856,9 +914,9 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   - jobId: the job's id to check
   ///   - taskId: the task id of a job
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// JobTaskCounters, see JobTaskCounters structure
+  ///   JobTaskCounters, see JobTaskCounters structure
   @discardableResult
   public func checkJobTaskCounters(jobId: String, taskId: String) throws -> JobTaskCounters? {
     guard !jobId.isEmpty else {
@@ -874,9 +932,9 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   - jobId: the job's id to check
   ///   - taskId: the task id of a job
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// [TaskAttempt], see TaskAttempt data structure
+  ///   [TaskAttempt], see TaskAttempt data structure
   @discardableResult
   public func checkJobTaskAttempts(jobId: String, taskId: String) throws -> [TaskAttempt] {
     guard !jobId.isEmpty else {
@@ -893,9 +951,9 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   - taskId: the task id of a job
   ///   - attemptId: id of the task attempt
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// TaskAttempt?, see TaskAttempt data structure
+  ///   TaskAttempt?, see TaskAttempt data structure
   @discardableResult
   public func checkJobTaskAttempt(jobId: String, taskId: String, attemptId: String) throws -> TaskAttempt? {
     guard !jobId.isEmpty else {
@@ -912,9 +970,9 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   - taskId: the task id of a job
   ///   - attemptId: id of the task attempt
   /// - throws
-  /// WebHDFS.Exceptions
+  ///   Exceptions
   /// - returns:
-  /// JobTaskAttemptCounters?, see JobTaskAttemptCounters data structure
+  ///   JobTaskAttemptCounters?, see JobTaskAttemptCounters data structure
   @discardableResult
   public func checkJobTaskAttemptCounters(jobId: String, taskId: String, attemptId: String) throws -> JobTaskAttemptCounters? {
     guard !jobId.isEmpty else {

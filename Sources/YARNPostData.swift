@@ -29,6 +29,13 @@ import PerfectLib
 /// - returns:
 /// base64 encoded text
 public class Base64 {
+
+  /// encode a binary buffer to a base 64 string
+  /// - parameters:
+  ///   - from: [UInt8], a binary buffer contains the data to encode
+  ///   - autowrap: Bool, set to true to wrap the string into lines of 80 characters each, as defined in RFC 822, MIME file standard
+  /// - returns:
+  ///   the encoded base 64 string
   public static func encode(from: [UInt8], autowrap: Bool = false) -> String {
     // create a pipe line to manage the encoded data
     var pipes:[Int32] = [0,0]
@@ -96,8 +103,10 @@ public class Base64 {
 
 /// Elements of the POST request body am-black-listing-requests object
 public class AmBlackListingRequests:JSONConvertibleObject {
+
   /// Whether AM Blacklisting is enabled
   var amBlackListingEnabled:Bool? = nil
+
   /// AM Blacklisting disable failure threshold
   var disableFailureThreshold:Double? = nil
 
@@ -120,18 +129,25 @@ public class AmBlackListingRequests:JSONConvertibleObject {
     return v
   }//end func
 }//end class
+
 /// Elements of the POST request body log-aggregation-context object
 public class LogAggregationContext: JSONConvertibleObject {
+
   /// The log files which match the defined include pattern will be uploaded when the applicaiton finishes
   var logIncludePattern:String? = nil
+
   /// The log files which match the defined exclude pattern will not be uploaded when the applicaiton finishes
   var logExcludePattern:String? = nil
+
   /// The log files which match the defined include pattern will be aggregated in a rolling fashion
   var rolledLogIncludePattern:String? = nil
+
   /// The log files which match the defined exclude pattern will not be aggregated in a rolling fashion
   var rolledLogExcludePattern:String? = nil
+
   /// The policy which will be used by NodeManager to aggregate the logs
   var logAggregationPolicyClassName:String? = nil
+
   /// The parameters passed to the policy class
   var logAggregationPolicyParameters:String? = nil
 
@@ -177,8 +193,10 @@ public class LogAggregationContext: JSONConvertibleObject {
 }//end class
 
 public class ResourceRequest: JSONConvertibleObject {
+
   //Memory required for each container
   var memory:Int? = nil
+
   //Virtual cores required for each container
   var vCores:Int? = nil
 
@@ -209,6 +227,7 @@ public class Credentials: JSONConvertibleObject {
 
   /// tokens that you wish to pass to your application, specified as key-value pairs. The key is an identifier for the token and the value is the token(which should be obtained using the respective web-services)
   var tokens: [String:String] = [:]
+
   /// Secrets that you wish to use in your application, specified as key-value pairs. They key is an identifier and the value is the base-64 encoding of the secret
   var secrets: [String: String] = [:]
 
@@ -239,10 +258,12 @@ public class Credentials: JSONConvertibleObject {
 
 /// Elements of the local-resources object. The object is a collection of key-value pairs. They key is an identifier for the resources to be localized and the value is the details of the resource.
 public class LocalResource: JSONConvertibleObject {
+
   /// Type of the resource; options are “ARCHIVE”, “FILE”, and “PATTERN”
   public enum ResourceType: String {
     case ARCHIVE = "ARCHIVE", FILE = "FILE", PATTERN = "PATTERN"
   }//end type
+
   /// options are “PUBLIC”, “PRIVATE”, and “APPLICATION”
   public enum Visibility: String {
     case PUBLIC = "PUBLIC", PRIVATE = "PRIVATE", APPLICATION = "APPLICATION"
@@ -250,12 +271,16 @@ public class LocalResource: JSONConvertibleObject {
 
   /// Location of the resource to be localized
   var resource:String? = nil
+
   /// Type of the resource; options are “ARCHIVE”, “FILE”, and “PATTERN”
   var type: ResourceType? = nil
+
   /// Visibility the resource to be localized; options are “PUBLIC”, “PRIVATE”, and “APPLICATION”
   var visibility: Visibility? = nil
+
   /// Size of the resource to be localized
   var size:Int? = nil
+
   /// Timestamp of the resource to be localized
   var timestamp:Int? = nil
 
@@ -301,10 +326,17 @@ public class LocalResource: JSONConvertibleObject {
 
 /// general definition of key-value pairs in Hadoop objects.
 public class Entry: JSONConvertibleObject {
+
   /// for example.  They key is an identifier for the resources to be localized
   public var key: String? = nil
+
   /// for example. the value is the details of the resource.
   public var value: Any? = nil
+
+  /// constructor of Entry
+  /// - parameters:
+  ///   - key: a string stands for key of entry
+  ///   - value: any type represents value of the entry
   public init(key: String? = nil, value: Any? = nil) {
     self.key = key
     self.value = value
@@ -320,8 +352,10 @@ public class Entry: JSONConvertibleObject {
 
 /// general definition of key-value pairs in Hadoop objects.
 public class EncryptedEntry: JSONConvertibleObject {
+
   /// for example.  They key is an identifier for the resources to be localized
   public var key: String? = nil
+
   /// for example. the value is the details of the resource.
   public var value: Any? = nil
 
@@ -349,12 +383,16 @@ public class EncryptedEntry: JSONConvertibleObject {
 
 /// Hadoop YARN entries are constructed by an element called 'entry' - CAUTION
 public class Entries: JSONConvertibleObject {
+
+  /// an array to hold all entries
   public var entry = [Any]()
+
   /// - parameters:
   ///   - entry, an array of Entry. See Entry.
   public init(_ entry: [Entry] = []) {
     self.entry = entry
   }//end init
+
   /// - parameters:
   ///   - entry, an array of EncryptedEntry. See EncryptedEntry.
   public init(_ entry: [EncryptedEntry] = []) {
@@ -372,8 +410,10 @@ public class Entries: JSONConvertibleObject {
 /// The commands for launching your container, in the order in which they should be executed
 /// CAUTION: Hadoop 3.0 alpha document may not be correct about this part
 public class Commands: JSONConvertibleObject {
+
   /// The commands for launching your container, in the order in which they should be executed
   public var command:String? = nil
+
   /// constructor of commands
   /// - parameters:
   ///   - command: String?, The commands for launching your container, in the order in which they should be executed
@@ -392,16 +432,22 @@ public class Commands: JSONConvertibleObject {
 
 /// The am-container-spec object should be used to provide the container launch context for the application master.
 public class AmContainerSpec: JSONConvertibleObject {
+
   /// Object describing the resources that need to be localized, described as LocalResource
   var localResources: Entries? = nil
+
   /// Environment variables for your containers, specified as key value pairs
   var environment: Entries? = nil
+
   /// The commands for launching your container, in the order in which they should be executed
   var commands: Commands? = nil
+
   /// Application specific service data; key is the name of the auxiliary servce, value is base-64 encoding of the data you wish to pass
   var serviceData:Entries? = nil
+
   /// The credentials required for your application to run, described as Credentials
   var credentials: Credentials? = nil
+
   /// ACLs for your application; the key can be “VIEW_APP” or “MODIFY_APP”, the value is the list of users with the permissions
   var applicationAcls: Entries? = nil
 
@@ -447,34 +493,49 @@ public class AmContainerSpec: JSONConvertibleObject {
 
 /// The Submit Applications API can be used to submit applications. In case of submitting applications, you must first obtain an application-id using the Cluster NewApplication API. The application-id must be part of the request body. The response contains a URL to the application page which can be used to track the state and progress of your application.
 public class SubmitApplication: JSONConvertibleObject {
+
   /// The application id
   public var id: String? = nil
+
   /// The application name
   public var name:String? = nil
+
   /// The name of the queue to which the application should be submitted
   public var queue:String? = nil
+
   /// The priority of the application
   public var priority:Int? = nil
+
   /// The application master container launch context, described below
   public var amContainerSpec: AmContainerSpec? = nil
+
   /// Is the application using an unmanaged application master
   public var unmanagedAM:Bool? = nil
+
   /// The max number of attempts for this application
   public var maxAppAttempts:Int? = nil
+
   /// The resources the application master requires, described below
   public var resource: ResourceRequest? = nil
+
   /// The application type(MapReduce, Pig, Hive, etc)
   public var type:String? = nil
+
   /// Should YARN keep the containers used by this application instead of destroying them
   public var keepContainersAcrossApplicationAttempts:Bool? = nil
+
   /// List of application tags
   public var tags = [String]()
+
   /// Represents all of the information needed by the NodeManager to handle the logs for this application
   public var logAggregationContext: LogAggregationContext? = nil
+
   /// The failure number will no take attempt failures which happen out of the validityInterval into failure count
   public var attemptFailuresValidityInterval:Int? = nil
+
   /// Represent the unique id of the corresponding reserved resource allocation in the scheduler
   public var reservationId:String? = nil
+
   /// Contains blacklisting information such as “enable/disable AM blacklisting” and “disable failure threshold”
   public var amBlackListingRequests: AmBlackListingRequests? = nil
 
