@@ -843,7 +843,8 @@ class PerfectHadoopTests: XCTestCase {
                 let counters = try his.checkJobTaskAttemptCounters(jobId: j.id, taskId: t.id, attemptId: attempt.id)
                 XCTAssertNotNil(counters)
                 XCTAssertEqual(counters?.id, attempt.id)
-                for group in counters?.taskAttemptcounterGroup ?? [] {
+                print(counters?.id ?? "")
+                for group in counters?.taskAttemptCounterGroup ?? [] {
                   print(group.counterGroupName)
                   for counter in group.counters {
                     print(counter.name)

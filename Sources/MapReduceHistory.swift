@@ -426,13 +426,13 @@ public struct JobTaskAttemptCounters{
   /// The task id
   var id = ""
   /// A collection of counter group objects
-  var taskAttemptcounterGroup : [CounterGroup] = []
+  var taskAttemptCounterGroup : [CounterGroup] = []
   /// constructor of JobTaskAttemptCounters
   /// - parameters:
   /// a dictionary decoded from json string
   public init(_ dictionary: [String:Any] = [:]) {
     self.id = dictionary["id"] as? String ?? ""
-    self.taskAttemptcounterGroup = (dictionary["taskAttemptcounterGroup"] as? [Any] ?? []).map{CounterGroup($0 as? [String : Any] ?? [:])}
+    self.taskAttemptCounterGroup = (dictionary["taskAttemptCounterGroup"] as? [Any] ?? []).map{CounterGroup($0 as? [String : Any] ?? [:])}
   }//init
 }//Jobcounters
 
