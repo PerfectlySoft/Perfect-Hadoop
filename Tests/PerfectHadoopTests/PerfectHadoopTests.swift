@@ -820,6 +820,30 @@ class PerfectHadoopTests: XCTestCase {
               XCTFail("map reduce history job task error: \(tskErr)")
             }
 
+            print(" 3 3 3 3 3 3  --- MAP REDUCE JOB TASK ATTEMPTS ----- 3 3 3 3 3 3 ")
+            do {
+              let jobTaskAttempts = try his.checkJobTaskAttempts(jobId: j.id, taskId: t.id)
+              XCTAssertGreaterThan(jobTaskAttempts.count, 0)
+              for attempt in jobTaskAttempts {
+                print(attempt.id)
+                XCTAssertGreaterThan(attempt.id.utf8.count, 0)
+                print(attempt.diagnostics)
+                print(attempt.assignedContainerId)
+                print(attempt.rack)
+                print(attempt.state)
+                print(attempt.progress)
+                let attempt2 = try his.checkJobTaskAttempt(jobId: j.id, taskId: t.id, attemptId: attempt.id)
+                XCTAssertNotNil(attempt2)
+                XCTAssertEqual(attempt.id, attempt2?.id)
+                XCTAssertEqual(attempt.diagnostics, attempt2?.diagnostics)
+                XCTAssertEqual(attempt.assignedContainerId, attempt2?.assignedContainerId)
+                XCTAssertEqual(attempt.rack, attempt2?.rack)
+                XCTAssertEqual(attempt.state, attempt2?.state)
+
+              }
+            }catch (let tskErr) {
+              XCTFail("map reduce history job task error: \(tskErr)")
+            }
           }//next
 
 

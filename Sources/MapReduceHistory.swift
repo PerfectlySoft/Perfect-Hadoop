@@ -434,6 +434,136 @@ extension String {
   }//end member
 }//end extension
 
+
+/// With the task attempts API, you can obtain a collection of resources that represent a task attempt within a job. When you run a GET operation on this resource, you obtain a collection of Task Attempt Objects.
+public struct TaskAttempt {
+  /// The state of the task attempt - valid values are: NEW, UNASSIGNED, ASSIGNED, RUNNING, COMMIT_PENDING, SUCCESS_CONTAINER_CLEANUP, SUCCEEDED, FAIL_CONTAINER_CLEANUP, FAIL_TASK_CLEANUP, FAILED, KILL_CONTAINER_CLEANUP, KILL_TASK_CLEANUP, KILLED
+  public enum State: String {
+    case NEW="NEW",  UNASSIGNED="UNASSIGNED",  ASSIGNED="ASSIGNED",  RUNNING="RUNNING",  COMMIT_PENDING="COMMIT_PENDING",  SUCCESS_CONTAINER_CLEANUP="SUCCESS_CONTAINER_CLEANUP",  SUCCEEDED="SUCCEEDED",  FAIL_CONTAINER_CLEANUP="FAIL_CONTAINER_CLEANUP",  FAIL_TASK_CLEANUP="FAIL_TASK_CLEANUP",  FAILED="FAILED",  KILL_CONTAINER_CLEANUP="KILL_CONTAINER_CLEANUP",  KILL_TASK_CLEANUP="KILL_TASK_CLEANUP",  KILLED = "KILLED", INVALID = ""
+  }//end case
+
+  /// The task type - MAP or REDUCE
+  public enum TaskType: String {
+    case MAP = "MAP", REDUCE = "REDUCE", INVALID = ""
+  }//end enum
+
+  /// The task id
+  var id = ""
+
+  /// The rack
+  var rack = ""
+
+  /// The state of the task attempt - valid values are: NEW, UNASSIGNED, ASSIGNED, RUNNING, COMMIT_PENDING, SUCCESS_CONTAINER_CLEANUP, SUCCEEDED, FAIL_CONTAINER_CLEANUP, FAIL_TASK_CLEANUP, FAILED, KILL_CONTAINER_CLEANUP, KILL_TASK_CLEANUP, KILLED
+  var state : State = .INVALID
+
+  /// The type of task, map or reduce
+  var type : TaskType = .INVALID
+
+  /// The container id this attempt is assigned to
+  var assignedContainerId = ""
+
+  /// The http address of the node this task attempt ran on
+  var nodeHttpAddress = ""
+
+  /// A diagnostics message
+  var diagnostics = ""
+
+  /// The progress of the task attempt as a percent
+  var progress: Double = 0
+
+  /// The time in which the task attempt started (in ms since epoch)
+  var startTime = 0
+
+  /// The time in which the task attempt finished (in ms since epoch)
+  var finishTime = 0
+
+  /// 	The elapsed time since the task attempt started (in ms)
+  var elapsedTime = 0
+
+  /// For reduce task attempts only:
+  /// The time at which shuffle finished (in ms since epoch)
+  var shuffleFinishTime = 0
+
+  /// For reduce task attempts only:
+  /// The time at which merge finished (in ms since epoch)
+  var mergeFinishTime = 0
+
+  /// For reduce task attempts only:
+  /// The time it took for the shuffle phase to complete (time in ms between reduce task start and shuffle finish)
+  var elapsedShuffleTime = 0
+
+  /// For reduce task attempts only:
+  /// The time it took for the merge phase to complete (time in ms between the shuffle finish and merge finish)
+  var elapsedMergeTime = 0
+
+  /// For reduce task attempts only:
+  /// 	The time it took for the reduce phase to complete (time in ms between merge finish to end of reduce task)
+  var elapsedReduceTime = 0
+
+  /// constructor of TaskAttempt
+  ///
+  /// - parameters:
+  /// a dictionary decoded from a json string
+  public init(_ dictionary: [String:Any] = [:]) {
+
+    self.id = dictionary["id"] as? String ?? ""
+
+    self.state = State(rawValue : dictionary["state"] as? String ?? "") ?? .INVALID
+
+    self.rack = dictionary["rack"] as? String ?? ""
+
+    self.type = TaskType(rawValue : dictionary["type"] as? String ?? "" ) ?? .INVALID
+
+    self.assignedContainerId = dictionary["assignedContainerId"] as? String ?? ""
+
+    self.nodeHttpAddress = dictionary["nodeHttpAddress"] as? String ?? ""
+
+    self.diagnostics = dictionary["diagnostics"] as? String ?? ""
+
+    self.progress = Double(dictionary["progress"] as? String ?? "0.0") ?? 0.0
+
+    self.startTime = dictionary["startTime"] as? Int ?? 0
+
+    self.finishTime = dictionary["finishTime"] as? Int ?? 0
+
+    self.elapsedTime = dictionary["elapsedTime"] as? Int ?? 0
+
+    /// For reduce task attempts only:
+    self.shuffleFinishTime = dictionary["shuffleFinishTime"] as? Int ?? 0
+    self.mergeFinishTime = dictionary["mergeFinishTime"] as? Int ?? 0
+    self.elapsedShuffleTime = dictionary["elapsedShuffleTime"] as? Int ?? 0
+    self.elapsedMergeTime = dictionary["elapsedMergeTime"] as? Int ?? 0
+    self.elapsedReduceTime = dictionary["elapsedReduceTime"] as? Int ?? 0
+
+  }//init
+}//task
+
+extension String {
+  /// quick cast to TaskAttempt
+  public var asTaskAttemp: TaskAttempt? {
+    get {
+      do {
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        return TaskAttempt(dic["taskAttempt"] as? [String: Any] ?? [:])
+      }catch {
+        return nil
+      }//end do
+    }//end get
+  }//end member
+  /// quick cast to [TaskAttempt]
+  public var asTaskAttemps: [TaskAttempt] {
+    get {
+      do {
+        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
+        let t = dic["taskAttempts"] as? [String: Any] ?? [:]
+        return (t["taskAttempt"] as? [Any] ?? []).map {TaskAttempt($0 as? [String:Any] ?? [:])}
+      }catch {
+        return []
+      }//end do
+    }//end get
+  }//end member
+}//end extension
+
 /// The history server information resource provides overall information about the history server.
 public class MapReduceHistroy: YARNResourceManager {
 
@@ -637,5 +767,42 @@ public class MapReduceHistroy: YARNResourceManager {
     let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)/counters")
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asJobTaskCounters
+  }//end checkJobTasks
+
+  /// With the task attempts API, you can obtain a collection of resources that represent a task attempt within a job. When you run a GET operation on this resource, you obtain a collection of Task Attempt Objects.
+  /// - parameters:
+  ///   - jobId: the job's id to check
+  ///   - taskId: the task id of a job
+  /// - throws
+  /// WebHDFS.Exceptions
+  /// - returns:
+  /// [TaskAttempt], see TaskAttempt data structure
+  @discardableResult
+  public func checkJobTaskAttempts(jobId: String, taskId: String) throws -> [TaskAttempt] {
+    guard !jobId.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)/attempts")
+    let (_, dat, _) = try self.perform(overwriteURL: url)
+    return dat.asTaskAttemps
+  }//end checkJobTasks
+
+  /// A Task Attempt resource contains information about a particular task attempt within a job.
+  /// - parameters:
+  ///   - jobId: the job's id to check
+  ///   - taskId: the task id of a job
+  ///   - attemptId: id of the task attempt
+  /// - throws
+  /// WebHDFS.Exceptions
+  /// - returns:
+  /// TaskAttempt?, see TaskAttempt data structure
+  @discardableResult
+  public func checkJobTaskAttempt(jobId: String, taskId: String, attemptId: String) throws -> TaskAttempt? {
+    guard !jobId.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let url = assembleURL("/mapreduce/jobs/\(jobId)/tasks/\(taskId)/attempts/\(attemptId)")
+    let (_, dat, _) = try self.perform(overwriteURL: url)
+    return dat.asTaskAttemp
   }//end checkJobTasks
 }//end MapReduceHistory
