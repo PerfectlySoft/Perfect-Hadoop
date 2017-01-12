@@ -679,6 +679,8 @@ class PerfectHadoopTests: XCTestCase {
     XCTAssertEqual(hello, "SGVsbG8sIHdvcmxkIQ==")
   }
 
+  /// to test the history server, *NOTE* one MUST run `mapred historyserver`
+  /// and run a few jobs
   func testMapReduceHistory() {
     print(", ,, , , , , , , , HISTORY ,, ,, , , ,, , ")
     let his = MapReduceHistroy()
