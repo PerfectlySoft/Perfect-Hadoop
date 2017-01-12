@@ -720,8 +720,7 @@ public class YARNResourceManager: YARNNodeManager {
   ///   - user: the YARN User
   ///		- auth: Authorization Model. Please check the enum Authentication for details
   ///   - proxyUser: proxy user, if applicable
-  ///   - extraHeaders: extra headers if special header such as CSRF (Cross-Site Request Forgery Prevention) is applicable
-  ///		- apibase: use this parameter ONLY the target server has a different api routine other than /webhdfs/v1
+  ///		- apibase: use this parameter ONLY the target server has a different api routine other than /ws/v1/cluster
   ///   - timeout: timeout in seconds, zero means never timeout during transfer
   public override init (service: String = "http",
                         host: String = "localhost", port: Int = 8088, user: String = "",
