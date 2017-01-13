@@ -1,4 +1,4 @@
-# PerfectHadoop WebHDFS [English](README.md)
+# PerfectHadoop [English](README.md)
 
 <p align="center">
     <a href="http://perfect.org/get-involved.html" target="_blank">
@@ -71,13 +71,29 @@ PerfectHadoop 目前支持 Hadoop 3.0.0，以及 2.7.3 的部分功能。
 ``` swift
 import PerfectHadoop
 ```
+## 错误处理 - `Exception`
+
+由于基于REST API，大多数 Perfect-Hadoop 库函数在出错时会抛出一个`Exception`对象，用户可以捕捉该错误并检查三元组`(url, header, body)`如下列程序所示：
+
+``` swift
+do {
+	// 执行任何一个 Perfect Hadoop 操作，包括 WebHDFS / MapReduce / YARN，所有的操作
+	...
+}
+catch(Exception.unexpectedResponse(let (url, header, body))) {
+	print("出现REST API异常： \(url)\n\(header)\n\(body)")
+}
+catch (let err){
+	print("其它错误：\(err)")
+}
+```
 
 ## 用户手册
 - WebHDFS: 请查看[Perfect-HDFS](Doc.zh_CN/WebHDFS.md)。
-- MapReduce: 请查看[Perfect-MapReduce](Doczh_CN/MapReduce.md)。
+- MapReduce: 请查看[Perfect-MapReduce 应用程序控制](Doczh_CN/MapReduceMaster.md)和[Perfect-MapReduce 历史服务器](Doczh_CN/MapReduceHistory.md)。
 - YARN: 请查看[Perfect-YARN](Doczh_CN/YARN.md)。
 
-## 未来计划：
+## 近期计划：
 - 测试: MapReduce Master API
 - 编码及测试：YARN Reservation api
 - 编码及测试：Tokens delegation & other security features

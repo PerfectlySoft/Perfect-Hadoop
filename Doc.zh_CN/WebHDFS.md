@@ -36,23 +36,6 @@ let hdfs = WebHDFS(host: "hdfs.somedomain.com", port: 9870, user: "username", au
 - `apibase`: 如果目标服务器用的不是标准 /webhdfs/v1/ 路径协议，则在此设置。
 - `timeout`: 超时设置。默认情况下所有WebHDFS操作都会阻塞当前进程，因此设置该参数允许秒级等待，一旦超时则解除阻塞立即返回。
 
-### 异常处理
-大部分WebHDFS操作中，如果出现异常，请参考下列代码进行错误分析。出现异常时，用户可以获得出错的url地址、返回的消息头和详细数据体：
-
-``` swift
-let hdfs = WebHDFS()
-do {
-	let fs = try hdfs.getFileStatus(path: "/")
-	// 执行其他操作
-	...
-}
-catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
-	print("WebHDFS 发现异常：\(url)\n\(header)\n\(body)")
-}
-catch (let err){
-	print("其他错误：\(err)")
-}
-```
 ### 获取根目录
 调用函数 `getHomeDirectory()` 以返回用户根目录：
 

@@ -15,7 +15,7 @@ let hdfs = WebHDFS(host: "hdfs.somedomain.com", port: 9870)
 or connect to Hadoop with a valid user name:
 
 ``` swift
-// add user name to do more operations such as modifiction of file or directory
+// add user name to do more operations such as modification of file or directory
 let hdfs = WebHDFS(host: "hdfs.somedomain.com", port: 9870, user: "username")
 ```
 
@@ -35,24 +35,6 @@ let hdfs = WebHDFS(host: "hdfs.somedomain.com", port: 9870, user: "username", au
 - `proxyUser`:String, proxy user, if applicable
 - `apibase`:String, use this parameter *ONLY* the target server has a different api routine other than /webhdfs/v1
 - `timeout`:Int, timeout in seconds, zero means never timeout during transfer
-
-### Exceptions
-In case of operation failure, an exception might be thrown out. User can catch it and check the (url, header, body) of the failure, as demo below:
-
-``` swift
-let hdfs = WebHDFS()
-do {
-	let fs = try hdfs.getFileStatus(path: "/")
-	// some operations
-	...
-}
-catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
-	print("WebHDFS Exception: \(url)\n\(header)\n\(body)")
-}
-catch (let err){
-	print("Other Error:\(err)")
-}
-```
 
 ### Get Home Directory
 Call `getHomeDirectory()` to get the home directory for current user.

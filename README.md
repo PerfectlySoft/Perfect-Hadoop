@@ -70,9 +70,26 @@ Then please add the following line to the beginning part of swift sources:
 import PerfectHadoop
 ```
 
+## Error Handle - `Exception`
+
+In case of operation failure, an exception might be thrown out. In most cases of Perfect-Hadoop, the library would probably throw a `Exception` object. User can catch it and check a tuple `(url, header, body)` of the failure, as demo below:
+
+``` swift
+do {
+	// some Perfect Hadoop operations, including WebHDFS / MapReduce / YARN, all of them:
+	...
+}
+catch(Exception.unexpectedResponse(let (url, header, body))) {
+	print("Exception: \(url)\n\(header)\n\(body)")
+}
+catch (let err){
+	print("Other Error:\(err)")
+}
+```
+
 ## User Manual
 - WebHDFS: See [Perfect-HDFS](Doc/WebHDFS.md) for detail.
-- MapReduce: See [Perfect-MapReduce](Doc/MapReduce.md) for detail.
+- MapReduce: See [Perfect-MapReduce Application Master API](Doc/MapReduceMaster.md) and [Perfect-MapReduce History](Doc/MapReduceHistory.md) for detail.
 - YARN: See [Perfect-YARN](Doc/YARN.md) for detail.
 
 ## To Do List
