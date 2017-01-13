@@ -18,7 +18,7 @@ class PerfectHadoopTests: XCTestCase {
       XCTAssertEqual(fs.length, 0)
       XCTAssertEqual(fs.permission, 755)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -38,7 +38,7 @@ class PerfectHadoopTests: XCTestCase {
       }
       XCTAssertEqual(fs.permission, 640)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -48,7 +48,7 @@ class PerfectHadoopTests: XCTestCase {
     do {
       try hdfs.delete(path: dir)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -71,7 +71,7 @@ class PerfectHadoopTests: XCTestCase {
       XCTAssertGreaterThanOrEqual(bytes.count, 5)
       try hdfs.delete(path: remoteFile)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -94,7 +94,7 @@ class PerfectHadoopTests: XCTestCase {
       let bytes = try hdfs.openFile(path: remoteFile)
       XCTAssertGreaterThanOrEqual(bytes.count, 10)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -121,7 +121,7 @@ class PerfectHadoopTests: XCTestCase {
       XCTAssertGreaterThan(bytes.count, 14)
       let _ = try hdfs.delete(path: remoteFile)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -144,7 +144,7 @@ class PerfectHadoopTests: XCTestCase {
       let bytes = try hdfs.openFile(path: remoteFile)
       XCTAssertGreaterThan(bytes.count, 0)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -162,7 +162,7 @@ class PerfectHadoopTests: XCTestCase {
         XCTAssertGreaterThan(name.utf8.count, 0)
       }
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -177,7 +177,7 @@ class PerfectHadoopTests: XCTestCase {
       let list = try hdfs.getDirectoryContentSummary(path: "/")
       XCTAssertGreaterThan(list!.fileCount, 0)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -205,7 +205,7 @@ class PerfectHadoopTests: XCTestCase {
       print(checksum.length)
       XCTAssertGreaterThan(checksum.length, 0)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -221,7 +221,7 @@ class PerfectHadoopTests: XCTestCase {
       print("the home is ====================> \(home)")
       XCTAssertGreaterThan(home.utf8.count, 0)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -246,7 +246,7 @@ class PerfectHadoopTests: XCTestCase {
       try hdfs.setTimes(path: remoteFile, modification: 1478000000)
       try hdfs.setTimes(path: remoteFile, access: 1478000000)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -323,7 +323,7 @@ class PerfectHadoopTests: XCTestCase {
       try hdfs.removeACL(path: remoteFile, entries: "", defaultACL: false)
 
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -340,7 +340,7 @@ class PerfectHadoopTests: XCTestCase {
       let b = try hdfs.checkAccess(path: "/", fsaction: "concat")
       print("concat: \(b)")
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -385,7 +385,7 @@ class PerfectHadoopTests: XCTestCase {
       XCTAssertGreaterThan(a.count, 0)
       try hdfs.delete(path: remoteFile)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -408,7 +408,7 @@ class PerfectHadoopTests: XCTestCase {
       print("_-_-_-_-_-_-_-_-_-_-_->   \(snapshot)")
       XCTAssertGreaterThan(snapshot.utf8.count, 5)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -418,7 +418,7 @@ class PerfectHadoopTests: XCTestCase {
     do {
       try hdfs.renameSnapshot(path: dir, from: snapshot, to: finalName)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -428,7 +428,7 @@ class PerfectHadoopTests: XCTestCase {
     do {
       try hdfs.deleteSnapshot(path: dir, name: finalName)
     }
-    catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+    catch(Exception.unexpectedResponse(let (url, header, body))) {
       XCTFail("\(op): \(url)\n\(header)\n\(body)")
     }
     catch (let err){
@@ -916,7 +916,7 @@ class PerfectHadoopTests: XCTestCase {
         let fs = try hdfs.getFileStatus(path: dir)
         XCTAssertEqual(fs.permission, 640)
       }
-      catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+      catch(Exception.unexpectedResponse(let (url, header, body))) {
         XCTFail("\(op): \(url)\n\(header)\n\(body)")
       }
       catch (let err){
@@ -927,7 +927,7 @@ class PerfectHadoopTests: XCTestCase {
         let res = try hdfs.delete(path: dir)
         XCTAssertEqual(res, true)
       }
-      catch(WebHDFS.Exception.unexpectedResponse(let (url, header, body))) {
+      catch(Exception.unexpectedResponse(let (url, header, body))) {
         XCTFail("\(op): \(url)\n\(header)\n\(body)")
       }
       catch (let err){

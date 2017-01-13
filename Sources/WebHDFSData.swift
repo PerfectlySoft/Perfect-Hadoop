@@ -34,6 +34,26 @@ extension Double {
   }//end init
 }//end Double
 
+/// general exceptions
+public enum Exception: Error {
+
+  /// errors when perform a specific curl
+  case unexpectedResponse (url:String, header: String, body: String)
+
+  /// errors when uploading a file
+  case invalidLocalFile (reason: String)
+
+  /// errors when concat a file
+  case insufficientParameters
+
+  /// errors when operation not supported by the hdfs system
+  case unsupportedOperation (of: String)
+
+  /// unexpectedReturn
+  case unexpectedReturn
+}//end enum
+
+
 /// The ACL spec included in ACL modification operations.
 public struct AclStatus{
 

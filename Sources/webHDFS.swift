@@ -68,25 +68,6 @@ public class WebHDFS {
   /// timeout in milliseconds. default zero means it will never timeout.
   internal var timeout: Int = 0
 
-  /// general exceptions
-  public enum Exception: Error {
-
-    /// errors when perform a specific curl
-    case unexpectedResponse (url:String, header: String, body: String)
-
-    /// errors when uploading a file
-    case invalidLocalFile (reason: String)
-
-    /// errors when concat a file
-    case insufficientParameters
-
-    /// errors when operation not supported by the hdfs system
-    case unsupportedOperation (of: String)
-
-    /// unexpectedReturn
-    case unexpectedReturn
-  }//end enum
-
   /// common methods used by webhdfs
   public enum HTTPMethod {
 

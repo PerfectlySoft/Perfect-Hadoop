@@ -19,45 +19,6 @@
 import cURL
 import PerfectLib
 
-/// History Info when check an overall info from a history server.
-public struct HistoryInfo {
-
-  /// Hadoop common build string with build version, user, and checksum
-  var hadoopBuildVersion = ""
-
-  /// Version of hadoop common
-  var hadoopVersion = ""
-
-  /// Timestamp when hadoop common was built
-  var hadoopVersionBuiltOn = ""
-
-  /// The time the history server was started (in ms since epoch)
-  var startedOn = 0
-
-  /// constructor
-  /// - parameters:
-  ///   a dictionary decoded from a json string
-  public init(_ dictionary: [String:Any] = [:]){
-    self.hadoopBuildVersion = dictionary["hadoopBuildVersion"] as? String ?? ""
-    self.hadoopVersion = dictionary["hadoopVersion"] as? String ?? ""
-    self.hadoopVersionBuiltOn = dictionary["hadoopVersionBuiltOn"] as? String ?? ""
-    self.startedOn = dictionary["startedOn"] as? Int ?? 0
-  }//init
-}//Historyinfo
-
-extension String {
-  public var asHistoryInfo: HistoryInfo? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return HistoryInfo(dic["historyInfo"] as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 /// The jobs resource provides a list of the MapReduce jobs.
 public struct Job{
   /// the job state - valid values are: NEW, INITED, RUNNING, SUCCEEDED, FAILED, KILL_WAIT, KILLED, ERROR
@@ -726,6 +687,32 @@ extension String {
 /// The history server information resource provides overall information about the history server.
 public class MapReduceHistroy: YARNResourceManager {
 
+  /// History Info when check an overall info from a history server.
+  public struct Info {
+
+    /// Hadoop common build string with build version, user, and checksum
+    var hadoopBuildVersion = ""
+
+    /// Version of hadoop common
+    var hadoopVersion = ""
+
+    /// Timestamp when hadoop common was built
+    var hadoopVersionBuiltOn = ""
+
+    /// The time the history server was started (in ms since epoch)
+    var startedOn = 0
+
+    /// constructor
+    /// - parameters:
+    ///   a dictionary decoded from a json string
+    public init(_ dictionary: [String:Any] = [:]){
+      self.hadoopBuildVersion = dictionary["hadoopBuildVersion"] as? String ?? ""
+      self.hadoopVersion = dictionary["hadoopVersion"] as? String ?? ""
+      self.hadoopVersionBuiltOn = dictionary["hadoopVersionBuiltOn"] as? String ?? ""
+      self.startedOn = dictionary["startedOn"] as? Int ?? 0
+    }//init
+  }//Historyinfo
+
   /// constructor of MapReduceHistroy
   /// - parameters:
   ///   - service: the protocol of web request - http / https
@@ -750,10 +737,11 @@ public class MapReduceHistroy: YARNResourceManager {
   /// - throws:
   ///   Exceptions
   @discardableResult
-  public func checkInfo() throws -> HistoryInfo? {
+  public func checkInfo() throws -> Info? {
     let url = assembleURL("")
     let (_, dat, _) = try self.perform(overwriteURL: url)
-    return dat.asHistoryInfo
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return Info(dic["historyInfo"] as? [String:Any] ?? [:])
   }//end checkOverall
 
   /// The jobs resource provides a list of the MapReduce jobs that have finished. It does not currently return a full list of parameters
