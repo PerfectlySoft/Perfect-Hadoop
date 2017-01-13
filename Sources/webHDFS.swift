@@ -416,7 +416,8 @@ public class WebHDFS {
   @discardableResult
   public func getFileStatus(path:String) throws -> FileStatus? {
     let (_, dat, _) = try perform(operation: "GETFILESTATUS", path: path)
-    return dat.asFileStatus
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return FileStatus(dic["FileStatus"] as? [String:Any] ?? [:])
   }//end getFileStatus
 
   /// List a Directory
@@ -428,7 +429,8 @@ public class WebHDFS {
   public func listStatus(path:String) throws -> [FileStatus] {
     // perform a request
     let (_, dat, _) = try perform(operation: "LISTSTATUS", path: path)
-    return dat.asFileStatuses
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return (dic["FileStatuses"] as? [Any] ?? []).map { FileStatus($0 as? [String:Any] ?? [:]) }
   }//end getFileStatus
 
   /// Get Content Summary of a Directory
@@ -440,7 +442,8 @@ public class WebHDFS {
   public func getDirectoryContentSummary(path:String) throws -> ContentSummary? {
     // perform a request
     let (_, dat, _) = try perform(operation: "GETCONTENTSUMMARY", path: path)
-    return dat.asContentSummary
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return ContentSummary(dic["ContentSummary"] as? [String:Any] ?? [:])
   }//end getDirectoryContentSummary
 
   /// Get File Checksum
@@ -455,7 +458,8 @@ public class WebHDFS {
       curl in
       curl.setOption(CURLOPT_FOLLOWLOCATION, int: 1)
     }//end more options
-    return dat.asFileChecksum
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return FileChecksum(dic["FileChecksum"] as? [String:Any] ?? [:])
   }//end getFileCheckSum
 
   /// Get Home Directory
@@ -806,9 +810,9 @@ public class WebHDFS {
   public func getACL(path: String) throws -> AclStatus? {
     // perform a request
     let (_, dat, _) = try perform(operation: "GETACLSTATUS", path: path)
-    return dat.asAclStatus
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return AclStatus(dic["AclStatus"] as? [String:Any] ?? [:])
   }//end getACL
-
 
   /// set ACL
   /// - parameters:

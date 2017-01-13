@@ -84,19 +84,6 @@ public struct AclStatus{
   }//init
 }//AclStatus
 
-extension String {
-  public var asAclStatus: AclStatus? {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return AclStatus(dic["AclStatus"] as? [String:Any] ?? [:])
-      }catch {
-        return nil
-      }//end do
-    }//end get
-  }//end asAclStatus
-}//end String
-
 /// XAttrFlag
 public enum XAttrFlag:String {
   case CREATE = "CREATE"
@@ -206,19 +193,6 @@ public struct ContentSummary{
   }//init
 }//ContentSummary
 
-extension String {
-  public var asContentSummary: ContentSummary? {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return ContentSummary(dic["ContentSummary"] as? [String:Any] ?? [:])
-      }catch {
-        return nil
-      }//end do
-    }//end get
-  }//end AclStatus
-}//end asContentSummary
-
 public struct FileChecksum{
   var length = 0
   var algorithm = ""
@@ -229,19 +203,6 @@ public struct FileChecksum{
     self.bytes = dictionary["bytes"] as? String ?? ""
   }//init
 }//FileChecksum
-
-extension String {
-  public var asFileChecksum: FileChecksum? {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return FileChecksum(dic["FileChecksum"] as? [String:Any] ?? [:])
-      }catch {
-        return nil
-      }//end do
-    }//end get
-  }//end asFileCheckSum
-}//end String
 
 /// common file status parsed from json
 public struct FileStatus{
@@ -290,28 +251,6 @@ public struct FileStatus{
 }//end FileStatus
 
 extension String {
-  public var asFileStatus: FileStatus? {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return FileStatus(dic["FileStatus"] as? [String:Any] ?? [:])
-      }catch {
-        return nil
-      }//end do
-    }//end get
-  }//end member
-
-  public var asFileStatuses: [FileStatus] {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return (dic["FileStatuses"] as? [Any] ?? []).map { FileStatus($0 as? [String:Any] ?? [:]) }
-      }catch {
-        return []
-      }//end do
-    }//end get
-  }//end member
-
   public var asLong: Int {
     get {
       do {
@@ -321,7 +260,7 @@ extension String {
         return 0
       }//end do
     }//end get
-  }//end asBoolean
+  }//end property
 
   public var asPath: String {
     get {
@@ -332,7 +271,7 @@ extension String {
         return ""
       }//end do
     }//end get
-  }//end asBoolean
+  }//end asPath
 }//end String
 
 public struct RemoteException{
