@@ -77,20 +77,6 @@ public struct ClusterInfo{
   }//init
 }//Clusterinfo
 
-extension String {
-  /// an express way of decoding cluster info from a json string
-  public var asClusterInfo: ClusterInfo? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return ClusterInfo(dic["clusterInfo"] as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 /// The cluster metrics resource provides some overall metrics about the cluster. More detailed metrics should be retrieved from the jmx interface.
 public struct ClusterMetrics{
 
@@ -192,20 +178,6 @@ public struct ClusterMetrics{
     self.unhealthyNodes = dictionary["unhealthyNodes"] as? Int ?? 0
   }//init
 }//Clustermetrics
-
-extension String {
-  /// an express way of decoding cluster metrics info from a json string
-  public var asClusterMetrics: ClusterMetrics? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return ClusterMetrics(dic["clusterMetrics"] as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
 
 /// the resource object for resourcesUsed in user and queues
 public struct ResourcesUsed{
@@ -486,22 +458,6 @@ public struct SchedulerInfo {
   }//init
 }//schedulerInfo
 
-extension String {
-  /// an express way of decoding scheduler info from a json string
-  public var asSchedulerInfo: SchedulerInfo? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let sch = dic["scheduler"] as? [String:Any] ?? [:]
-        return SchedulerInfo(sch["schedulerInfo"] as? [String:Any] ?? [:])
-      }catch (let err){
-        print(err)
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 /// An application resource contains information about a particular application that was submitted to a cluster.
 public struct APP {
 
@@ -638,9 +594,7 @@ extension String {
       }//end do
     }//end get
   }//end member
-}//end extension
 
-extension String {
   public var asApps: [APP] {
     get {
       do {
@@ -665,20 +619,6 @@ public struct AppStatItem{
     self.type = dictionary["type"] as? String ?? ""
   }//init
 }//statItemItem
-
-extension String {
-  public var asAppStatInfo: [AppStatItem] {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let app = dic["appStatInfo"] as? [String:Any] ?? [:]
-        return (app["statItem"] as? [Any] ?? []).map{AppStatItem($0 as? [String : Any] ?? [:])}
-      }catch{
-        return []
-      }//end do
-    }//end get
-  }//end member
-}//end extension
 
 public struct AppAttempt{
 
@@ -707,22 +647,6 @@ public struct AppAttempt{
     self.startTime = dictionary["startTime"] as? Int ?? 0
   }//init
 }//Appattempt
-
-extension String {
-  /// nicely convert a json string directly into an array of AppAttempts
-  public var asAppAttempts: [AppAttempt] {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let a = dic["appAttempts"] as? [String:Any] ?? [:]
-        return (a["appAttempt"] as? [Any] ?? []).map{ AppAttempt( $0 as? [String:Any] ?? [:]) }
-      }catch{
-        return []
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 
 /// Cluster Node Info
 public struct Node{
@@ -790,32 +714,6 @@ public struct Node{
   }//init
 }//Node
 
-extension String {
-  /// nicely convert a json string directly into a Node
-  public var asNode: Node? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return Node(dic["node"] as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }//end member
-  /// nicely convert a json string directly into an array of Node
-  public var asNodes: [Node] {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let n = dic["nodes"] as? [String:Any] ?? [:]
-        return (n["node"] as? [Any] ?? []).map { Node($0 as? [String:Any] ?? [:]) }
-      }catch{
-        return []
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 /// With the New Application API, you can obtain an application-id which can then be used as part of the Cluster Submit Applications API to submit applications. The response also includes the maximum resource capabilities available on the cluster.This feature is currently in the alpha stage and may change in the future.
 public struct NewApplication {
   /// The newly created application id
@@ -830,19 +728,6 @@ public struct NewApplication {
     self.maximumResourceCapability = ResourcesUsed(dictionary["maximum-resource-capability"] as? [String:Any] ?? [:])
   }//end init
 }//end structure
-
-extension String {
-  /// nicely convert a json string directly into a NewApplication
-  public var asNewApplication: NewApplication? {
-    get{
-      do{
-        return NewApplication(try self.jsonDecode() as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }
-}//end extension
 
 /// The ResourceManager allow the user to get information about the cluster - status on the cluster, metrics on the cluster, scheduler information, information about nodes in the cluster, and information about applications on the cluster.
 public class YARNResourceManager: YARNNodeManager {
@@ -937,7 +822,8 @@ public class YARNResourceManager: YARNNodeManager {
   @discardableResult
   public func checkClusterInfo() throws -> ClusterInfo? {
     let (_, dat, _) = try self.perform()
-    return dat.asClusterInfo
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return ClusterInfo(dic["clusterInfo"] as? [String:Any] ?? [:])
   }//end func
 
   /// The cluster metrics resource provides some overall metrics about the cluster. More detailed metrics should be retrieved from the jmx interface
@@ -948,7 +834,8 @@ public class YARNResourceManager: YARNNodeManager {
   @discardableResult
   public func checkClusterMetrics() throws -> ClusterMetrics? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/metrics"))
-    return dat.asClusterMetrics
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return ClusterMetrics(dic["clusterMetrics"] as? [String:Any] ?? [:])
   }//end func
 
   /// The capacity scheduler supports hierarchical queues. This one request will print information about all the queues and any subqueues they have. Queues that can actually have jobs submitted to them are referred to as leaf queues. These queues have additional data associated with them.
@@ -959,7 +846,9 @@ public class YARNResourceManager: YARNNodeManager {
   @discardableResult
   public func checkSchedulerInfo() throws -> SchedulerInfo? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/scheduler"))
-    return dat.asSchedulerInfo
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    let sch = dic["scheduler"] as? [String:Any] ?? [:]
+    return SchedulerInfo(sch["schedulerInfo"] as? [String:Any] ?? [:])
   }//end func
 
   /// With the Applications API, you can obtain a collection of resources, each of which represents an application. When you run a GET operation on this resource, you obtain a collection of Application Objects.
@@ -1052,7 +941,9 @@ public class YARNResourceManager: YARNNodeManager {
       url += v.reduce("?") { $0 + "&\($1.key)=\($1.value)".stringByEncodingURL }
     }//end if
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL(url))
-    return dat.asAppStatInfo
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    let app = dic["appStatInfo"] as? [String:Any] ?? [:]
+    return (app["statItem"] as? [Any] ?? []).map{AppStatItem($0 as? [String : Any] ?? [:])}
   }//end func
 
   /// Use the following URI to obtain an app object, from a application identified by the appid value.
@@ -1078,7 +969,9 @@ public class YARNResourceManager: YARNNodeManager {
   @discardableResult
   public func checkAppAttempts(id:String) throws -> [AppAttempt] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)/appattempts"))
-    return dat.asAppAttempts
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    let a = dic["appAttempts"] as? [String:Any] ?? [:]
+    return (a["appAttempt"] as? [Any] ?? []).map{ AppAttempt( $0 as? [String:Any] ?? [:]) }
   }//end func
 
   /// Cluster Nodes API: With the Nodes API, you can obtain a collection of resources, each of which represents a node. When you run a GET operation on this resource, you obtain a collection of Node Objects.
@@ -1089,7 +982,9 @@ public class YARNResourceManager: YARNNodeManager {
   @discardableResult
   public func checkClusterNodes() throws -> [Node] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes"))
-    return dat.asNodes
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    let n = dic["nodes"] as? [String:Any] ?? [:]
+    return (n["node"] as? [Any] ?? []).map { Node($0 as? [String:Any] ?? [:]) }
   }//end func
 
   /// Use the following URI to obtain a Node Object, from a node identified by the nodeid value.
@@ -1100,7 +995,8 @@ public class YARNResourceManager: YARNNodeManager {
   @discardableResult
   public func checkClusterNode(id: String) throws -> Node? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes/\(id)"))
-    return dat.asNode
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return Node(dic["node"] as? [String:Any] ?? [:])
   }//end func
 
   /// With the New Application API, you can obtain an application-id which can then be used as part of the Cluster Submit Applications API to submit applications. The response also includes the maximum resource capabilities available on the cluster.
@@ -1115,7 +1011,7 @@ public class YARNResourceManager: YARNNodeManager {
     }//end guard
     let url = assembleURL("/apps/new-application?user=\(user)")
     let (_, dat, _) = try self.perform(method:.POST, overwriteURL: url)
-    return dat.asNewApplication
+      return NewApplication(try dat.jsonDecode() as? [String:Any] ?? [:])
   }//end func
 
   /// The Submit Applications API can be used to submit applications. In case of submitting applications, you must first obtain an application-id using the Cluster New Application API.
