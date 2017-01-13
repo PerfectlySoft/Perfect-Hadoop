@@ -660,11 +660,11 @@ class PerfectHadoopTests: XCTestCase {
       sum.unmanagedAM = false
       sum.maxAppAttempts = 2
       sum.resource = ResourceRequest(memory: 1024, vCores: 1)
-      sum.type = "YARN"
+      sum.type = "MapReduce"
       sum.keepContainersAcrossApplicationAttempts = false
-      sum.logAggregationContext = LogAggregationContext(logIncludePattern: "file1", logExcludePattern: "file2", rolledLogIncludePattern: "file3", rolledLogExcludePattern: "file4", logAggregationPolicyClassName: "org.apache.hadoop.yarn.server.nodemanager.containermanager.logaggregation.AllContainerLogAggregationPolicy", logAggregationPolicyParameters: "")
+      //sum.logAggregationContext = LogAggregationContext(logIncludePattern: "file1", logExcludePattern: "file2", rolledLogIncludePattern: "file3", rolledLogExcludePattern: "file4", logAggregationPolicyClassName: "org.apache.hadoop.yarn.server.nodemanager.containermanager.logaggregation.AllContainerLogAggregationPolicy", logAggregationPolicyParameters: "")
       sum.attemptFailuresValidityInterval = 3600000
-      sum.reservationId = "reservation_1454114874_1"
+      // sum.reservationId = "reservation_1454114874_1"
       sum.amBlackListingRequests = AmBlackListingRequests(amBlackListingEnabled: true, disableFailureThreshold: 0.01)
       let appUrl = try yarn.submit(application: sum)
       print(appUrl ?? "")

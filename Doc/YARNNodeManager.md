@@ -32,7 +32,7 @@ let yarn = YARNNodeManager(host: "yarnNodeManager.somehadoopdomain.com", port: 8
 Item|Data Type|Description
 ----|---------|-----------
 service|String|the service protocol of web request - http / https
-host|String|the hostname or ip address of the Hadoop Map Reduce history server host
+host|String|the hostname or ip address of the Hadoop YARN node manager
 port|Int|the port of yarn host, default is 8042
 auth|Authorization| .off or .krb5. Default value is .off
 proxyUser|String|proxy user, if applicable
@@ -40,7 +40,7 @@ apibase|String|use this parameter *ONLY* the target server has a different api r
 timeout|Int|timeout in seconds, zero means never timeout during transfer
 
 ## Get General Information
-Call `checkOverall()` to get the general information of a Hadoop MapReduce History Server in form of a `MapReduceHistory.Info` structure:
+Call `checkOverall()` to get the general information of a YARN node manager in form of a `YARNNodeManager.Info` structure:
 
 ``` swift
 guard let inf = try yarn.checkOverall() else {
