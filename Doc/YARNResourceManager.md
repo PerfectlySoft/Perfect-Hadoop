@@ -40,7 +40,7 @@ apibase|String|use this parameter *ONLY* the target server has a different api r
 timeout|Int|timeout in seconds, zero means never timeout during transfer
 
 ## Get General Information
-Call `checkClusterInfo()` to get the general information of a Hadoop MapReduce History Server in form of a `ClusterInfo` structure:
+Call `checkClusterInfo()` to get the general information of a YARN Resource Manager in form of a `ClusterInfo` structure:
 
 ``` swift
 guard let i = try yarn.checkClusterInfo() else {
@@ -71,7 +71,9 @@ hadoopBuildVersion|String|Hadoop common build string with build version, user, a
 hadoopVersionBuiltOn|String|Timestamp when hadoop common was built(in ms since epoch)
 
 ## Cluster Metrics
+
 Method `checkClusterMetrics()` returns a detailed info structure of cluster.
+
 ``` swift
 guard let m = try yarn.checkClusterMetrics() else {
 	// something wrong
@@ -82,8 +84,41 @@ print(m.allocatedVirtualCores)
 print(m.totalMB)
 ```
 
+
+Once called, `checkClusterMetrics()` would return a ClusterMetrics object as listed below:
+
+### ClusterMetrics Object
+
+Item|Data Type|Description
+----|---------|-----------
+appsSubmitted|Int|The number of applications submitted
+appsCompleted|Int|The number of applications completed
+appsPending|Int|The number of applications pending
+appsRunning|Int|The number of applications running
+appsFailed|Int|The number of applications failed
+appsKilled|Int|The number of applications killed
+reservedMB|Int|The amount of memory reserved in MB
+availableMB|Int|The amount of memory available in MB
+allocatedMB|Int|The amount of memory allocated in MB
+totalMB|Int|The amount of total memory in MB
+reservedVirtualCores|Int|The number of reserved virtual cores
+availableVirtualCores|Int|The number of available virtual cores
+allocatedVirtualCores|Int|The number of allocated virtual cores
+totalVirtualCores|Int|The total number of virtual cores
+containersAllocated|Int|The number of containers allocated
+containersReserved|Int|The number of containers reserved
+containersPending|Int|The number of containers pending
+totalNodes|Int|The total number of nodes
+activeNodes|Int|The number of active nodes
+lostNodes|Int|The number of lost nodes
+unhealthyNodes|Int|The number of unhealthy nodes
+decommissionedNodes|Int|The number of nodes decommissioned
+rebootedNodes|Int|The number of nodes rebooted
+
 ## Cluster Scheduler
+
 Method `checkSchedulerInfo()` returns a detailed info structure of scheduler.
+
 ``` swift
 guard let sch = try yarn.checkSchedulerInfo() else {
 	// something wrong, must return
@@ -93,10 +128,95 @@ print(sch.maxCapacity)
 print(sch.queueName)
 print(sch.queues.count)
 ```
+
+Once done, `checkSchedulerInfo()` would return a `SchedulerInfo` structure as listed below:
+
+### SchedulerInfo Object
+
+Item|Data Type|Description
+----|---------|-----------
+availNodeCapacity|Int|The available node capacity
+capacity|Double|Configured queue capacity in percentage relative to its parent queue
+maxCapacity|Double|Max capacity of the queue
+maxQueueMemoryCapacity|Int|Configured maximum queue capacity in percentage relative to its parent queue
+minQueueMemoryCapacity|Int|Minimum queue memory capacity
+numContainers|Int|The number of containers
+numNodes|Int|The total number of nodes
+qstate|QState|State of the queue - valid values are: STOPPED, RUNNING
+queueName|String|Name of the queue
+queues| [Queue]|A collection of queue resources
+rootQueue| FairQueue|A collection of root queue resources
+totalNodeCapacity|Int|The total node capacity
+type|String|Scheduler type - capacityScheduler
+usedCapacity|Double|Used queue capacity in percentage
+usedNodeCapacity|Int|The used node capacity
+
+#### FairQueue Object
+Item|Data Type|Description
+----|---------|-----------
+maxApps|Int|The maximum number of applications the queue can have
+minResources|ResourcesUsed|The configured minimum resources that are guaranteed to the queue
+maxResources|ResourcesUsed|The configured maximum resources that are allowed to the queue
+usedResources|ResourcesUsed|The sum of resources allocated to containers within the queue
+fairResources|ResourcesUsed|The queue’s fair share of resources
+clusterResources|ResourcesUsed|The capacity of the cluster
+queueName|String|The name of the queue
+schedulingPolicy|String|The name of the scheduling policy used by the queue
+childQueues|FairQueue|A collection of sub-queue information. Omitted if the queue has no childQueues.
+type|String|type of the queue - fairSchedulerLeafQueueInfo
+numActiveApps|Int|The number of active applications in this queue
+numPendingApps|Int|The number of pending applications in this queue
+
+#### Queue Object
+
+Item|Data Type|Description
+----|---------|-----------
+absoluteCapacity|Double|Absolute capacity percentage this queue can use of entire cluster
+absoluteMaxCapacity|Double|Absolute maximum capacity percentage this queue can use of the entire cluster
+absoluteUsedCapacity|Double|Absolute used capacity percentage this queue is using of the entire cluster
+capacity|Double|Configured queue capacity in percentage relative to its parent queue
+maxActiveApplications|Int|The maximum number of active applications this queue can have
+maxActiveApplicationsPerUser|Int|The maximum number of active applications per user this queue can have
+maxApplications|Int|The maximum number of applications this queue can have
+maxApplicationsPerUser|Int|The maximum number of applications per user this queue can have
+maxCapacity|Double|Configured maximum queue capacity in percentage relative to its parent queue
+numActiveApplications|Int|The number of active applications in this queue
+numApplications|Int|The number of applications currently in the queue
+numContainers|Int|The number of containers being used
+numPendingApplications|Int|The number of pending applications in this queue
+queueName|String|The name of the queue
+queues|[Queue]|A collection of sub-queue information. Omitted if the queue has no sub-queues.
+resourcesUsed|ResourcesUsed|The total amount of resources used by this queue
+state|String|The state of the queue
+type|String|type of the queue - capacitySchedulerLeafQueueInfo
+usedCapacity|Double|Used queue capacity in percentage
+usedResources|String|A string describing the current resources used by the queue
+userLimit|Int|The minimum user limit percent set in the configuration
+userLimitFactor|Double|The user limit factor set in the configuration
+users|[User]|A collection of user objects containing resources used, see below:
+
+#### User Object
+
+Item|Data Type|Description
+----|---------|-----------
+username|String|The username of the user using the resources
+resourcesUsed|ResourcesUsed |The amount of resources used by the user in this queue, see definition below
+numActiveApplications|Int|The number of active applications for this user in this queue
+numPendingApplications|Int|The number of pending applications for this user in this queue
+
+#### ResourcesUsed Object
+
+Item|Data Type|Description
+----|---------|-----------
+memory|int|Memory required for each container
+vCores|int|Virtual cores required for each container
+
 ## Cluster Nodes
 
 ### Check All Nodes
+
 Method `checkClusterNodes()` returns an array of node info of cluster.
+
 ``` swift
 let nodes = try yarn.checkClusterNodes()
 nodes.forEach { node in
@@ -134,13 +254,17 @@ numContainers|int|The total number of containers currently running on the node
 ### Check A Node
 
 Method `checkClusterNode()` returns a detailed info structure of a node.
+
 ``` swift
 guard let n = try yarn.checkClusterNode(id: "host.domain.com:8041") else {
 	// something wrong, must return
 }
 ```
+
 ## Applications on Cluster
+
 ### Check All Applications
+
 Method `checkApps()` returns an array of APP structure.
 ``` swift
 let apps = try yarn.checkApps()
@@ -194,7 +318,9 @@ appNodeLabelExpression|String|Node Label expression which is used to identify th
 amNodeLabelExpression|String|Node Label expression which is used to identify the node on which application’s AM container is expected to run.
 
 ### Check A Specific Application
+
 Method `checkApp()` returns a specific APP Object.
+
 ``` swift
 let a = try yarn.checkApp(id: "application_1484231633049_0025")
 print(a.allocatedMB)
@@ -210,6 +336,7 @@ print(a.applicationTags)
 The return value is an APP structure, please check the above APP object for detail.
 
 ### Apply A New Application
+
 Method `newApplication()` returns a new application handler.
 
 ``` swift
@@ -396,7 +523,9 @@ NEW, NEW_SAVING, SUBMITTED, ACCEPTED, RUNNING, FINISHED, FAILED, KILLED
 ```
 
 ## Application Queue Control
+
 Method `getApplicationQueue()` returns the current queue name of application.
+
 ``` swift
 guard let queue = try yarn.getApplicationQueue(id:  "application_1484231633049_0025") else {
 	// something wrong, must return
@@ -409,7 +538,9 @@ Method `setApplicationQueue()` can set the current queue name of application to 
 ``` swift
 try yarn.setApplicationQueue(id:  "application_1484231633049_0025", queue:"a1a")
 ```
+
 ## Application Priority Control
+
 Method `getApplicationPriority()` returns the current priority of application.
 
 ``` swift
@@ -418,6 +549,7 @@ guard let priority = try yarn.getApplicationPriority(id:  "application_148423163
 }
 print(priority)
 ```
+
 Currently the returned priority is an integer such as `0`.
 
 Method `setApplicationPriority()` can set the current priority of application to a designated one.
@@ -425,8 +557,11 @@ Method `setApplicationPriority()` can set the current priority of application to
 ``` swift
 try yarn.setApplicationPriority(id:  "application_1484231633049_0025", priority: 1)
 ```
+
 ## Application Attempts
+
 Method `checkAppAttempts()` returns an array of Attempt object of application.
+
 ``` swift
 guard let attempts = try yarn.checkAppAttempts(id:  "application_1484231633049_0025") else {
 	// something wrong, must return
@@ -443,6 +578,7 @@ attempts.forEach { attempt in
 Once done, `checkAppAttempts()` would return an array of AppAttempt object, as described below:
 
 ### AppAttempt Object
+
 Item|Data Type|Description
 ----|---------|-----------
 id|String|The app attempt id
@@ -453,6 +589,7 @@ containerId|String|The id of the container for the app attempt
 startTime|Int|The start time of the attempt (in ms since epoch)
 
 ## Application Statistics
+
 Method `checkAppStatistics()` returns an array of statistic variables of application.
 ``` swift
 let sta = try yarn.checkAppStatistics(states: [APP.State.FINISHED, APP.State.RUNNING])
@@ -462,6 +599,7 @@ sta.forEach{ s in
 	print(s.type)
 }//next s
 ```
+
 `checkAppStatistics()` allows user to perform a query with two additional parameters:
 
 Parameter|Data Type|Description

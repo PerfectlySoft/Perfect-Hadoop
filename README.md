@@ -88,14 +88,13 @@ catch (let err){
 ```
 
 ## User Manual
-- WebHDFS: See [Perfect-HDFS](Doc/WebHDFS.md) for detail.
-- MapReduce: See [Perfect-MapReduce Application Master API](Doc/MapReduceMaster.md) and [Perfect-MapReduce History](Doc/MapReduceHistory.md) for detail.
-- YARN: See [Perfect-YARN](Doc/YARN.md) for detail.
-
-## To Do List
-- Testing: MapReduce Master API
-- YARN Reservation api
-- Testing: Tokens delegation & other security features
+- WebHDFS: [Perfect-HDFS](Doc/WebHDFS.md)
+- MapReduce: 
+	* [Perfect-MapReduce Application Master API](Doc/MapReduceMaster.md)
+	* [Perfect-MapReduce History Server API](Doc/MapReduceHistory.md)
+- YARN:
+	* [Perfect-YARN Node Manager](Doc/YARNNodeManager.md)
+	* [Perfect-YARN Resource Manager](Doc/YARNResourceManager.md)
 
 ## Further Information
 For more information on the Perfect project, please visit [perfect.org](http://perfect.org).

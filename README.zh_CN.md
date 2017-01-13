@@ -89,14 +89,14 @@ catch (let err){
 ```
 
 ## 用户手册
-- WebHDFS: 请查看[Perfect-HDFS](Doc.zh_CN/WebHDFS.md)。
-- MapReduce: 请查看[Perfect-MapReduce 应用程序控制](Doczh_CN/MapReduceMaster.md)和[Perfect-MapReduce 历史服务器](Doczh_CN/MapReduceHistory.md)。
-- YARN: 请查看[Perfect-YARN](Doczh_CN/YARN.md)。
+- WebHDFS: [Perfect-HDFS](Doc.zh_CN/WebHDFS.md)
+- MapReduce: 
+	* [Perfect-MapReduce 应用程序接口 API](Doc.zh_CN/MapReduceMaster.md)
+	* [Perfect-MapReduce 历史服务器接口 API](Doc.zh_CN/MapReduceHistory.md)
+- YARN:
+	* [Perfect-YARN 节点管理器](Doc/YARNNodeManager.md)
+	* [Perfect-YARN 资源管理器](Doc/YARNResourceManager.md)
 
-## 近期计划：
-- 测试: MapReduce Master API
-- 编码及测试：YARN Reservation api
-- 编码及测试：Tokens delegation & other security features
 
 
 ## 更多信息
