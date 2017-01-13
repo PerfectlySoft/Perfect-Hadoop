@@ -750,7 +750,7 @@ public class MapReduceHistroy: YARNResourceManager {
   /// - throws:
   ///   Exceptions
   @discardableResult
-  public func info() throws -> HistoryInfo? {
+  public func checkInfo() throws -> HistoryInfo? {
     let url = assembleURL("")
     let (_, dat, _) = try self.perform(overwriteURL: url)
     return dat.asHistoryInfo

@@ -685,7 +685,7 @@ class PerfectHadoopTests: XCTestCase {
     print(", ,, , , , , , , , HISTORY ,, ,, , , ,, , ")
     let his = MapReduceHistroy()
     do {
-      let info = try his.info()
+      let info = try his.checkInfo()
       XCTAssertNotNil(info)
       let inf = info!
       print(inf.startedOn)
