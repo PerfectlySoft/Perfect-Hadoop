@@ -136,7 +136,26 @@ public class MapReduceHistroy: YARNResourceManager {
       url.append(x)
     }//end if
     let (_, dat, _) = try self.perform(overwriteURL: url)
-    return dat.asJobs
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    let jobs = dic["jobs"] as? [String: Any] ?? [:]
+    return (jobs["job"] as? [Any] ?? []).map {Job($0 as? [String:Any] ?? [:])}
+  }//end func
+
+  ///The jobs resource provides a list of the jobs running on this application master. See also Job API for syntax of the job object.
+  /// - returns:
+  ///   Job?: a Job Structure.
+  /// - throws:
+  ///   Exception
+  /// - parameters:
+  ///   jobId: String, the id of a specific job
+  @discardableResult
+  public func checkJob(jobId: String) throws -> Job? {
+    guard !jobId.isEmpty else {
+      throw Exception.insufficientParameters
+    }//end guard
+    let (_, dat, _) = try perform(overwriteURL: assembleURL("/mapreduce/jobs/\(jobId)"))
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return Job(dic["job"] as? [String:Any] ?? [:])
   }//end func
 
   /// With the job attempts API, you can obtain a collection of resources that represent a job attempt. When you run a GET operation on this resource, you obtain a collection of Job Attempt Objects.

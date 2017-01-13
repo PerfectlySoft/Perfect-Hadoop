@@ -181,30 +181,6 @@ public struct Job{
   }//init
 }//Job
 
-extension String {
-  public var asJobs: [Job] {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let jobs = dic["jobs"] as? [String: Any] ?? [:]
-        return (jobs["job"] as? [Any] ?? []).map {Job($0 as? [String:Any] ?? [:])}
-      }catch {
-        return []
-      }//end do
-    }//end get
-  }//end member
-  public var asJob: Job? {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return Job(dic["job"] as? [String: Any] ?? [:])
-      }catch {
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 /// With the job attempts API, you can obtain a collection of resources that represent a job attempt. When you run a GET operation on this resource, you obtain a collection of Job Attempt Objects.
 public struct JobAttempt{
 

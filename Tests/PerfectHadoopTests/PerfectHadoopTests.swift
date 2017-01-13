@@ -710,6 +710,15 @@ class PerfectHadoopTests: XCTestCase {
         print(j.queue)
         print(j.state)
         do {
+          let job = try his.checkJob(jobId: j.id)
+          XCTAssertNotNil(job)
+          XCTAssertEqual(j.name, job?.name)
+          XCTAssertEqual(j.queue, job?.queue)
+          XCTAssertEqual(j.state, job?.state)
+        }catch(let jobErr) {
+          XCTFail("job attempt failed: \(jobErr)")
+        }
+        do {
           let attempts = try his.checkJobAttempts(jobId: j.id)
           XCTAssertGreaterThan(attempts.count, 0)
           attempts.forEach { attempt in
