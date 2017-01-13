@@ -34,7 +34,7 @@ Item|Data Type|Description
 ----|---------|-----------
 applicationId|String|the id string of the application to control. *Required* 
 service|String|the service protocol of web request - http / https
-host|String|the hostname or ip address of the Hadoop Map Reduce history server host
+host|String|the hostname or ip address of the Hadoop Map Reduce Application Master host
 port|Int|the port of map reduce application master host, default is 8088
 auth| Authorization| .off or .krb5. Default value is .off
 proxyUser|String|proxy user, if applicable
@@ -43,7 +43,7 @@ timeout`:Int, timeout in seconds, zero means never timeout during transfer
 
 
 ## Get General Information
-Call `checkInfo()` to get the general information of a Hadoop MapReduce History Server in form of a `MapReduceHistory.Info` structure:
+Call `checkInfo()` to get the general information of a Hadoop MapReduce Application Master in form of a `MapReduceApplication.Info` structure:
 
 ``` swift
 guard let inf = try app.checkInfo() else {
