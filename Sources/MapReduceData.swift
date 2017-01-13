@@ -215,20 +215,6 @@ public struct JobAttempt{
   }//init
 }//jobAttemptItem
 
-extension String {
-  public var asJobAttempts: [JobAttempt] {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let jobs = dic["jobAttempts"] as? [String: Any] ?? [:]
-        return (jobs["jobAttempt"] as? [Any] ?? []).map {JobAttempt($0 as? [String:Any] ?? [:])}
-      }catch {
-        return []
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 /// With the job counters API, you can object a collection of resources that represent al the counters for that job.
 public struct JobCounters{
   public struct CounterGroup{
@@ -287,20 +273,6 @@ public struct JobCounters{
   }//init
 }//Jobcounters
 
-extension String {
-  /// nicely convert a json string into a JobCounters structure
-  public var asJobcounters: JobCounters? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return JobCounters(dic["jobCounters"] as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 /// A job configuration resource contains information about the job configuration for this job.
 public struct JobConfig{
 
@@ -340,21 +312,6 @@ public struct JobConfig{
     self.path = dictionary["path"] as? String ?? ""
   }//init
 }//JobConfig
-
-extension String {
-
-  /// nicely convert a json string into a JobCounters structure
-  public var asJobConfig: JobConfig? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return JobConfig(dic["conf"] as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
 
 /// A Task resource contains information about a particular task within a job.
 public struct JobTask{
@@ -407,30 +364,6 @@ public struct JobTask{
     self.type = TaskType(rawValue: dictionary["type"] as? String ?? "") ?? .INVALID
   }//init
 }//JobTask
-
-extension String {
-  public var asJobTasks: [JobTask] {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        let tasks = dic["tasks"] as? [String: Any] ?? [:]
-        return (tasks["task"] as? [Any] ?? []).map {JobTask($0 as? [String:Any] ?? [:])}
-      }catch {
-        return []
-      }//end do
-    }//end get
-  }//end member
-  public var asJobTask: JobTask? {
-    get {
-      do {
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return JobTask(dic["task"] as? [String: Any] ?? [:])
-      }catch {
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
 
 public struct CounterGroup{
 
@@ -501,34 +434,6 @@ public struct JobTaskAttemptCounters{
     self.taskAttemptCounterGroup = (dictionary["taskAttemptCounterGroup"] as? [Any] ?? []).map{CounterGroup($0 as? [String : Any] ?? [:])}
   }//init
 }//Jobcounters
-
-extension String {
-
-  /// nicely convert a json string into a JobTaskCounters structure
-  public var asJobTaskCounters: JobTaskCounters? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return JobTaskCounters(dic["jobTaskCounters"] as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }//end member
-
-  /// nicely convert a json string into a JobTaskAttemptCounters structure
-  public var asJobTaskAttemptCounters: JobTaskAttemptCounters? {
-    get{
-      do{
-        let dic = try self.jsonDecode() as? [String:Any] ?? [:]
-        return JobTaskAttemptCounters(dic["jobTaskAttemptCounters"] as? [String:Any] ?? [:])
-      }catch{
-        return nil
-      }//end do
-    }//end get
-  }//end member
-}//end extension
-
 
 /// With the task attempts API, you can obtain a collection of resources that represent a task attempt within a job. When you run a GET operation on this resource, you obtain a collection of Task Attempt Objects.
 public struct TaskAttempt {

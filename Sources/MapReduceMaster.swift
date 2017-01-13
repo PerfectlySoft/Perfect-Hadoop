@@ -294,7 +294,9 @@ public class MapReduceApplication: YARNResourceManager {
       throw Exception.insufficientParameters
     }//end guard
     let (_, dat, _) = try perform(overwriteURL: assembleURL(path: "/jobs/\(jobId)/jobattempts"))
-    return dat.asJobAttempts
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    let jobs = dic["jobAttempts"] as? [String: Any] ?? [:]
+    return (jobs["jobAttempt"] as? [Any] ?? []).map {JobAttempt($0 as? [String:Any] ?? [:])}
   }//end func
 
   /// With the job counters API, you can object a collection of resources that represent all the counters for that job.
@@ -310,7 +312,8 @@ public class MapReduceApplication: YARNResourceManager {
       throw Exception.insufficientParameters
     }//end guard
     let (_, dat, _) = try perform(overwriteURL: assembleURL(path: "/jobs/\(jobId)/counters"))
-    return dat.asJobcounters
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return JobCounters(dic["jobCounters"] as? [String:Any] ?? [:])
   }//end func
 
   /// A job configuration resource contains information about the job configuration for this job.
@@ -326,7 +329,9 @@ public class MapReduceApplication: YARNResourceManager {
       throw Exception.insufficientParameters
     }//end guard
     let (_, dat, _) = try perform(overwriteURL: assembleURL(path: "/jobs/\(jobId)/conf"))
-    return dat.asJobConfig
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return JobConfig(dic["conf"] as? [String:Any] ?? [:])
+
   }//end func
 
   /// TaskType for Query
@@ -352,7 +357,9 @@ public class MapReduceApplication: YARNResourceManager {
       url.append("?type=" + (taskType?.rawValue ?? ""))
     }
     let (_, dat, _) = try self.perform(overwriteURL: url)
-    return dat.asJobTasks
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    let tasks = dic["tasks"] as? [String: Any] ?? [:]
+    return (tasks["task"] as? [Any] ?? []).map {JobTask($0 as? [String:Any] ?? [:])}
   }//end checkJobTasks
 
   /// A Task resource contains information about a particular task within a job.
@@ -370,7 +377,8 @@ public class MapReduceApplication: YARNResourceManager {
     }//end guard
     let url = assembleURL("/jobs/\(jobId)/tasks/\(taskId)")
     let (_, dat, _) = try self.perform(overwriteURL: url)
-    return dat.asJobTask
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return JobTask(dic["task"] as? [String: Any] ?? [:])
   }//end checkJobTasks
 
   /// With the task counters API, you can object a collection of resources that represent all the counters for that task.
@@ -388,7 +396,8 @@ public class MapReduceApplication: YARNResourceManager {
     }//end guard
     let url = assembleURL("/jobs/\(jobId)/tasks/\(taskId)/counters")
     let (_, dat, _) = try self.perform(overwriteURL: url)
-    return dat.asJobTaskCounters
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return JobTaskCounters(dic["jobTaskCounters"] as? [String:Any] ?? [:])
   }//end checkJobTaskCounters
 
   /// With the task attempts API, you can obtain a collection of resources that represent a task attempt within a job. When you run a GET operation on this resource, you obtain a collection of Task Attempt Objects.
@@ -489,6 +498,7 @@ public class MapReduceApplication: YARNResourceManager {
     }//end guard
     let url = assembleURL("/jobs/\(jobId)/tasks/\(taskId)/attempts/\(attemptId)/counters")
     let (_, dat, _) = try self.perform(overwriteURL: url)
-    return dat.asJobTaskAttemptCounters
+    let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
+    return JobTaskAttemptCounters(dic["jobTaskAttemptCounters"] as? [String:Any] ?? [:])
   }//end checkJobTasks
 }//end class
