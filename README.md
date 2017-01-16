@@ -90,7 +90,7 @@ catch (let err){
 ## User Manual
 - WebHDFS: [Perfect-HDFS](Doc/WebHDFS.md)
 - MapReduce: 
-	* [Perfect-MapReduce Application Master API](Doc/MapReduceMaster.md)
+	* [Perfect-MapReduce Application Master API](Doc/MapReduceMaster.md) ⚠️ Experimental  ⚠️
 	* [Perfect-MapReduce History Server API](Doc/MapReduceHistory.md)
 - YARN:
 	* [Perfect-YARN Node Manager](Doc/YARNNodeManager.md)
