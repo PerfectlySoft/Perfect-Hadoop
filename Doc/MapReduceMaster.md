@@ -4,6 +4,9 @@ This project provides a Swift wrapper of MapReduce Application Master REST API:
 
 - `MapReduceApplication()`: access a specific map / reduce application running on current server.
 
+## RELEASE NOTE
+⚠️This is an experimental module and is subject to change in future. ⚠️
+
 ## Connect to Hadoop Map Reduce Application
 
 To connect to a current active Hadoop Map / Reduce Application by Perfect, initialize a `MapReduceApplication()` object with an *APPLICATION ID*, and other essential parameters:
