@@ -91,11 +91,11 @@ catch (let err){
 ## 用户手册
 - WebHDFS: [Perfect-HDFS](Doc.zh_CN/WebHDFS.md)
 - MapReduce: 
-	* [Perfect-MapReduce 应用程序接口 API](Doc.zh_CN/MapReduceMaster.md)
-	* [Perfect-MapReduce 历史服务器接口 API](Doc.zh_CN/MapReduceHistory.md)
+	* [Perfect-MapReduce 应用程序接口 API](Doc.zh_CN/MapReduceMaster.md) ⚠️ 试验版本 ⚠️ 内容待翻译
+        * [Perfect-MapReduce 历史服务器接口 API](Doc.zh_CN/MapReduceHistory.md) 内容待翻译
 - YARN:
-	* [Perfect-YARN 节点管理器](Doc/YARNNodeManager.md)
-	* [Perfect-YARN 资源管理器](Doc/YARNResourceManager.md)
+	* [Perfect-YARN 节点管理器](Doc/YARNNodeManager.md) 内容待翻译
+	* [Perfect-YARN 资源管理器](Doc/YARNResourceManager.md) 内容待翻译
 
 
 
