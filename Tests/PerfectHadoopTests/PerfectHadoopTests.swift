@@ -5,11 +5,12 @@ import PerfectLib
 class PerfectHadoopTests: XCTestCase {
 
   let defaultUserName:String = "rockywei"
-
+  let defaultHost = "localhost"
+	
   func testGetFileStatus() {
     let op = "testGetFileStatus"
 
-    let hdfs = WebHDFS()
+	let hdfs = WebHDFS(host: defaultHost)
     do {
       guard let fs = try hdfs.getFileStatus(path: "/") else {
         XCTFail("file status is null")
@@ -28,7 +29,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testDirOp() {
     var op = "mkdir"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user:defaultUserName)
     let dir = "/demo"
     do {
       try hdfs.mkdir(path: dir, permission: 640)
@@ -58,7 +59,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testFileCreateOpenDelete() {
     let op = "testFileCreateOpenDelete"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     let remoteFile = "/a.txt"
     let localFilePath = "/tmp/a.txt"
     let localFile = File(localFilePath)
@@ -81,7 +82,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testFileAppend() {
     let op = "testFileAppend"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     let remoteFile = "/b.txt"
     let localFilePath = "/tmp/b.txt"
     let localFile = File(localFilePath)
@@ -104,7 +105,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testFileConcat () {
     let op = "testFileConcat"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     let localFilePath = "/tmp/c.txt"
     let files = ["/1.txt", "/2.txt"]
     let remoteFile = "/0.txt"
@@ -131,7 +132,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testTruncate() {
     let op = "testTruncate"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     let remoteFile = "/d.txt"
     let localFilePath = "/tmp/d.txt"
     let localFile = File(localFilePath)
@@ -154,7 +155,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testListStatus () {
     let op = "testListStatus"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     do {
       let list = try hdfs.listStatus(path: "/")
       for file in list {
@@ -172,7 +173,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testDirectoryContentSummary () {
     let op = "testDirectoryContentSummary"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     do {
       let list = try hdfs.getDirectoryContentSummary(path: "/")
       XCTAssertGreaterThan(list!.fileCount, 0)
@@ -187,7 +188,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testFileCheckSum () {
     let op = "testFileCheckSum"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     let remoteFile = "/checksum.txt"
     let localFilePath = "/tmp/checksum.txt"
     let localFile = File(localFilePath)
@@ -215,7 +216,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testHomeDirectory () {
     let op = "testHomeDirectory"
-    let hdfs = WebHDFS()
+    let hdfs = WebHDFS(host: defaultHost)
     do {
       let home = try hdfs.getHomeDirectory()
       print("the home is ====================> \(home)")
@@ -231,7 +232,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testSettings () {
     let op = "testSettings"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     let remoteFile = "/settings.txt"
     let localFilePath = "/tmp/settings.txt"
     let localFile = File(localFilePath)
@@ -262,7 +263,7 @@ class PerfectHadoopTests: XCTestCase {
    */
   func testACL() {
     let op = "testACL"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     let remoteFile = "/acl.txt"
     let localFilePath = "/tmp/acl.txt"
     let localFile = File(localFilePath)
@@ -333,7 +334,7 @@ class PerfectHadoopTests: XCTestCase {
 
   func testAccess() {
     let op = "testAccess"
-    let hdfs = WebHDFS()
+    let hdfs = WebHDFS(host: defaultHost)
     do {
       let a = try hdfs.checkAccess(path: "/", fsaction: "mkdir")
       print("mkdir: \(a)")
@@ -349,7 +350,7 @@ class PerfectHadoopTests: XCTestCase {
   }
   func testXAttr() {
     let op = "testXAttr"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     let now = time(nil)
     // must generate a random file to perform this test sequence
     let remoteFile = "/xattr\(now).txt"
@@ -397,7 +398,7 @@ class PerfectHadoopTests: XCTestCase {
   /// $ hdfs dfsadmin -allowSnapshot /
   func testSnapshot () {
     var op = "testSnapshot"
-    let hdfs = WebHDFS(user:defaultUserName)
+    let hdfs = WebHDFS(host: defaultHost, user: defaultUserName)
     let dir = "/"
     let now = time(nil)
     let finalName = "snapdone\(now)"
