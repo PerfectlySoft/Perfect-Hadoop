@@ -2,7 +2,7 @@
 
 This project provides a Swift wrapper of MapReduce History Server REST API:
 
-- `MapReduceHistory()`: access to all application on map / reduce history server.
+- `MapReduceHistory()`: access to all applications on map / reduce history server.
 
 ## Connect to Hadoop Map Reduce History Server
 
@@ -32,7 +32,7 @@ Item|Data Type|Description
 ----|---------|-----------
 service|String|the service protocol of web request - http / https
 host|String|the hostname or ip address of the Hadoop Map Reduce history server host
-port|Int|the port of webhdfs host, default is 19888
+port|Int|the port of host, default is 19888
 auth|Authorization| .off or .krb5. Default value is .off
 proxyUser|String|proxy user, if applicable
 apibase|String|use this parameter *ONLY* the target server has a different api routine other than `/ws/v1/history`
@@ -124,7 +124,7 @@ Item|Data Type|Description
 value|String|The acl value
 name|String|The acl name
 
-## Check a Specific Job 
+## Check a Specific Job
 It is also possible to check a specific historical job by a job id:
 
 ``` swift
@@ -386,7 +386,7 @@ Method `checkJobTaskAttemptCounters()` can return counters of a specific task at
 guard let counters = try his.checkJobTaskAttemptCounters(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0", "attempt_1326381300833_2_2_m_0_0") else {
 	// something wrong
 	print("Task Attempt Counters Acquiring failed")
-	return 
+	return
 }
 // print the counters' id
 print(counters.id)
