@@ -1032,13 +1032,24 @@ public class YARNResourceManager: YARNNodeManager {
     // prepare a json string
     let json = try application.jsonEncodedString()
 
-    let (header, _) = try submitRequest(url: assembleURL("/apps?user=\(user)"), extensionType: "json", content: json)
+    let url = assembleURL("/apps?user=\(user)")
+    if self.debug {
+      print(url)
+      print(json)
+    }//end if
 
-    let url = relocation(header: header, body: "")
-    if url.isEmpty {
+    let (header, body) = try submitRequest(url: url, extensionType: "json", content: json)
+
+    if self.debug {
+      print(header)
+      print(body)
+    }//end if
+    
+    let newURL = relocation(header: header, body: "")
+    if newURL.isEmpty {
       return nil
     }//end if
-    return url
+    return newURL
   }//end submit
 
   ///With the application state API, you can query the state of a submitted app as well kill a running app by modifying the state of a running app using a PUT request with the state set to “KILLED”. To perform the PUT operation, authentication has to be setup for the RM web services. In addition, you must be authorized to kill the app. Currently you can only change the state to “KILLED”; an attempt to change the state to any other results in a 400 error response. Examples of the unauthorized and bad request errors are below. When you carry out a successful PUT, the iniital response may be a 202. You can confirm that the app is killed by repeating the PUT request until you get a 200, querying the state using the GET method or querying for app information and checking the state. In the examples below, we repeat the PUT request and get a 200 response.
