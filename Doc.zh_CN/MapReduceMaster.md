@@ -1,49 +1,57 @@
-# PerfectHadoop: MapReduce 历史服务器
+# PerfectHadoop: MapReduce Application 归并映射应用程序
 
-本项目封装了MapReduce 历史服务器 REST API：
+该项目实现了Hadoop 归并映射应用程序 MapReduce Application Master REST API 的Swift类封装:
 
-- `MapReduceHistory()`: 用于访问 MapReduce 历史服务器获取应用程序的 Swift 对象
+- `MapReduceApplication()`: 获取当前服务器上特定归并映射应用程序状态。
 
-## 连接到MapReduce历史服务器
+## 注意事项
+⚠️本函数库为试验性模块，可能随时会有更新和调整。 ⚠️
 
-如果希望连接到 Hadoop 的 Map Reduce 历史服务器，请初始化一个`MapReduceHistory()`对象，并确保参数准确无误：
+## 连接到Hadoop映射归并应用程序服务器
 
-``` swift
-// 该连接只能保证基本的操作权限
-let history = MapReduceHistory(host: "mapReduceHistory.somedomain.com", port: 19888)
-```
-或者连接到 Hadoop Map / Reduce 历史服务器时包括一个有效的用户名：
+为了能够连接到当前活动的Hadoop 映射归并应用程序，请首先用有效的 *应用程序代码* 初始化一个`MapReduceApplication()` 对象，并且需要包含必要参数：
 
 ``` swift
-// 如有需要，在此处增加用户名
-let history = MapReduceHistory(host: "mapReduceHistory.somedomain.com", port: 19888, user: "your user name")
+// 该连接可能只有基本操作权限
+let app = MapReduceApplication(applicationId: "application_12345678_xxxxxx", host: "mapReducer.somedomain.com")
 ```
-
-### 用户身份验证
-如果您的服务器需要 Kerberos 验证，请增加身份验证选项：
+或者您还可以：
 
 ``` swift
-// 设置当前验证方式为 Kerberos
-let history = MapReduceHistory(host: "mapReduceHistory.somedomain.com", port: 19888, user: "username", auth: .krb5)
+// 如果有需要，增加用户名，用于执行更多有权限要求的操作
+let app = MapReduceApplication(applicationId: "application_12345678_xxxxxx", host: "mapReducer.somedomain.com", user: "your user name")
 ```
 
-### MapReduceHistory 对象参数详解
+
+### 用户身份认证
+如果服务器需要使用 Kerberos 身份验证，请在代码中加入：
+
+``` swift
+// 将连接设置为KRB5认证模式
+let app = MapReduceApplication(applicationId: "application_12345678_xxxxxx", host: "mapReducer.somedomain.com", user: "your user name", auth: .krb5)
+```
+
+
+### MapReduceApplication 映射归并应用程序对象属性
 变量|类型|描述
----|---|-----------
-service|String|Web 请求的类型 - http / https
-host|String|目标Hadoop Map Reduce 历史服务器主机名或者IP地址
-port|Int|默认的历史服务器端口，默认为 19888
-auth|Authorization| 身份认证方式，.off 表示无要求（默认），.krb5 则表示采用Kerberos验证
-proxyUser|String|代理服务器用户信息（可选项）
-apibase|String|目标历史服务器的接口函数地址。⚠️*只有*⚠️在您的配置中其目标接口函数地址不是`/ws/v1/history`的时候才需要填写。
-timeout|Int|连接超时限制，单位是秒。默认是零，也就是传输过程中始终保持等待。
+----|---------|-----------
+applicationId|String|应用程序编码。 *必选项* 
+service|String|网站请求协议 - http 或 https
+host|String|映射归并应用程序所在主机名称或者ip地址。
+port|Int|映射归并应用程序所在主机使用的端口，默认为8088
+auth| Authorization| 认证方法，.off（不认证）或者 .krb5（Kerberos V5版本验证方法）。默认是 .off，即不验证。
+proxyUser|String|代理服务器用户名，如果适用的话
+apibase|String|*只有* 当目标url应用程序界面接口api路径不是 `/ws/v1/mapreduce` 的时候，请填写该项目。
+timeout|Int|超时（秒）。即访问服务器需要在该时间段内完成请求，否则网络会话过程自动断开并返回。如果设置为零则表示永远不超时（持续等待直到服务器返回）
 
-## 获取服务器基本配置信息
-调用 `checkInfo()` 能够获得历史服务器的基本信息，返回的数据将保存在一个 `MapReduceHistory.Info` 结构之内：
+
+## 查看基本信息
+
+调用 `checkInfo()`方法可以获得当前映射归并主应用程序的基本运行情况，返回结果是一个 `MapReduceApplication.Info` 数据结构：
 
 ``` swift
-guard let inf = try history.checkInfo() else {
-	// 获取信息不成功
+guard let inf = try app.checkInfo() else {
+	// 出错了
 }
 print(inf.startedOn)
 print(inf.hadoopVersion)
@@ -51,74 +59,63 @@ print(inf.hadoopBuildVersion)
 print(inf.hadoopVersionBuiltOn)
 ```
 
-### `MapReduceHistory.Info` 数据结构
+### MapReduceApplication.Info 数据结构
 
 变量|类型|描述
 ----|---------|-----------
-startedOn|Int|历史服务器启动时的时间戳（Unix纪元时间，单位是秒）
-hadoopVersion|String| Hadoop 通用函数库的版本
-hadoopBuildVersion|String|Hadoop 通用函数库编译信息，包括版本号，用户和校验码
-hadoopVersionBuiltOn|String|Hadoop 通用函数库编译时间戳
+appId|Int|应用程序编码
+startedOn|Int|应用程序启动时间（Unix纪元，毫秒）
+name|string|应用程序名称
+user|string|启动该程序的用户名
+elapsedTime|long|自该应用程序启动后持续的时间（毫秒）
 
-## MapReduce 作业历史档案
+## MapReduce Job 映射归并作业
 
-调用 `checkJobs()` 可以返回一个以 `Job` 数据结构为元素的数组。
-该数组列出了所有执行完毕的 MapReduce 作业清单；⚠️注意⚠️，受限于Hadoop的版本，目前暂时不能返回任务有关的所有参数。最简单的形式是调用 `checkJobs()`，不带任何参数即可。此时将返回所有变量:
+调用 `checkJobs()` 能够返回该应用程序的一个作业数组。
+作业数组指的是目前该应用程序所执行的映射归并已完成的作业清单。返回的清单目前并未包含所有参数。最简单的形式就是直接调用 `checkJobs()` 而且不用包含任何参数，意味着无条件返回所有可以查询到的所有作业：
 
 
 ``` swift
-let jobs = try history.checkJobs()
-// 如果不希望把有用的没用的都抓过来，可以通过设置下列参数筛选结果：
-// let jobs = try his.checkJobs(state: .SUCCEEDED, queue: "default", limit: 10)
+let jobs = try app.checkJobs()
 jobs.forEach { j in
-  print(j.id) // 作业编号
-  print(j.name) // 作业名称
-  print(j.queue) // 作业队列
-  print(j.state) // 作业状态
+  print(j.id)
+  print(j.name)
+  print(j.queue)
+  print(j.state)
 }
 ```
 
-### checkJobs() 参数说明
-变量|类型|描述
-----|---------|-----------
-**user** | String | 用户名
-**state** | APP.FinalStatus | 作业状态 —— UNDEFINED（未定义）, SUCCEEDED（成功）, FAILED（失败） 和 KILLED（终止）
-**queue** | String | 队列名称
-**limit** | Int | 本次操作最多返回的任务数量
-**startedTimeBegin** | Int | 从某个时刻之后开始的所有作业，采用Unix时间，单位是毫秒。
-**startedTimeEnd** | Int | 从某个时间段内运行的所有作业（与startedTimeBegin配合），采用Unix时间，单位是毫秒。
-**finishedTimeBegin** | Int | 所有在某个时间段内结束的作业，该参数为时间段的开始时间，采用Unix时间，单位是毫秒。
-**finishedTimeEnd** | Int | 所有在某个时间段内结束的作业，该参数为时间段的结束时间，采用Unix时间，单位是毫秒。
+如果执行成功，`checkJobs()` 将返回一系列作业对象，如以下数据结构所述：
 
-### Job （作业）数据结构
+### 作业对象 Job 数据结构
 
 变量|类型|描述
 ----|---------|-----------
 id|String|作业编码
 name|String|作业名称
-queue|String|作业所提交到的目标队列
+queue|String|作业所在的队列名称
 user|String|用户名
-state|String|作业状态 - 有效值包括 NEW（新建）, INITED（完成初始化）, RUNNING（正在运行）, SUCCEEDED（执行成功）, FAILED（执行失败）, KILL_WAIT（正在结束处理）, KILLED（已被关闭）, ERROR（错误）
+state|String|作业状态 - 有效值包括：NEW（新建）、INITED（初始化完成）、RUNNING（正在运行）、SUCCEEDED（执行成功）、FAILED（失败）、KILL_WAIT（关闭/终止等待）、KILLED（已经关闭/终止完成）、ERROR（出错）
+startTime|Int|作业启动时间（Unix纪元，毫秒）
+finishTime|Int|作业结束时间（Unix纪元，毫秒）
+elapsedTime|Int|作业自启动以来的持续时间（毫秒）
+mapsTotal|Int|总映射数
+mapsCompleted|Int|已完成的映射总数
+reducesTotal|Int|总归并数
+reducesCompleted|Int|已完成的归并总数
 diagnostics|String|诊断信息
-submitTime|Int|作业提交时刻（毫秒，Unix纪元）
-startTime|Int|作业启动时刻（毫秒，Unix纪元）
-finishTime|Int|作业结束时刻（毫秒，Unix纪元）
-mapsTotal|Int|映射(map)总数
-mapsCompleted|Int|已完成映射(map)数量
-reducesTotal|Int|归并(reduce)总数
-reducesCompleted|Int|已完成归并(reduce)数量
-uberized|Boolean|该作业是否为uber类型——完全在Application Master应用程序主服务器上完成
-avgMapTime|Int|每个分项映射作业的平均耗时（毫秒）
-avgReduceTime|Int|每个分项归并作业的平均耗时（毫秒）
-avgShuffleTime|Int|每个分项作业并行分派（shuffle）的平均耗时（毫秒）
-avgMergeTime|Int|每个分享作业结果合并（merge）的平均耗时（毫秒）
-failedReduceAttempts|Int|归并操作（reduce）失败次数统计
-killedReduceAttempts|Int|归并操作（reduce）被终止的总数统计
-successfulReduceAttempts|Int|归并操作（reduce）尝试成功的次数
-failedMapAttempts|Int|失败的映射（map）尝试次数
-killedMapAttempts|Int|被终止的映射（map）尝试次数
-successfulMapAttempts|Int|成功的映射（map）尝试次数
-acls|[ACL]|访问控制列表（ACL）数组
+uberized|Bool|当前作业是否是一个uber类型的作业——完全在应用程序主机上运行
+mapsPending|Int|等待执行的映射数量
+mapsRunning|Int|正在执行的映射数量
+reducesPending|Int|等待执行的归并任务数量
+reducesRunning|Int|正在执行的归并任务数量
+failedReduceAttempts|Int|归并尝试失败的数量
+killedReduceAttempts|Int|已经终止的归并尝试数量
+successfulReduceAttempts|Int|成功完成的归并尝试数量
+failedMapAttempts|Int|映射尝试失败的总数量
+killedMapAttempts|Int|映射尝试被关闭/终止的总数量
+successfulMapAttempts|Int|成功完成的映射尝试数量
+acls|[ACL]|安全访问控制列表（ACL）集合
 
 #### 访问控制列表对象 ACL 数据结构
 
@@ -127,12 +124,13 @@ acls|[ACL]|访问控制列表（ACL）数组
 name|String|安全访问列表名称
 value|String|安全访问列表项的值
 
+
 ## 检查特定作业（Job）
 
-可以通过作业代码（Job ID）检查历史服务器上的特定作业信息：
+可以通过作业代码（Job ID）检查特定作业信息：
 
 ``` swift
-let job = try history.checkJob(jobId: "job_1484231633049_0005")
+let job = try app.checkJob(jobId: "job_1484231633049_0005")
 ```
 
 详见 [作业（Job）数据结构](# Job （作业）数据结构)。
@@ -142,7 +140,7 @@ let job = try history.checkJob(jobId: "job_1484231633049_0005")
 以下命令能够获得关于某个作业的尝试列表信息：
 
 ``` swift
-guard let attempts = try history.checkJobAttempts(jobId: "job_1484231633049_0005") else {
+guard let attempts = try app.checkJobAttempts(jobId: "job_1484231633049_0005") else {
 	// 出错了
 }
 attempts.forEach { attempt in
@@ -169,8 +167,9 @@ startTime|Long|该作业尝试启动的时间（Unix纪元，单位是毫秒）
 
 使用作业指标函数库，您可以获得关于该作业的所有指标信息。
 
+
 ``` swift
-guard let js = try his.checkJobCounters(jobId: "job_1484231633049_0005") else {
+guard let js = try app.checkJobCounters(jobId: "job_1484231633049_0005") else {
 	// 出错了
 }//end guard
 js.counterGroup.forEach{ group in
@@ -184,7 +183,7 @@ js.counterGroup.forEach{ group in
 }//next group
 ```
 
-### JobCounter 作业指标对象
+### JobCounter Object
 
 变量|类型|描述
 ----|---------|-----------
@@ -212,10 +211,10 @@ totalCounterValue|Int|所有任务总数统计
 函数 `checkJobConfig()` 可以用来检查作业配置情况：
 
 ``` swift
-guard let config = try his.checkJobConfig(jobId: "job_1484231633049_0005") else {
+gurard let config = try app.checkJobConfig(jobId: "job_1484231633049_0005") else {
 	/// 出错了
 }
-// 打印配置目录
+// print the configuration path
 print(config.path)
 // check properties of configuration file
 for p in config.property {
@@ -248,9 +247,9 @@ source|String|配置对象所在路径。如果不止一个路径，则意味着
 
 ``` swift
 // 获得特定作业的所有子任务信息
-let tasks = try his.checkJobTasks(jobId: "job_1484231633049_0005")
+let tasks = try app.checkJobTasks(jobId: "job_1484231633049_0005")
 
-// 打印每个子任务的属性
+// print properties of each task
 for t in tasks {
   print(t.progress)
   print(t.elapsedTime)
@@ -269,7 +268,7 @@ for t in tasks {
 - jobId: 作业编码
 - taskType: 可选的子任务类型，即 `.MAP` 映射任务或者 `.REDUCE` 归并任务
 
-### JobTask 作业子任务对象
+### JobTask Object
 
 函数`checkJobTasks()`用于返回一个作业子任务数组 `JobTask` 对象，包括下列属性：
 
@@ -289,12 +288,11 @@ elapsedTime|Int|应用程序自启动至今所耗时间，单位是毫秒
 如果已经获取了有效的 `jobId` 作业编码和 `jobTaskId` 作业子任务编码，那么可以使用函数 `checkJobTask()` 检查特定的作业子任务：
 
 ``` swift
-guard let task = try his.checkJobTask(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0") else {
+guard let task = try app.checkJobTask(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0") else {
 	// 出错了
 }
 print(task.progress)
 ```
-
 该函数 `checkJobTask` 返回值为一个 [JobTask 作业子任务](### JobTask 作业子任务对象) 对象，如上所述。
 
 ## 作业子任务统计指标
@@ -302,7 +300,7 @@ print(task.progress)
 方法 `checkJobTaskCounters()` 用于返回特定作业子任务的统计指标信息，如以下范例所示：
 
 ``` swift
-guard let js = try his.checkJobTaskCounters(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0") else {
+guard let js = try app.checkJobTaskCounters(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0") else {
 	// 出错了
 }
 // 打印作业子任务指标编码
@@ -310,7 +308,7 @@ print(js.id)
 // 检查每个统计指标编组
 js.taskCounterGroup.forEach{ group in
   print(group.counterGroupName)
-  // 打印每个分组中的详细指标信息
+ // 打印每个分组中的详细指标信息
   group.counters.forEach { counter in
     print(counter.name)
     print(counter.value)
@@ -329,7 +327,7 @@ taskCounterGroup|[CounterGroup]|分组对象集合，详见 [CounterGroup 作业
 函数 `checkJobTaskAttempts()` 用于检查特定作业子任务的尝试信息。
 
 ``` swift
-let jobTaskAttempts = try his.checkJobTaskAttempts(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0")
+let jobTaskAttempts = try app.checkJobTaskAttempts(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0")
 for attempt in jobTaskAttempts {
   print(attempt.id)
   print(attempt.diagnostics)
@@ -377,7 +375,7 @@ elapsedReduceTime|Int|整个归并阶段所耗时间（从合并结束到整个�
 如果作业子任务尝试编码有效，则可以执行`checkJobTaskAttempt()`查询该作业子任务的尝试信息，如下所述：
 
 ``` swift
-guard let jobTaskAttempts = try his.checkJobTaskAttempt(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0", "attempt_1326381300833_2_2_m_0_0") else {
+guard let jobTaskAttempts = try app.checkJobTaskAttempt(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0", "attempt_1326381300833_2_2_m_0_0") else {
 	// 出错了
 }//end guard
 print(attempt.id)
@@ -387,15 +385,37 @@ print(attempt.rack)
 print(attempt.state)
 print(attempt.progress)
 ```
-
 函数`checkJobTaskAttempt()` 调用后会返回一个 [TaskAttempt 作业子任务尝试对象](### TaskAttempt 作业子任务尝试对象) 如上文所述。
+
+## Attempt State Control 作业尝试状态控制
+
+目前Hadoop 映射归并主程序具有一个试验性质的尝试状态控制。
+
+### 检查尝试
+
+如果需要查看尝试状态，请调用 `checkJobTaskAttemptState()` 方法：
+
+``` swift
+guard let state = try checkJobTaskAttemptState(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0", "attempt_1326381300833_2_2_m_0_0") else {
+	// 出错了
+}//end guard
+print(state)
+```
+
+### 终止尝试
+
+调用 `killTaskAttempt()` 方法可以终止尝试：
+
+``` swift
+try killTaskAttempt(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0", "attempt_1326381300833_2_2_m_0_0")
+```
 
 ## 作业子任务尝试指标统计
 
 方法 `checkJobTaskAttemptCounters()` 可以获得关于特定作业子任务尝试的详细指标统计，如下文所述：
 
 ``` swift
-guard let counters = try his.checkJobTaskAttemptCounters(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0", "attempt_1326381300833_2_2_m_0_0") else {
+guard let counters = try app.checkJobTaskAttemptCounters(jobId: "job_1484231633049_0005", taskId: "task_1326381300833_2_2_m_0", "attempt_1326381300833_2_2_m_0_0") else {
 	// 出错了
 }
 // 打印指标计数编码
@@ -410,7 +430,12 @@ for group in counters.taskAttemptCounterGroup {
     print(counter.value)
   }//next counter
 }//next group
+}
 
 ```
+### JobTaskAttemptCounters 作业子任务尝试统计指标对象
 
-
+变量|类型|描述
+----|---------|-----------
+id|String|The job id
+taskAttemptcounterGroup |[CounterGroup]|一个统计指标分组对象集合，详见[CounterGroup 统计指标分组](#### CounterGroup 指标分组对象)
