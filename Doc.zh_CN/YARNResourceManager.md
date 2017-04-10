@@ -36,10 +36,10 @@ let yarn = YARNResourceManager(host: "yarn.somehadoopdomain.com", port: 8088, us
 service|String|服务器支持的协议 - http / https
 host|String|目标YARN资源管理器的主机名/域名或者ip地址
 port|Int|目标主机端口，默认为 8088
-auth|Authorization| 用户身份验证机制，.off表示不验证（默认），.krb5为Kerberos V5 验证方法。
+auth|Authorization| 用户身份验证机制，.off表示不验证（默认），.krb5为Kerberos V5 验证方法
 proxyUser|String|代理服务器用户，如果有的话
 apibase|String|*只有*在您的服务器编程接口API不是 `/ws/v1/cluster` 的情况下才需要设置。
-timeout|Int|连接超时设置，单位是秒。零表示传输永远不超时，保持等待直到服务器返回结果。
+timeout|Int|连接超时设置，单位是秒。零表示传输永远不超时，保持等待直到服务器返回结果
 
 ## 获取服务器基本信息
 
@@ -89,7 +89,7 @@ print(m.totalMB)
 
 一旦调用成功， `checkClusterMetrics()` 会返回如下的集群性能指标对象：
 
-### ClusterMetrics Object
+### ClusterMetrics 集群性能指标对象
 
 变量|类型|描述
 ----|---------|-----------
