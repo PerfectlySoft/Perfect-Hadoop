@@ -437,5 +437,5 @@ for group in counters.taskAttemptCounterGroup {
 
 变量|类型|描述
 ----|---------|-----------
-id|String|The job id
+id|String|作业编号
 taskAttemptcounterGroup |[CounterGroup]|一个统计指标分组对象集合，详见[CounterGroup 统计指标分组](#### CounterGroup 指标分组对象)
