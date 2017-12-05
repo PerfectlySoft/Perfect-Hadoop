@@ -23,7 +23,7 @@
 
 <p align="center">
     <a href="https://developer.apple.com/swift/" target="_blank">
-        <img src="https://img.shields.io/badge/Swift-3.0-orange.svg?style=flat" alt="Swift 3.0">
+        <img src="https://img.shields.io/badge/Swift-4.0-orange.svg?style=flat" alt="Swift 4.0">
     </a>
     <a href="https://developer.apple.com/swift/" target="_blank">
         <img src="https://img.shields.io/badge/Platforms-OS%20X%20%7C%20Linux%20-lightgray.svg?style=flat" alt="Platforms OS X | Linux">
@@ -45,7 +45,7 @@ This project provides a set of Swift classes which enable access to Hadoop serve
 
 This package builds with Swift Package Manager and is part of the [Perfect](https://github.com/PerfectlySoft/Perfect) project. It was written to be stand-alone and so does not require PerfectLib or any other components.
 
-Ensure you have installed and activated the latest Swift 3.0 tool chain.
+Ensure you have installed and activated the latest Swift tool chain.
 
 ## Issues
 
@@ -62,7 +62,7 @@ PerfectHadoop supports Hadoop 3.0.0 with a limitation on 2.7.3.
 Add this project as a dependency in your Package.swift file.
 
 ``` swift
-.Package(url:"https://github.com/PerfectlySoft/Perfect-Hadoop.git", majorVersion: 1, minor: 0)
+.Package(url:"https://github.com/PerfectlySoft/Perfect-Hadoop.git", majorVersion: 3)
 ```
 
 Then please add the following line to the beginning part of swift sources:
