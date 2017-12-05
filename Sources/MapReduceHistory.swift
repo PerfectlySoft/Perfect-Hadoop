@@ -71,7 +71,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   HistoryInfo structure, See HistoryInfo.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkInfo() throws -> Info? {
     let url = assembleURL("")
     let (_, dat, _) = try self.perform(overwriteURL: url)
@@ -93,7 +92,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   [Job], an array of Job Structures
-  @discardableResult
   public func checkJobs(user: String? = nil, state:APP.FinalStatus? = nil, queue: String? = nil, limit: Int? = nil, startedTimeBegin: Int? = nil, startedTimeEnd: Int? = nil, finishedTimeBegin: Int? = nil, finishedTimeEnd: Int? = nil) throws -> [Job] {
     var url = assembleURL("/mapreduce/jobs")
     var v: [String: Any] = [:]
@@ -148,7 +146,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exception
   /// - parameters:
   ///   jobId: String, the id of a specific job
-  @discardableResult
   public func checkJob(jobId: String) throws -> Job? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -165,7 +162,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   [JobAttempt], an array of JobAttemp structures
-  @discardableResult
   public func checkJobAttempts(jobId: String) throws -> [JobAttempt] {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -184,7 +180,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobCounters, see JobCounters structure
-  @discardableResult
   public func checkJobCounters(jobId: String) throws -> JobCounters? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -202,7 +197,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobConfig, see JobConfig structure
-  @discardableResult
   public func checkJobConfig(jobId: String) throws -> JobConfig? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -224,7 +218,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   [JobTask], an array of JobTask structures
-  @discardableResult
   public func checkJobTasks(jobId: String, taskType: QueryTaskType? = nil) throws -> [JobTask] {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -247,7 +240,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobTask, see JobTask structure
-  @discardableResult
   public func checkJobTask(jobId: String, taskId: String) throws -> JobTask? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -266,7 +258,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobTaskCounters, see JobTaskCounters structure
-  @discardableResult
   public func checkJobTaskCounters(jobId: String, taskId: String) throws -> JobTaskCounters? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -285,7 +276,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   [TaskAttempt], see TaskAttempt data structure
-  @discardableResult
   public func checkJobTaskAttempts(jobId: String, taskId: String) throws -> [TaskAttempt] {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -304,7 +294,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   TaskAttempt?, see TaskAttempt data structure
-  @discardableResult
   public func checkJobTaskAttempt(jobId: String, taskId: String, attemptId: String) throws -> TaskAttempt? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -323,7 +312,6 @@ public class MapReduceHistroy: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobTaskAttemptCounters?, see JobTaskAttemptCounters data structure
-  @discardableResult
   public func checkJobTaskAttemptCounters(jobId: String, taskId: String, attemptId: String) throws -> JobTaskAttemptCounters? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters

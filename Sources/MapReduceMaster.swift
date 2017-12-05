@@ -229,14 +229,13 @@ public class MapReduceApplication: YARNResourceManager {
   ///   the assembled url
   ///	- parameters:
   ///		- path: full path of the url
-  @discardableResult
   internal func assembleURL(path: String) -> String {
     // assamble the url path
     let url = "\(service)://\(host):\(port)\(base)/\(id)/ws/v1/mapreduce\(path)"
     if self.user.isEmpty {
       return url
     }//end if
-    return url + (url.characters.contains("?") ? "&" : "?") + "user.name=" + user.stringByEncodingURL
+    return url + (url.contains("?") ? "&" : "?") + "user.name=" + user.stringByEncodingURL
   }//end assembleURL
 
   /// When you make a request for the mapreduce application master information, the information will be returned as an info object.
@@ -244,7 +243,6 @@ public class MapReduceApplication: YARNResourceManager {
   /// Info - See definition of MapReduce Application Info
   /// - throws:
   /// Exception
-  @discardableResult
   public func checkInfo() throws -> Info? {
     let (_, dat, _) = try perform(overwriteURL: assembleURL(path: "/info"))
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -256,7 +254,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   [Job]: an array of Job Structures.
   /// - throws:
   ///   Exception
-  @discardableResult
   public func checkJobs() throws -> [Job] {
     let (_, dat, _) = try perform(overwriteURL: assembleURL(path: "/jobs"))
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -271,7 +268,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exception
   /// - parameters:
   ///   jobId: String, the id of a specific job
-  @discardableResult
   public func checkJob(jobId: String) throws -> Job? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -288,7 +284,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   [JobAttempt], an array of JobAttemp structures
-  @discardableResult
   public func checkJobAttempts(jobId: String) throws -> [JobAttempt] {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -306,7 +301,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobCounters, see JobCounters structure
-  @discardableResult
   public func checkJobCounters(jobId: String) throws -> JobCounters? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -323,7 +317,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobConfig, see JobConfig structure
-  @discardableResult
   public func checkJobConfig(jobId: String) throws -> JobConfig? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -347,7 +340,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   [JobTask], an array of JobTask structures
-  @discardableResult
   public func checkJobTasks(jobId: String, taskType: QueryTaskType? = nil) throws -> [JobTask] {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -370,7 +362,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobTask, see JobTask structure
-  @discardableResult
   public func checkJobTask(jobId: String, taskId: String) throws -> JobTask? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -389,7 +380,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobTaskCounters, see JobTaskCounters structure
-  @discardableResult
   public func checkJobTaskCounters(jobId: String, taskId: String) throws -> JobTaskCounters? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -408,7 +398,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   [TaskAttempt], see TaskAttempt data structure
-  @discardableResult
   public func checkJobTaskAttempts(jobId: String, taskId: String) throws -> [TaskAttempt] {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -427,7 +416,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   TaskAttempt?, see TaskAttempt data structure
-  @discardableResult
   public func checkJobTaskAttempt(jobId: String, taskId: String, attemptId: String) throws -> TaskAttempt? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -448,7 +436,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   TaskAttempt.State, see TaskAttempt data structure
-  @discardableResult
   public func checkJobTaskAttemptState(jobId: String, taskId: String, attemptId: String) throws -> TaskAttempt.State {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -473,7 +460,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   TaskAttempt.State, see TaskAttempt data structure
-  @discardableResult
   public func killTaskAttempt(jobId: String, taskId: String, attemptId: String) throws {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters
@@ -491,7 +477,6 @@ public class MapReduceApplication: YARNResourceManager {
   ///   Exceptions
   /// - returns:
   ///   JobTaskAttemptCounters?, see JobTaskAttemptCounters data structure
-  @discardableResult
   public func checkJobTaskAttemptCounters(jobId: String, taskId: String, attemptId: String) throws -> JobTaskAttemptCounters? {
     guard !jobId.isEmpty else {
       throw Exception.insufficientParameters

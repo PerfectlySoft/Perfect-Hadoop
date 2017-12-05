@@ -93,7 +93,7 @@ public class Base64 {
     close(pipes[0])
 
     // trim new line ending if if need
-    return autowrap ? longStr : String(longStr.characters.filter { !["\n", "\r", "\t", " "].contains($0)})
+    return autowrap ? longStr : String(longStr.filter { !["\n", "\r", "\t", " "].contains($0)})
   }//end func
 
   public static func encode(from: String, autowrap: Bool = false) -> String {

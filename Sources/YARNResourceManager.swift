@@ -760,7 +760,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   - method: HTTPMethod, usually POST / PUT, etc.
   /// - returns
   ///   the HTTP headers / body returned. *NOTE* if response include a code greater than 400, it will raise an exception
-  @discardableResult
   internal func submitRequest(url: String, extensionType: String, content: String, method: HTTPMethod = .POST) throws -> (String, String) {
 
     // validate input
@@ -819,7 +818,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   ClusterInfo structure, See ClusterInfo.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkClusterInfo() throws -> ClusterInfo? {
     let (_, dat, _) = try self.perform()
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -831,7 +829,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   ClusterMetrics structure, See ClusterMetrics.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkClusterMetrics() throws -> ClusterMetrics? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/metrics"))
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -843,7 +840,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   SchedulerInfo structure, See SchedulerInfo.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkSchedulerInfo() throws -> SchedulerInfo? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/scheduler"))
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -867,7 +863,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   [APP], See APP.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkApps(states: [APP.State] = [], finalStatus: APP.FinalStatus = .INVALID, queue: String = "", limit: Int = 0, startedTimeBegin: Int = 0, startedTimeEnd: Int = 0, finishedTimeBegin: Int = 0, finishedTimeEnd: Int = 0, applicationTypes: [String] = [], applicationTags: [String] = []) throws -> [APP] {
     var v:[String:String] = [:]
     if states.count > 0 {
@@ -925,7 +920,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   [AppStatItem], See AppStatItem.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkAppStatistics(states: [APP.State] = [], applicationTypes: [String] = []) throws -> [AppStatItem] {
     var v:[String:String] = [:]
     if states.count > 0 {
@@ -953,7 +947,6 @@ public class YARNResourceManager: YARNNodeManager {
   /// APP, See structur of APP.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public override func checkApp(id:String) throws -> APP? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)"))
     return dat.asApp
@@ -966,7 +959,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   [AppAttempt], See structur of AppAttempt.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkAppAttempts(id:String) throws -> [AppAttempt] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)/appattempts"))
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -979,7 +971,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   [Node], See Node Structure.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkClusterNodes() throws -> [Node] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes"))
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -992,7 +983,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   Node, See Node Structure.
   /// - throws:
   /// Exceptions
-  @discardableResult
   public func checkClusterNode(id: String) throws -> Node? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/nodes/\(id)"))
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -1004,7 +994,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   NewApplication, See Structure of NewApplication.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func newApplication() throws -> NewApplication? {
     guard !user.isEmpty else {
       throw Exception.insufficientParameters
@@ -1021,7 +1010,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   application: See SubmitApplication class definition
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func submit(application:SubmitApplication) throws -> String? {
 
     // check the permission
@@ -1057,7 +1045,6 @@ public class YARNResourceManager: YARNNodeManager {
   ///   id: String, the application id
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func getApplicationStatus(id: String) throws -> APP.State {
     if id.isEmpty {
       throw Exception.insufficientParameters
@@ -1099,7 +1086,6 @@ public class YARNResourceManager: YARNNodeManager {
   /// id: String, the application id
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func getApplicationQueue(id: String) throws -> String {
     if id.isEmpty {
       throw Exception.insufficientParameters
@@ -1140,7 +1126,6 @@ public class YARNResourceManager: YARNNodeManager {
   /// id: String, the application id
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func getApplicationPriority(id: String) throws -> Int {
     if id.isEmpty {
       throw Exception.insufficientParameters

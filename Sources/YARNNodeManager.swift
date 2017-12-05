@@ -173,7 +173,6 @@ public class YARNNodeManager: WebHDFS {
   ///	- parameters:
   ///		- path: full path of the api
   ///		- variables: further options to complete this operation
-  @discardableResult
   internal func assembleURL(_ path: String) -> String {
     // assamble the url path
     return "\(service)://\(host):\(port)\(base)\(path)"
@@ -184,7 +183,6 @@ public class YARNNodeManager: WebHDFS {
   ///   NodeInfo structure, See NodeInfo.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkOverall() throws -> NodeInfo? {
     let (_, dat, _) = try self.perform()
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -196,7 +194,6 @@ public class YARNNodeManager: WebHDFS {
   ///   An array of APP structure. See APP.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkApps() throws -> [APP] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps"))
     return dat.asApps
@@ -207,7 +204,6 @@ public class YARNNodeManager: WebHDFS {
   ///   An APP struct. See APP.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkApp(id: String) throws -> APP? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/apps/\(id)"))
     return dat.asApp
@@ -218,7 +214,6 @@ public class YARNNodeManager: WebHDFS {
   ///   An array of Container. See Container.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkContainers() throws -> [Container] {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/containers"))
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -231,7 +226,6 @@ public class YARNNodeManager: WebHDFS {
   ///   Container data structure. See Container.
   /// - throws:
   ///   Exceptions
-  @discardableResult
   public func checkContainer(id: String) throws -> Container? {
     let (_, dat, _) = try self.perform(overwriteURL: assembleURL("/containers/\(id)"))
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]

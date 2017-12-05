@@ -126,7 +126,6 @@ public class WebHDFS {
   /// - returns:
   ///   - header string as a whole
   ///   - an array of code number sequence
-  @discardableResult
   internal func responseCodeSequence(_ header: [UInt8]) -> (String, [Int]) {
     // validate input
     if header.isEmpty {
@@ -137,7 +136,7 @@ public class WebHDFS {
     let headerStr = String(cString: header)
 
     // filter out all http strings
-    let codes = headerStr.characters.split(separator: "\n").filter { str in
+    let codes = headerStr.split(separator: "\n").filter { str in
       // pick a line
       let s = String(str)
       // check if it starts with http
@@ -165,7 +164,6 @@ public class WebHDFS {
   ///		- operation: each webhdfs API has a unique operation string, such as CREATE / GETFILESTATUS, etc.
   ///		- path: full path of the objective file / directory.
   ///		- variables: further options to complete this operation
-  @discardableResult
   internal func assembleURL(_ operation: String, _ path: String, _ variables:[String:Any] = [:]) -> String {
     // assamble the url path
     var url = "\(service)://\(host):\(port)\(base)\(path)?op=\(operation)"
@@ -203,7 +201,6 @@ public class WebHDFS {
   ///   - overwriteURL: use this parameter to overwrite url assembled by (operation + path + veriables)
   ///   - decode: If false, the perform will not assemble the data into an ASCII string.
   ///   - moreOptions: a closure that allows set the curl object with more options
-  @discardableResult
   internal func perform(operation:String = "", path:String = "", variables:[String: Any] = [:], method: HTTPMethod = .GET, overwriteURL:String = "", decode: Bool = true, moreOptions: ((CURL)->Void)? = { _ in }) throws -> (String, String, [UInt8]) {
 
     // get the full url string
@@ -331,13 +328,12 @@ public class WebHDFS {
   /// - parameters:
   ///   - header: header of the http response
   ///   - body: body of the http response
-  @discardableResult
   internal func relocation(header: String, body: String) -> String {
     // hadoop 2.7.3
     let prefix = "Location:"
-    let locations = header.characters.split(separator: "\n")
+    let locations = header.split(separator: "\n")
       .filter { String($0).hasPrefix(prefix) }
-      .map { String(String($0).characters.dropFirst(prefix.utf8.count)) }
+      .map { String(String($0).dropFirst(prefix.utf8.count)) }
     if locations.count > 0 {
       return locations[0]
     }//end if
@@ -356,9 +352,8 @@ public class WebHDFS {
   /// [HTTP Response Code: Int]: for example "HTTP/1.1 100 Continue\nHTTP/1.1 200" will return [100, 200]
   /// - parameters:
   ///   - header: String, the response header
-  @discardableResult
   static public func getResponseCodesFrom(header: String) -> [Int] {
-    let arraies = header.uppercased().characters.split(separator: "\n").map{String($0)}.filter{ $0.hasPrefix("HTTP") }.map {$0.characters.split(separator: " ").map{String($0)}}
+    let arraies = header.uppercased().split(separator: "\n").map{String($0)}.filter{ $0.hasPrefix("HTTP") }.map {$0.split(separator: " ").map{String($0)}}
     var ret = [Int]()
     arraies.forEach { a in
       if a.count > 1 {
@@ -379,7 +374,6 @@ public class WebHDFS {
   ///   - buffersize: The size of the buffer used in transferring data.
   /// - throws:
   ///   Invalid file / unauthorized operation
-  @discardableResult
   public func openFile(path:String, offset: Int = 0, length: Int = -1, buffersize: Int = 0) throws -> [UInt8] {
 
     var v: [String:Any] = [:]
@@ -413,7 +407,6 @@ public class WebHDFS {
   ///	FileStatus
   ///	- parameters:
   ///		- path: full path of the remote file / directory.
-  @discardableResult
   public func getFileStatus(path:String) throws -> FileStatus? {
     let (_, dat, _) = try perform(operation: "GETFILESTATUS", path: path)
     let dic = try dat.jsonDecode() as? [String:Any] ?? [:]
@@ -425,7 +418,6 @@ public class WebHDFS {
   ///	[FileStatus]
   ///	- parameters:
   ///		- path: full path of the remote file / directory.
-  @discardableResult
   public func listStatus(path:String) throws -> [FileStatus] {
     // perform a request
     let (_, dat, _) = try perform(operation: "LISTSTATUS", path: path)
@@ -438,7 +430,6 @@ public class WebHDFS {
   ///	ContentSummary
   ///	- parameters:
   ///		- path: full path of the remote file / directory.
-  @discardableResult
   public func getDirectoryContentSummary(path:String) throws -> ContentSummary? {
     // perform a request
     let (_, dat, _) = try perform(operation: "GETCONTENTSUMMARY", path: path)
@@ -451,7 +442,6 @@ public class WebHDFS {
   ///	FileCheckSum
   ///	- parameters:
   ///		- path: full path of the remote file / directory.
-  @discardableResult
   public func getFileCheckSum(path:String) throws -> FileChecksum? {
     // perform a request
     let (_, dat, _) = try perform(operation: "GETFILECHECKSUM", path: path) {
@@ -465,7 +455,6 @@ public class WebHDFS {
   /// Get Home Directory
   /// - returns:
   ///	a string of path
-  @discardableResult
   public func getHomeDirectory() throws -> String {
     // perform a request
     let (_, dat, _) = try perform(operation: "GETHOMEDIRECTORY", path: "/")
@@ -478,7 +467,6 @@ public class WebHDFS {
   ///		- permission: unix style file permission (u)rwx (g)rwx (o)rwx. Default is 755, i.e., rwxr-xr-x
   /// - throws:
   ///	unauthorized access
-  @discardableResult
   public func mkdir(path:String, permission: Int = 755) throws {
     // perform a request
     let (_, dat, _) = try perform(operation: "MKDIRS", path: path, variables: ["permission": permission], method: .PUT)
@@ -494,7 +482,6 @@ public class WebHDFS {
   ///		- recursive: delete (a directory) recursively.
   /// - throws:
   ///   unauthorized access / Invalid file or directory.
-  @discardableResult
   public func delete(path:String, recursive: Bool = true) throws {
 
     // perform a request
@@ -516,7 +503,6 @@ public class WebHDFS {
   ///		- buffersize: The size of the buffer used in transferring data.
   /// - throws:
   ///   unauthorized access / Invalid file or directory.
-  @discardableResult
   public func create(path:String, localFile:String, overwrite: Bool = false, permission: Int = 644, blocksize: CLong = 1048576, replication: CShort = -1, buffersize: Int = -1) throws{
 
     // prepare local file information
@@ -591,7 +577,6 @@ public class WebHDFS {
   ///		- buffersize: The size of the buffer used in transferring data.
   /// - throws:
   ///   unauthorized access / Invalid file or directory.
-  @discardableResult
   public func append(path:String, localFile:String, buffersize: Int = -1) throws {
 
     // prepare local file information
@@ -654,7 +639,6 @@ public class WebHDFS {
   ///		- sources: A list of source paths.
   /// - throws:
   ///   unauthorized access / Invalid file or directory / Unsupport Operation.
-  @discardableResult
   public func concat(path:String, sources:[String]) throws {
 
     // check the file names before operation
@@ -677,7 +661,6 @@ public class WebHDFS {
   ///		- createParent: create full path even parent path does not exist
   /// - throws:
   ///   unauthorized access / Invalid file or directory / Unsupport Operation.
-  @discardableResult
   public func createSymLink(path: String, destination: String, createParent: Bool) throws{
 
     // fill up the variables
@@ -695,7 +678,6 @@ public class WebHDFS {
   ///		- newlength: new length of the file
   /// - throws:
   ///   unauthorized access / Invalid file or directory / Unsupport Operation.
-  @discardableResult
   public func truncate(path: String, newlength:CLong) throws {
 
     // check if the length is valid
@@ -732,7 +714,6 @@ public class WebHDFS {
   ///   - permission: oct permission of (u)rwx(g)rwx(o)rwx
   /// - throws
   ///   unauthorized access / Invalid file or directory
-  @discardableResult
   public func setPermission(path: String, permission: Int) throws {
     guard permission >= 0 else {
       throw Exception.unsupportedOperation(of: "invalid permission oct")
@@ -749,7 +730,6 @@ public class WebHDFS {
   ///   - group: group's name
   /// - throws
   /// unauthorized access / Invalid file or directory
-  @discardableResult
   public func setOwner(path: String, name: String, group:String) throws {
 
     let _ = try perform(operation: "SETOWNER", path:path, variables: ["owner": name, "group": group], method:.PUT)
@@ -761,7 +741,6 @@ public class WebHDFS {
   ///   - replication: replication factor
   /// - throws
   ///   unauthorized access / Invalid file or directory
-  @discardableResult
   public func setReplication(path: String, factor:ushort) throws {
 
     // perform the test
@@ -781,7 +760,6 @@ public class WebHDFS {
   ///   - access: access time of the file / directory
   /// - throws
   ///   unauthorized access / Invalid file or directory
-  @discardableResult
   public func setTimes(path: String, modification: Int = -1, access: Int = -1) throws{
     // prepare the variables
     var times = [String:Any]()
@@ -806,7 +784,6 @@ public class WebHDFS {
   /// AclStatus
   /// - parameters:
   ///   - path: full path of the remote file / directory
-  @discardableResult
   public func getACL(path: String) throws -> AclStatus? {
     // perform a request
     let (_, dat, _) = try perform(operation: "GETACLSTATUS", path: path)
@@ -820,7 +797,6 @@ public class WebHDFS {
   ///   - specification: ACL spec string, such as "user::rwx,user:user1:---,group::rwx,other::rwx"
   /// - throws
   ///   unauthorized access / Invalid file or directory
-  @discardableResult
   public func setACL(path: String, specification: String) throws {
     // perform the test
     let _ = try perform(operation: "SETACL", path:path, variables: ["aclspec":specification], method:.PUT)
@@ -832,7 +808,6 @@ public class WebHDFS {
   ///   - entries: ACL spec string, such as "user::rwx,user:user1:---,group::rwx,other::rwx"
   /// - throws
   ///   unauthorized access / Invalid file or directory
-  @discardableResult
   public func modifyACL(path: String, entries: String) throws {
 
     // perform the test
@@ -845,7 +820,6 @@ public class WebHDFS {
   ///   - entries: ACL spec string, such as "user::rwx,user:user1:---,group::rwx,other::rwx"
   /// - throws
   /// unauthorized access / Invalid file or directory
-  @discardableResult
   public func removeACL(path: String, entries: String = "", defaultACL:Bool = false) throws {
 
     if defaultACL {
@@ -866,7 +840,6 @@ public class WebHDFS {
   /// unexpectedResponse
   /// - returns:
   /// true for access granted, false for access denied
-  @discardableResult
   public func checkAccess(path: String, fsaction: String) throws -> Bool {
     let (_,dat,_) = try perform(operation: "CHECKACCESS", path:path, variables:["fscation": fsaction])
     return dat.asBoolean
@@ -880,7 +853,6 @@ public class WebHDFS {
   ///   - flag: xattr flag, only valid for CREATE OR REPLACE
   /// - throws:
   /// unauthorized access / Invaid file or directory
-  @discardableResult
   public func setXAttr(path: String, name: String, value: String, flag: XAttrFlag = .CREATE) throws {
 
     // perform a request
@@ -893,7 +865,6 @@ public class WebHDFS {
   ///   - name: xattr name
   /// - throws:
   /// unauthorized access / Invaid file or directory
-  @discardableResult
   public func removeXAttr(path: String, name: String) throws {
     // perform a request
     let _ = try perform(operation: "REMOVEXATTR", path: path, variables: ["xattr.name": name], method:.PUT)
@@ -908,7 +879,6 @@ public class WebHDFS {
   ///   - encoding: value encoding
   /// - throws:
   /// unauthorized access / Invaid file or directory
-  @discardableResult
   public func getXAttr(path: String, name: [String] = [], encoding: String = "") throws -> [XAttr] {
 
     var url = assembleURL("GETXATTRS", path)
@@ -938,7 +908,6 @@ public class WebHDFS {
   ///   - path: full path of the remote file / directory
   /// - throws:
   /// unauthorized access / Invaid file or directory
-  @discardableResult
   public func listXAttr(path: String) throws -> [String] {
 
     // perform a request
@@ -956,7 +925,6 @@ public class WebHDFS {
   ///   - name: snapshot name
   /// - throws:
   /// unauthorized access / Invaid file or directory
-  @discardableResult
   public func createSnapshot(path: String) throws -> (String, String) {
 
     // perform a request
@@ -965,7 +933,7 @@ public class WebHDFS {
     // decode the json return
     let shot = dat.asPath
 
-    let array = shot.characters.split(separator: "/").map(String.init)
+    let array = shot.split(separator: "/").map(String.init)
     if array.isEmpty {
       throw Exception.unexpectedReturn
     }//end if
@@ -979,7 +947,6 @@ public class WebHDFS {
   ///   - name: snapshot name
   /// - throws:
   /// unauthorized access / Invaid file or directory
-  @discardableResult
   public func deleteSnapshot(path: String, name: String) throws	{
 
     // perform a request
@@ -993,7 +960,6 @@ public class WebHDFS {
   ///   - to: new name of the snapshot
   /// - throws:
   /// unauthorized access / Invaid file or directory
-  @discardableResult
   public func renameSnapshot(path: String, from: String, to: String) throws {
 
     // perform a request
